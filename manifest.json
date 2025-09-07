@@ -1,0 +1,67 @@
+{
+  "manifest_version": 3,
+  "name": "Wi-Fi Kickstart - Epic Network Testing Suite",
+  "version": "2.0.0",
+  "description": "Professional network diagnostics with epic speed testing, real-time monitoring, and comprehensive analysis tools.",
+  "homepage_url": "https://keithdriscoll.nyc",
+  
+  "permissions": [
+    "tabs",
+    "storage",
+    "alarms",
+    "activeTab"
+  ],
+  
+  "host_permissions": [
+    "https://*.google.com/*",
+    "https://*.cloudflare.com/*",
+    "https://*.netflix.com/*",
+    "https://*.amazon.com/*",
+    "https://*.microsoft.com/*",
+    "https://fast.com/*",
+    "https://speed.cloudflare.com/*",
+    "https://ipinfo.io/*",
+    "https://ipapi.co/*",
+    "https://download.thinkbroadband.com/*",
+    "https://proof.ovh.net/*",
+    "https://speedtest.selectel.ru/*",
+    "https://httpbin.org/*",
+    "http://neverssl.com/*"
+  ],
+  
+  "background": {
+    "service_worker": "background/background.js",
+    "type": "module"
+  },
+  
+  "action": {
+    "default_title": "Wi-Fi Kickstart",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  
+  "web_accessible_resources": [{
+    "resources": [
+      "dashboard/*",
+      "settings/*",
+      "shared/*",
+      "themes/*",
+      "icons/*"
+    ],
+    "matches": ["<all_urls>"]
+  }],
+  
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}

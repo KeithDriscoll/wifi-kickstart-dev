@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wi-Fi Kickstart</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <!-- Settings Toggle -->
+  <button class="settings-toggle" id="settingsToggle" aria-label="Toggle settings">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="3"></circle>
+      <path d="M12 1v6m0 6v6m4.22-13.22l4.24 4.24M1.54 12H6m6 6v4.5"></path>
+    </svg>
+  </button>
+
+  <!-- Main Container -->
+  <div class="popup-container">
+    <!-- Header -->
+    <header class="popup-header">
+      <div class="header-content">
+        <h1 class="popup-title">
+          <span class="title-icon">🚀</span>
+          Wi-Fi Kickstart
+        </h1>
+        <div class="version-badge">v2.0</div>
+      </div>
+      <p class="popup-subtitle">Professional Network Testing Suite</p>
+    </header>
+
+    <!-- Quick Actions -->
+    <section class="quick-actions">
+      <button class="action-card dashboard-card" id="openDashboard">
+        <div class="card-icon">📊</div>
+        <div class="card-content">
+          <div class="card-title">Dashboard</div>
+          <div class="card-subtitle">Analytics & Charts</div>
+        </div>
+        <div class="card-arrow">→</div>
+      </button>
+
+      <button class="action-card epic-card" id="quickEpicTest">
+        <div class="card-icon">⚡</div>
+        <div class="card-content">
+          <div class="card-title">Epic Speed Test</div>
+          <div class="card-subtitle">Full Analysis</div>
+        </div>
+        <div class="card-arrow">→</div>
+      </button>
+    </section>
+
+    <!-- Network Status -->
+    <section class="network-status">
+      <h2 class="section-title">Current Network</h2>
+      
+      <div class="status-grid">
+        <div class="status-item">
+          <div class="status-label">IP Address</div>
+          <div class="status-value" id="ipAddress">
+            <span class="loading-dot"></span>
+            <span class="loading-dot"></span>
+            <span class="loading-dot"></span>
+          </div>
+        </div>
+        
+        <div class="status-item">
+          <div class="status-label">Location</div>
+          <div class="status-value" id="location">Loading...</div>
+        </div>
+        
+        <div class="status-item">
+          <div class="status-label">Provider</div>
+          <div class="status-value" id="provider">Loading...</div>
+        </div>
+        
+        <div class="status-item">
+          <div class="status-label">Connection</div>
+          <div class="status-value" id="connectionType">Loading...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Metrics -->
+    <section class="quick-metrics" id="quickMetrics">
+      <h2 class="section-title">Quick Metrics</h2>
+      
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-value" id="latencyValue">--</div>
+          <div class="metric-label">Latency (ms)</div>
+        </div>
+        
+        <div class="metric-card">
+          <div class="metric-value" id="speedValue">--</div>
+          <div class="metric-label">Speed (Mbps)</div>
+        </div>
+        
+        <div class="metric-card">
+          <div class="metric-value" id="scoreValue">--</div>
+          <div class="metric-label">Score</div>
+        </div>
+      </div>
+      
+      <button class="test-button" id="runQuickTest">
+        <span class="button-icon">🔍</span>
+        Run Quick Test
+      </button>
+    </section>
+
+    <!-- Advanced Features -->
+    <section class="advanced-features" id="advancedFeatures">
+      <h2 class="section-title">Advanced Tools</h2>
+      
+      <div class="feature-list">
+        <button class="feature-item" id="openSettings">
+          <span class="feature-icon">⚙️</span>
+          <span class="feature-text">Epic Settings</span>
+        </button>
+        
+        <button class="feature-item" id="exportData">
+          <span class="feature-icon">💾</span>
+          <span class="feature-text">Export Data</span>
+        </button>
+        
+        <button class="feature-item" id="clearHistory">
+          <span class="feature-icon">🗑️</span>
+          <span class="feature-text">Clear History</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="popup-footer">
+      <div class="footer-content">
+        <span class="footer-text">Made with ❤️ in NYC</span>
+        <a href="https://keithdriscoll.nyc" target="_blank" class="footer-link">About</a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Settings Panel (Slide-out) -->
+  <div class="settings-panel" id="settingsPanel">
+    <div class="settings-header">
+      <h2 class="settings-title">Settings</h2>
+      <button class="settings-close" id="closeSettings">×</button>
+    </div>
+    
+    <div class="settings-content">
+      <!-- Interface Mode -->
+      <div class="settings-section">
+        <h3 class="settings-section-title">Interface</h3>
+        
+        <div class="setting-item">
+          <div class="setting-label">
+            <span>Dark Mode</span>
+            <span class="setting-description">Toggle dark theme</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="darkModeToggle" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        
+        <div class="setting-item">
+          <div class="setting-label">
+            <span>Zen Mode</span>
+            <span class="setting-description">Simplified interface</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="zenModeToggle">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+      
+      <!-- Test Configuration -->
+      <div class="settings-section">
+        <h3 class="settings-section-title">Testing</h3>
+        
+        <div class="setting-item">
+          <div class="setting-label">
+            <span>Auto Test</span>
+            <span class="setting-description">Test on network change</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="autoTestToggle">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        
+        <div class="setting-item">
+          <div class="setting-label">
+            <span>Default Test Mode</span>
+          </div>
+          <select class="setting-select" id="defaultTestMode">
+            <option value="quick">Quick</option>
+            <option value="standard" selected>Standard</option>
+            <option value="thorough">Thorough</option>
+            <option value="gaming">Gaming</option>
+          </select>
+        </div>
+      </div>
+      
+      <!-- Features -->
+      <div class="settings-section">
+        <h3 class="settings-section-title">Features</h3>
+        
+        <div class="setting-item">
+          <div class="setting-label">
+            <span>VPN Detection</span>
+            <span class="setting-description">Check VPN status</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="vpnDetectionToggle" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        
+        <div class="setting-item">
+          <div class="setting-label">
+            <span>WARP Detection</span>
+            <span class="setting-description">Check Cloudflare WARP</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="warpDetectionToggle" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        
+        <div class="setting-item">
+          <div class="setting-label">
+            <span>Captive Portal</span>
+            <span class="setting-description">Auto-detect login pages</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="captivePortalToggle" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+      
+      <!-- Theme Selection -->
+      <div class="settings-section">
+        <h3 class="settings-section-title">Theme</h3>
+        
+        <div class="theme-grid">
+          <button class="theme-option" data-theme="default">
+            <div class="theme-preview default-preview"></div>
+            <span>Default</span>
+          </button>
+          <button class="theme-option" data-theme="ocean">
+            <div class="theme-preview ocean-preview"></div>
+            <span>Ocean</span>
+          </button>
+          <button class="theme-option" data-theme="sunset">
+            <div class="theme-preview sunset-preview"></div>
+            <span>Sunset</span>
+          </button>
+          <button class="theme-option" data-theme="forest">
+            <div class="theme-preview forest-preview"></div>
+            <span>Forest</span>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Actions -->
+      <div class="settings-section">
+        <button class="settings-button primary" id="saveSettings">Save Settings</button>
+        <button class="settings-button secondary" id="resetSettings">Reset to Defaults</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Running Epic Test...</div>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

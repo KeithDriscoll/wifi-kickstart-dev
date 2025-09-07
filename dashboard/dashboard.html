@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wi-Fi Kickstart Dashboard - Professional Network Analytics</title>
+  
+  <!-- Dashboard Styles -->
+  <link rel="stylesheet" href="dashboard.css">
+  <link rel="stylesheet" href="epic-overlay.css">
+</head>
+<body class="dark-mode">
+  <!-- Dark Mode Toggle -->
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <!-- Fullscreen Button -->
+  <button class="fullscreen-toggle" id="fullscreenToggle" aria-label="Toggle fullscreen">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+    </svg>
+  </button>
+
+  <!-- Settings Panel Toggle -->
+  <button class="settings-panel-toggle" id="settingsPanelToggle" aria-label="Toggle settings">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <circle cx="12" cy="12" r="3"></circle>
+      <path d="M12 1v6m0 6v6m4.22-13.22l4.24 4.24M1.54 12H6m6 6v4.5"></path>
+    </svg>
+  </button>
+
+  <!-- Main Dashboard Container -->
+  <div class="dashboard-container" id="dashboardContainer">
+    <!-- Header Section -->
+    <header class="dashboard-header">
+      <div class="header-content">
+        <h1 class="dashboard-title">
+          <span class="title-icon">🚀</span>
+          Wi-Fi Kickstart Dashboard
+        </h1>
+        <p class="dashboard-subtitle">Professional Network Diagnostics & Performance Monitoring</p>
+      </div>
+      
+      <div class="header-actions">
+        <button class="header-btn" id="refreshBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          Refresh
+        </button>
+        <button class="header-btn epic-btn" id="epicTestBtn">
+          <span>⚡</span>
+          Epic Test
+        </button>
+      </div>
+    </header>
+
+    <!-- Real-time Status Bar (Sortable Section) -->
+    <section class="status-section dashboard-section" data-section="status">
+      <div class="section-header">
+        <h2 class="section-title">Real-time Network Status</h2>
+        <div class="section-controls">
+          <button class="sort-btn" data-direction="up">↑</button>
+          <button class="sort-btn" data-direction="down">↓</button>
+        </div>
+      </div>
+      
+      <div class="status-cards">
+        <div class="status-card">
+          <div class="status-icon">⚡</div>
+          <div class="status-content">
+            <div class="status-value" id="currentLatency">--</div>
+            <div class="status-label">Latency (ms)</div>
+          </div>
+        </div>
+        
+        <div class="status-card">
+          <div class="status-icon">📊</div>
+          <div class="status-content">
+            <div class="status-value" id="currentSpeed">--</div>
+            <div class="status-label">Speed (Mbps)</div>
+          </div>
+        </div>
+        
+        <div class="status-card">
+          <div class="status-icon">📈</div>
+          <div class="status-content">
+            <div class="status-value" id="currentJitter">--</div>
+            <div class="status-label">Jitter (ms)</div>
+          </div>
+        </div>
+        
+        <div class="status-card">
+          <div class="status-icon">🎯</div>
+          <div class="status-content">
+            <div class="status-value" id="networkScore">--</div>
+            <div class="status-label">Network Score</div>
+          </div>
+        </div>
+        
+        <div class="status-card">
+          <div class="status-icon">📦</div>
+          <div class="status-content">
+            <div class="status-value" id="packetLoss">--</div>
+            <div class="status-label">Packet Loss (%)</div>
+          </div>
+        </div>
+        
+        <div class="status-card">
+          <div class="status-icon">🌐</div>
+          <div class="status-content">
+            <div class="status-value" id="connectionQuality">--</div>
+            <div class="status-label">Quality</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Network Information Panel (Sortable Section) -->
+    <section class="info-section dashboard-section" data-section="info">
+      <div class="section-header">
+        <h2 class="section-title">Network Information</h2>
+        <div class="section-controls">
+          <button class="sort-btn" data-direction="up">↑</button>
+          <button class="sort-btn" data-direction="down">↓</button>
+        </div>
+      </div>
+      
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-label">IP Address</div>
+          <div class="info-value" id="ipAddress">Loading...</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Location</div>
+          <div class="info-value" id="location">Loading...</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Provider</div>
+          <div class="info-value" id="provider">Loading...</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">WARP Status</div>
+          <div class="info-value" id="warpStatus">Checking...</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">VPN Status</div>
+          <div class="info-value" id="vpnStatus">Detecting...</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Connection Type</div>
+          <div class="info-value" id="connectionType">Analyzing...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Performance Charts Grid (Sortable Section) -->
+    <section class="charts-section dashboard-section" data-section="charts">
+      <div class="section-header">
+        <h2 class="section-title">Performance Analytics</h2>
+        <div class="section-controls">
+          <button class="sort-btn" data-direction="up">↑</button>
+          <button class="sort-btn" data-direction="down">↓</button>
+        </div>
+      </div>
+      
+      <div class="charts-grid" id="chartsGrid">
+        <!-- Performance Over Time Chart -->
+        <div class="chart-container" data-chart="performance">
+          <div class="chart-header">
+            <h3 class="chart-title">Network Performance Over Time</h3>
+            <div class="chart-actions">
+              <button class="chart-btn" data-action="refresh" aria-label="Refresh">↻</button>
+              <button class="chart-btn" data-action="expand" aria-label="Expand">⛶</button>
+            </div>
+          </div>
+          <canvas id="performanceChart" class="chart-canvas"></canvas>
+        </div>
+        
+        <!-- Speed Test History Chart -->
+        <div class="chart-container" data-chart="speed">
+          <div class="chart-header">
+            <h3 class="chart-title">Speed Test History</h3>
+            <div class="chart-actions">
+              <button class="chart-btn" data-action="refresh" aria-label="Refresh">↻</button>
+              <button class="chart-btn" data-action="expand" aria-label="Expand">⛶</button>
+            </div>
+          </div>
+          <canvas id="speedChart" class="chart-canvas"></canvas>
+        </div>
+        
+        <!-- Latency Distribution Chart -->
+        <div class="chart-container" data-chart="latency">
+          <div class="chart-header">
+            <h3 class="chart-title">Latency Distribution</h3>
+            <div class="chart-actions">
+              <button class="chart-btn" data-action="refresh" aria-label="Refresh">↻</button>
+              <button class="chart-btn" data-action="expand" aria-label="Expand">⛶</button>
+            </div>
+          </div>
+          <canvas id="latencyChart" class="chart-canvas"></canvas>
+        </div>
+        
+        <!-- Network Score Trend Chart -->
+        <div class="chart-container" data-chart="score">
+          <div class="chart-header">
+            <h3 class="chart-title">Network Score Trend</h3>
+            <div class="chart-actions">
+              <button class="chart-btn" data-action="refresh" aria-label="Refresh">↻</button>
+              <button class="chart-btn" data-action="expand" aria-label="Expand">⛶</button>
+            </div>
+          </div>
+          <canvas id="scoreChart" class="chart-canvas"></canvas>
+        </div>
+        
+        <!-- Provider Performance Chart -->
+        <div class="chart-container" data-chart="provider">
+          <div class="chart-header">
+            <h3 class="chart-title">Provider Performance</h3>
+            <div class="chart-actions">
+              <button class="chart-btn" data-action="refresh" aria-label="Refresh">↻</button>
+              <button class="chart-btn" data-action="expand" aria-label="Expand">⛶</button>
+            </div>
+          </div>
+          <canvas id="providerChart" class="chart-canvas"></canvas>
+        </div>
+        
+        <!-- Quality Distribution Chart -->
+        <div class="chart-container" data-chart="quality">
+          <div class="chart-header">
+            <h3 class="chart-title">Connection Quality</h3>
+            <div class="chart-actions">
+              <button class="chart-btn" data-action="refresh" aria-label="Refresh">↻</button>
+              <button class="chart-btn" data-action="expand" aria-label="Expand">⛶</button>
+            </div>
+          </div>
+          <canvas id="qualityChart" class="chart-canvas"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Statistics Summary (Sortable Section) -->
+    <section class="stats-section dashboard-section" data-section="stats">
+      <div class="section-header">
+        <h2 class="section-title">Session Statistics</h2>
+        <div class="section-controls">
+          <button class="sort-btn" data-direction="up">↑</button>
+          <button class="sort-btn" data-direction="down">↓</button>
+        </div>
+      </div>
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">📊</div>
+          <div class="stat-content">
+            <div class="stat-value" id="avgLatency">--</div>
+            <div class="stat-label">Avg Latency</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⚡</div>
+          <div class="stat-content">
+            <div class="stat-value" id="avgSpeed">--</div>
+            <div class="stat-label">Avg Speed</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🏆</div>
+          <div class="stat-content">
+            <div class="stat-value" id="bestScore">--</div>
+            <div class="stat-label">Best Score</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⏱️</div>
+          <div class="stat-content">
+            <div class="stat-value" id="uptime">--</div>
+            <div class="stat-label">Uptime</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📈</div>
+          <div class="stat-content">
+            <div class="stat-value" id="testsRun">0</div>
+            <div class="stat-label">Tests Run</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🔄</div>
+          <div class="stat-content">
+            <div class="stat-value" id="lastUpdated">Never</div>
+            <div class="stat-label">Last Updated</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="dashboard-footer">
+      <div class="footer-content">
+        <div class="footer-left">
+          <span class="footer-text">Made with ❤️ in NYC</span>
+          <span class="footer-separator">•</span>
+          <span class="footer-version">v2.0.0</span>
+        </div>
+        <div class="footer-right">
+          <button class="footer-link" id="exportData">Export Data</button>
+          <span class="footer-separator">•</span>
+          <button class="footer-link" id="clearHistory">Clear History</button>
+          <span class="footer-separator">•</span>
+          <a href="https://keithdriscoll.nyc" target="_blank" class="footer-link">About</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Settings Flyout Panel -->
+  <div class="settings-flyout" id="settingsFlyout">
+    <div class="flyout-header">
+      <h2 class="flyout-title">Dashboard Settings</h2>
+      <button class="flyout-close" id="closeFlyout">×</button>
+    </div>
+    
+    <div class="flyout-content">
+      <!-- Chart Settings -->
+      <div class="flyout-section">
+        <h3 class="flyout-section-title">Charts</h3>
+        
+        <div class="setting-row">
+          <label>Update Interval</label>
+          <select id="chartUpdateInterval">
+            <option value="1000">1 second</option>
+            <option value="5000" selected>5 seconds</option>
+            <option value="10000">10 seconds</option>
+            <option value="30000">30 seconds</option>
+          </select>
+        </div>
+        
+        <div class="setting-row">
+          <label>Data Points</label>
+          <input type="range" id="chartDataPoints" min="10" max="100" value="50">
+          <span id="dataPointsValue">50</span>
+        </div>
+        
+        <div class="setting-row">
+          <label>Animation</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="chartAnimation" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+      
+      <!-- Display Settings -->
+      <div class="flyout-section">
+        <h3 class="flyout-section-title">Display</h3>
+        
+        <div class="setting-row">
+          <label>Compact Mode</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="compactMode">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        
+        <div class="setting-row">
+          <label>Show Notifications</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="showNotifications" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        
+        <div class="setting-row">
+          <label>Auto Refresh</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="autoRefresh" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+      
+      <!-- Test Settings -->
+      <div class="flyout-section">
+        <h3 class="flyout-section-title">Testing</h3>
+        
+        <div class="setting-row">
+          <label>Default Test Mode</label>
+          <select id="defaultTestMode">
+            <option value="quick">Quick</option>
+            <option value="standard" selected>Standard</option>
+            <option value="thorough">Thorough</option>
+            <option value="gaming">Gaming</option>
+          </select>
+        </div>
+        
+        <div class="setting-row">
+          <label>Auto Test on Load</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="autoTestOnLoad">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        
+        <div class="setting-row">
+          <button class="settings-btn" id="openFullSettings">
+            <span>⚙️</span> Full Settings
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Epic Speed Test Overlay -->
+  <div class="epic-overlay" id="epicOverlay">
+    <!-- Overlay content will be loaded here -->
+  </div>
+
+  <!-- Chart Modal for Expanded View -->
+  <div class="chart-modal" id="chartModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modalTitle">Chart Title</h2>
+        <button class="modal-close" id="closeModal">×</button>
+      </div>
+      <div class="modal-body">
+        <canvas id="modalChart" class="modal-chart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Container -->
+  <div class="notification-container" id="notificationContainer"></div>
+
+  <!-- External Libraries (Local) -->
+  <script src="../shared/chart.min.js"></script>
+  <script src="../shared/sortable.min.js"></script>
+  
+  <!-- Dashboard Scripts -->
+  <script type="module" src="dashboard.js"></script>
+  <script type="module" src="epic-overlay.js"></script>
+</body>
+</html>
