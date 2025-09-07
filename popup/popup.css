@@ -155,7 +155,9 @@ body.zen-mode .network-status {
   font-size: 24px;
   font-weight: 700;
   background: var(--gradient-primary);
+  background: var(--gradient-primary);
   -webkit-background-clip: text;
+  background-clip: text;  /* Add this line */
   -webkit-text-fill-color: transparent;
   display: flex;
   align-items: center;
