@@ -8,6 +8,22 @@ let epicEngine = null;
 let testHistory = [];
 let currentConfig = {};
 
+// Initialize engine on startup (not just on install)
+async function initializeEngine() {
+  if (!epicEngine) {
+    console.log('🔥 Initializing Epic Engine...');
+    epicEngine = new EpicNetworkMetrics();
+    
+    // Load saved config
+    const result = await chrome.storage.local.get(['epicConfig', 'testHistory', 'theme']);
+    currentConfig = result.epicConfig || getDefaultConfig();
+    testHistory = result.testHistory || [];
+  }
+}
+
+// Initialize immediately when background script loads
+initializeEngine();
+
 // Load configuration on startup
 chrome.runtime.onInstalled.addListener(async () => {
   console.log('🚀 Wi-Fi Kickstart installed/updated');
@@ -150,7 +166,7 @@ function getTestConfig(mode) {
         fileSizes: ['1MB'], 
         iterations: 1, 
         parallelConnections: 2,
-        servers: 2
+        servers: ['cloudflare', 'google']
       },
       uploadTests: { 
         enabled: true,
@@ -176,7 +192,7 @@ function getTestConfig(mode) {
         fileSizes: ['1MB', '5MB', '10MB'], 
         iterations: 3, 
         parallelConnections: 4,
-        servers: 3
+        servers: ['cloudflare', 'google', 'amazon']
       },
       uploadTests: { 
         enabled: true,
@@ -206,7 +222,7 @@ function getTestConfig(mode) {
         fileSizes: ['1MB', '5MB', '10MB', '25MB', '50MB'], 
         iterations: 5, 
         parallelConnections: 6,
-        servers: 4
+        servers: ['cloudflare', 'google', 'amazon', 'netflix', 'ovh']  // More servers for comprehensive testing
       },
       uploadTests: { 
         enabled: true,
@@ -240,7 +256,7 @@ function getTestConfig(mode) {
         fileSizes: ['5MB', '10MB'], 
         iterations: 2, 
         parallelConnections: 4,
-        servers: 2
+        servers: ['cloudflare', 'google']  // Fast, low-latency servers for gaming
       },
       uploadTests: { 
         enabled: true,
