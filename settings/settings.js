@@ -24,6 +24,9 @@ class SettingsController {
     
     // Load storage stats
     await this.loadStorageStats();
+
+    // Theme System:
+    await this.initThemeSystem();
     
     console.log('✅ Settings initialized successfully!');
   }
@@ -1151,6 +1154,494 @@ class SettingsController {
       setTimeout(() => toast.remove(), 300);
     }, 3000);
   }
+/**
+ * 🎨 CORRECTED SETTINGS INTEGRATION FOR EXISTING SettingsController
+ * Add these methods to your existing SettingsController class
+ */
+
+// ADD THESE METHODS TO YOUR EXISTING SettingsController CLASS:
+
+// Add this to your existing init() method:
+async init() {
+  console.log('🔥 Initializing Epic Settings...');
+  
+  // Your existing initialization code...
+  await this.loadConfiguration();
+  this.setupEventListeners();
+  this.applySettingsToUI();
+  await this.loadStorageStats();
+  
+  // ADD THIS LINE:
+  await this.initThemeSystem();
+  
+  console.log('✅ Settings initialized successfully!');
+}
+
+// ADD THESE NEW METHODS TO YOUR SettingsController CLASS:
+
+// Initialize theme system integration
+async initThemeSystem() {
+  console.log('🎨 Initializing theme system integration...');
+  
+  // Wait for ThemeManager to be ready
+  if (!window.ThemeManager || !window.ThemeManager.isInitialized) {
+    setTimeout(() => this.initThemeSystem(), 100);
+    return;
+  }
+
+  // Setup theme event listeners
+  this.setupThemeEventListeners();
+  
+  // Load and display themes
+  this.loadBuiltinThemes();
+  this.loadCustomThemes();
+  
+  // Update current theme display
+  this.updateCurrentThemeDisplay();
+  
+  // Setup background image handlers
+  this.setupBackgroundHandlers();
+  
+  console.log('✅ Theme system integration initialized!');
+}
+
+// Setup theme-related event listeners
+setupThemeEventListeners() {
+  // Built-in theme selection
+  document.querySelectorAll('#builtinThemeGrid .theme-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+      const themeId = e.currentTarget.dataset.theme;
+      this.selectTheme(themeId);
+    });
+  });
+
+  // Create custom theme button
+  document.getElementById('createThemeBtn')?.addEventListener('click', () => {
+    this.openCustomThemeBuilder();
+  });
+
+  // Import theme button
+  document.getElementById('importThemeBtn')?.addEventListener('click', () => {
+    document.getElementById('importThemeFile').click();
+  });
+
+  // Import theme file
+  document.getElementById('importThemeFile')?.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+      this.importTheme(e.target.files[0]);
+    }
+  });
+
+  // Background upload
+  document.getElementById('uploadBackgroundBtn')?.addEventListener('click', () => {
+    document.getElementById('backgroundUpload').click();
+  });
+
+  document.getElementById('backgroundUpload')?.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+      this.uploadBackground(e.target.files[0]);
+    }
+  });
+
+  // Background controls
+  document.getElementById('changeBackgroundBtn')?.addEventListener('click', () => {
+    document.getElementById('backgroundUpload').click();
+  });
+
+  document.getElementById('removeBackgroundBtn')?.addEventListener('click', () => {
+    this.removeBackground();
+  });
+
+  // Background settings sliders
+  document.getElementById('bgOpacity')?.addEventListener('input', (e) => {
+    this.updateBackgroundSetting('opacity', e.target.value);
+  });
+
+  document.getElementById('bgBlur')?.addEventListener('input', (e) => {
+    this.updateBackgroundSetting('blur', e.target.value);
+  });
+
+  // Export current theme
+  document.getElementById('exportCurrentThemeBtn')?.addEventListener('click', () => {
+    this.exportCurrentTheme();
+  });
+
+  // Reset theme
+  document.getElementById('resetThemeBtn')?.addEventListener('click', () => {
+    this.resetTheme();
+  });
+
+  // Listen for theme changes
+  window.addEventListener('themeChanged', (e) => {
+    this.onThemeChanged(e.detail);
+  });
+}
+
+// Load and display built-in themes
+loadBuiltinThemes() {
+  const themes = window.ThemeManager.getBuiltInThemes();
+  const currentTheme = window.ThemeManager.getCurrentTheme();
+  
+  // Update active state
+  document.querySelectorAll('#builtinThemeGrid .theme-card').forEach(card => {
+    const isActive = card.dataset.theme === currentTheme.id;
+    card.classList.toggle('active', isActive);
+  });
+}
+
+// Load and display custom themes
+loadCustomThemes() {
+  const customThemes = window.ThemeManager.customThemes;
+  const grid = document.getElementById('customThemesGrid');
+  const noThemesEl = document.getElementById('noCustomThemes');
+  
+  if (!grid) return;
+
+  // Clear existing custom theme cards (keep no-themes placeholder)
+  const existingCards = grid.querySelectorAll('.custom-theme-card');
+  existingCards.forEach(card => card.remove());
+
+  const hasCustomThemes = Object.keys(customThemes).length > 0;
+  
+  if (hasCustomThemes) {
+    noThemesEl.style.display = 'none';
+    
+    // Add custom theme cards
+    Object.entries(customThemes).forEach(([themeId, theme]) => {
+      const card = this.createCustomThemeCard(themeId, theme);
+      grid.appendChild(card);
+    });
+  } else {
+    noThemesEl.style.display = 'flex';
+  }
+}
+
+// Create custom theme card
+createCustomThemeCard(themeId, theme) {
+  const card = document.createElement('div');
+  card.className = 'custom-theme-card';
+  card.dataset.theme = themeId;
+  
+  const currentTheme = window.ThemeManager.getCurrentTheme();
+  if (themeId === currentTheme.id) {
+    card.classList.add('active');
+  }
+
+  // Generate preview gradient
+  const gradient = theme.gradients?.primary || 
+                  `linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.secondary} 100%)`;
+
+  card.innerHTML = `
+    <div class="custom-theme-preview" style="background: ${gradient};"></div>
+    <div class="custom-theme-name">${theme.name}</div>
+    <div class="custom-theme-actions">
+      <button class="custom-action-btn edit" data-action="edit" title="Edit Theme">✏️</button>
+      <button class="custom-action-btn delete" data-action="delete" title="Delete Theme">🗑️</button>
+    </div>
+  `;
+
+  // Add event listeners
+  card.addEventListener('click', (e) => {
+    if (!e.target.closest('.custom-theme-actions')) {
+      this.selectTheme(themeId);
+    }
+  });
+
+  // Action buttons
+  card.querySelector('[data-action="edit"]').addEventListener('click', (e) => {
+    e.stopPropagation();
+    this.editCustomTheme(themeId);
+  });
+
+  card.querySelector('[data-action="delete"]').addEventListener('click', (e) => {
+    e.stopPropagation();
+    this.deleteCustomTheme(themeId, theme.name);
+  });
+
+  return card;
+}
+
+// Select theme
+selectTheme(themeId) {
+  // Add transition class
+  document.body.classList.add('theme-switching');
+  
+  // Apply theme
+  window.ThemeManager.applyTheme(themeId);
+  
+  // Update UI
+  this.updateThemeSelection(themeId);
+  this.updateCurrentThemeDisplay();
+  
+  // Remove transition class after animation
+  setTimeout(() => {
+    document.body.classList.remove('theme-switching');
+  }, 600);
+
+  const allThemes = { ...window.ThemeManager.getAllThemes().builtin, ...window.ThemeManager.getAllThemes().custom };
+  const themeName = allThemes[themeId]?.name || themeId;
+  this.showToast(`Theme changed to ${themeName}!`, 'success');
+}
+
+// Update theme selection UI
+updateThemeSelection(themeId) {
+  // Update built-in themes
+  document.querySelectorAll('#builtinThemeGrid .theme-card').forEach(card => {
+    card.classList.toggle('active', card.dataset.theme === themeId);
+  });
+
+  // Update custom themes
+  document.querySelectorAll('#customThemesGrid .custom-theme-card').forEach(card => {
+    card.classList.toggle('active', card.dataset.theme === themeId);
+  });
+}
+
+// Update current theme display
+updateCurrentThemeDisplay() {
+  const currentTheme = window.ThemeManager.getCurrentTheme();
+  const infoEl = document.getElementById('currentThemeInfo');
+  
+  if (!infoEl || !currentTheme.theme) return;
+
+  const nameEl = infoEl.querySelector('.current-theme-name');
+  const descEl = infoEl.querySelector('.current-theme-desc');
+  const previewEl = infoEl.querySelector('.current-theme-preview');
+
+  if (nameEl) nameEl.textContent = currentTheme.theme.name;
+  if (descEl) descEl.textContent = currentTheme.theme.description;
+  if (previewEl) {
+    const gradient = currentTheme.theme.gradients?.primary || 
+                    `linear-gradient(135deg, ${currentTheme.theme.colors.primary} 0%, ${currentTheme.theme.colors.secondary} 100%)`;
+    previewEl.style.background = gradient;
+  }
+}
+
+// Open custom theme builder
+openCustomThemeBuilder() {
+  const url = chrome.runtime.getURL('settings/custom-theme-builder.html');
+  window.open(url, '_blank', 'width=1200,height=800');
+}
+
+// Edit custom theme
+editCustomTheme(themeId) {
+  const url = chrome.runtime.getURL(`settings/custom-theme-builder.html?edit=${themeId}`);
+  window.open(url, '_blank', 'width=1200,height=800');
+}
+
+// Delete custom theme
+deleteCustomTheme(themeId, themeName) {
+  if (confirm(`Are you sure you want to delete the theme "${themeName}"? This action cannot be undone.`)) {
+    const success = window.ThemeManager.deleteCustomTheme(themeId);
+    
+    if (success) {
+      this.loadCustomThemes();
+      this.updateCurrentThemeDisplay();
+      this.showToast(`Theme "${themeName}" deleted successfully!`, 'success');
+    } else {
+      this.showToast('Failed to delete theme', 'error');
+    }
+  }
+}
+
+// Import theme
+async importTheme(file) {
+  try {
+    const result = await window.ThemeManager.importTheme(file);
+    this.loadCustomThemes();
+    this.showToast(`Theme "${result.theme.name}" imported successfully!`, 'success');
+    
+    // Select the imported theme
+    this.selectTheme(result.themeId);
+    
+  } catch (error) {
+    this.showToast(`Failed to import theme: ${error.message}`, 'error');
+  }
+}
+
+// Upload background image
+async uploadBackground(file) {
+  try {
+    await window.ThemeManager.uploadBackgroundImage(file);
+    this.updateBackgroundDisplay();
+    this.showToast('Background image uploaded successfully!', 'success');
+  } catch (error) {
+    this.showToast(`Failed to upload background: ${error.message}`, 'error');
+  }
+}
+
+// Remove background image
+removeBackground() {
+  if (confirm('Are you sure you want to remove the background image?')) {
+    window.ThemeManager.removeBackgroundImage();
+    this.updateBackgroundDisplay();
+    this.showToast('Background image removed', 'success');
+  }
+}
+
+// Update background display
+updateBackgroundDisplay() {
+  const hasBackground = window.ThemeManager.backgroundImage;
+  const noBackgroundEl = document.getElementById('noBackground');
+  const previewEl = document.getElementById('backgroundPreview');
+  const settingsEl = document.getElementById('backgroundSettings');
+  const imageEl = document.getElementById('currentBackgroundImage');
+
+  if (hasBackground) {
+    noBackgroundEl.style.display = 'none';
+    previewEl.style.display = 'block';
+    settingsEl.style.display = 'block';
+    
+    if (imageEl) {
+      imageEl.src = window.ThemeManager.backgroundImage;
+    }
+  } else {
+    noBackgroundEl.style.display = 'flex';
+    previewEl.style.display = 'none';
+    settingsEl.style.display = 'none';
+  }
+}
+
+// Update background setting
+updateBackgroundSetting(setting, value) {
+  const root = document.documentElement;
+  
+  switch (setting) {
+    case 'opacity':
+      root.style.setProperty('--background-overlay', value);
+      // Update slider display
+      const opacityDisplay = document.querySelector('#bgOpacity').parentElement.querySelector('.slider-value');
+      if (opacityDisplay) {
+        opacityDisplay.textContent = Math.round(value * 100) + '%';
+      }
+      break;
+      
+    case 'blur':
+      root.style.setProperty('--background-blur', value + 'px');
+      // Update slider display
+      const blurDisplay = document.querySelector('#bgBlur').parentElement.querySelector('.slider-value');
+      if (blurDisplay) {
+        blurDisplay.textContent = value + 'px';
+      }
+      break;
+  }
+
+  // Save settings
+  window.ThemeManager.themeSettings = {
+    ...window.ThemeManager.themeSettings,
+    [`background${setting.charAt(0).toUpperCase() + setting.slice(1)}`]: value
+  };
+  
+  chrome.storage.local.set({ 
+    themeSettings: window.ThemeManager.themeSettings 
+  });
+}
+
+// Export current theme
+exportCurrentTheme() {
+  const currentTheme = window.ThemeManager.getCurrentTheme();
+  
+  if (currentTheme.theme.isCustom) {
+    window.ThemeManager.exportTheme(currentTheme.id);
+  } else {
+    // Create exportable version of built-in theme
+    const exportData = {
+      name: currentTheme.theme.name + ' (Copy)',
+      description: currentTheme.theme.description,
+      colors: currentTheme.theme.colors,
+      gradients: currentTheme.theme.gradients,
+      version: '1.0',
+      exported: new Date().toISOString()
+    };
+
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+      type: 'application/json'
+    });
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${currentTheme.theme.name.toLowerCase().replace(/\s+/g, '-')}-theme.json`;
+    a.click();
+
+    URL.revokeObjectURL(url);
+    this.showToast('Theme exported successfully!', 'success');
+  }
+}
+
+// Reset theme to default
+resetTheme() {
+  if (confirm('Are you sure you want to reset to the default theme? This will also remove any background image.')) {
+    window.ThemeManager.applyTheme('professional-light');
+    window.ThemeManager.removeBackgroundImage();
+    
+    this.updateThemeSelection('professional-light');
+    this.updateCurrentThemeDisplay();
+    this.updateBackgroundDisplay();
+    
+    this.showToast('Theme reset to default', 'success');
+  }
+}
+
+// Handle theme change events
+onThemeChanged(detail) {
+  this.updateThemeSelection(detail.themeId);
+  this.updateCurrentThemeDisplay();
+}
+
+// Enhanced show toast method (add to your existing SettingsController)
+showToast(message, type = 'info') {
+  // Remove existing toasts
+  document.querySelectorAll('.settings-toast').forEach(toast => toast.remove());
+
+  // Create toast
+  const toast = document.createElement('div');
+  toast.className = `settings-toast ${type}`;
+  toast.innerHTML = `
+    <div class="toast-icon">${this.getToastIcon(type)}</div>
+    <div class="toast-message">${message}</div>
+    <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+  `;
+
+  // Add to page
+  document.body.appendChild(toast);
+
+  // Show with animation
+  setTimeout(() => toast.classList.add('show'), 100);
+
+  // Auto remove
+  setTimeout(() => {
+    if (toast.parentElement) {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 300);
+    }
+  }, 4000);
+}
+
+// Get toast icon
+getToastIcon(type) {
+  const icons = {
+    success: '✅',
+    error: '❌',
+    warning: '⚠️',
+    info: 'ℹ️'
+  };
+  return icons[type] || icons.info;
+}
+
+
+
+// Inject toast CSS if it doesn't exist
+if (!document.querySelector('#toast-styles')) {
+  const style = document.createElement('style');
+  style.id = 'toast-styles';
+  style.textContent = toastCSS;
+  document.head.appendChild(style);
+}
+
+
+
+
+
 }
 
 // Initialize settings when DOM is ready

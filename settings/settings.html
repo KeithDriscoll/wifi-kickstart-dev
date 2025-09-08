@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wi-Fi Kickstart - Epic Settings Configuration</title>
   <link rel="stylesheet" href="settings.css">
+  <link rel="stylesheet" href="../themes/theme-variables.css">
+  <script src="../themes/theme-manager.js"></script>
 </head>
 <body class="dark-mode">
   <!-- Header -->
@@ -755,104 +757,199 @@
 
       <!-- Appearance Section -->
       <section class="settings-section" id="appearanceSection">
-        <h2 class="section-title">
-          <span class="section-icon">🎨</span>
-          Appearance & Themes
-        </h2>
-        
-        <div class="setting-group">
-          <h3>Theme Selection</h3>
-          <div class="theme-grid">
-            <button class="theme-card" data-theme="default">
-              <div class="theme-preview default-theme"></div>
-              <span class="theme-name">Default Blue</span>
-            </button>
-            <button class="theme-card" data-theme="ocean">
-              <div class="theme-preview ocean-theme"></div>
-              <span class="theme-name">Ocean Waves</span>
-            </button>
-            <button class="theme-card" data-theme="sunset">
-              <div class="theme-preview sunset-theme"></div>
-              <span class="theme-name">Sunset Orange</span>
-            </button>
-            <button class="theme-card" data-theme="forest">
-              <div class="theme-preview forest-theme"></div>
-              <span class="theme-name">Forest Green</span>
-            </button>
-            <button class="theme-card" data-theme="purple">
-              <div class="theme-preview purple-theme"></div>
-              <span class="theme-name">Purple Rain</span>
-            </button>
-            <button class="theme-card" data-theme="custom">
-              <div class="theme-preview custom-theme"></div>
-              <span class="theme-name">Custom</span>
-            </button>
-          </div>
-        </div>
-        
-        <div class="setting-group">
-          <h3>Display Options</h3>
-          
-          <div class="setting-item">
-            <div class="setting-label">
-              <span>Dark Mode</span>
-              <span class="setting-description">Use dark theme</span>
-            </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="darkMode" checked>
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-          
-          <div class="setting-item">
-            <div class="setting-label">
-              <span>Animations</span>
-              <span class="setting-description">Enable UI animations</span>
-            </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="animations" checked>
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-          
-          <div class="setting-item">
-            <div class="setting-label">
-              <span>Compact Mode</span>
-              <span class="setting-description">Reduce spacing for more content</span>
-            </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="compactMode">
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-        </div>
-        
-        <div class="setting-group">
-          <h3>Custom Colors</h3>
-          
-          <div class="color-picker-grid">
-            <div class="color-picker-item">
-              <label>Primary Color</label>
-              <input type="color" id="primaryColor" value="#4a90e2">
-            </div>
-            <div class="color-picker-item">
-              <label>Secondary Color</label>
-              <input type="color" id="secondaryColor" value="#50c878">
-            </div>
-            <div class="color-picker-item">
-              <label>Background</label>
-              <input type="color" id="backgroundColor" value="#0a0e27">
-            </div>
-            <div class="color-picker-item">
-              <label>Surface</label>
-              <input type="color" id="surfaceColor" value="#1a1f3a">
-            </div>
-          </div>
-          
-          <button class="btn btn-secondary" id="applyCustomColors">Apply Custom Colors</button>
-        </div>
-      </section>
+        <!-- Enhanced Appearance Section for settings.html -->
+<section class="settings-section" id="appearanceSection">
+  <h2 class="section-title">
+    <span class="section-icon">🎨</span>
+    Appearance & Themes
+  </h2>
+  
+  <!-- Built-in Themes -->
+  <div class="setting-group">
+    <h3>Built-in Themes</h3>
+    <div class="theme-grid" id="builtinThemeGrid">
+      <!-- Professional Themes -->
+      <button class="theme-card active" data-theme="professional-light">
+        <div class="theme-preview professional-light-theme"></div>
+        <span class="theme-name">Professional Light</span>
+        <span class="theme-desc">Clean corporate design</span>
+      </button>
+      <button class="theme-card" data-theme="professional-dark">
+        <div class="theme-preview professional-dark-theme"></div>
+        <span class="theme-name">Professional Dark</span>
+        <span class="theme-desc">Professional with dark aesthetics</span>
+      </button>
+      
+      <!-- Epic Themes -->
+      <button class="theme-card" data-theme="epic-light">
+        <div class="theme-preview epic-light-theme"></div>
+        <span class="theme-name">Epic Light</span>
+        <span class="theme-desc">Cosmic vibes, bright background</span>
+      </button>
+      <button class="theme-card" data-theme="epic-dark">
+        <div class="theme-preview epic-dark-theme"></div>
+        <span class="theme-name">Epic Dark</span>
+        <span class="theme-desc">Deep space gradients</span>
+      </button>
+      
+      <!-- Hacker Themes -->
+      <button class="theme-card" data-theme="hacker-light">
+        <div class="theme-preview hacker-light-theme"></div>
+        <span class="theme-name">Hacker Light</span>
+        <span class="theme-desc">Terminal aesthetics</span>
+      </button>
+      <button class="theme-card" data-theme="hacker-dark">
+        <div class="theme-preview hacker-dark-theme"></div>
+        <span class="theme-name">Hacker Dark</span>
+        <span class="theme-desc">Matrix green terminal</span>
+      </button>
+      
+      <!-- Gaming Themes -->
+      <button class="theme-card" data-theme="gaming-light">
+        <div class="theme-preview gaming-light-theme"></div>
+        <span class="theme-name">Gaming Light</span>
+        <span class="theme-desc">RGB aesthetics</span>
+      </button>
+      <button class="theme-card" data-theme="gaming-dark">
+        <div class="theme-preview gaming-dark-theme"></div>
+        <span class="theme-name">Gaming Dark</span>
+        <span class="theme-desc">RGB neon beast mode</span>
+      </button>
+    </div>
+  </div>
 
+  <!-- Custom Themes -->
+  <div class="setting-group">
+    <h3>Custom Themes</h3>
+    <div class="custom-theme-section">
+      <div class="custom-themes-grid" id="customThemesGrid">
+        <!-- Custom themes will be populated here -->
+        <div class="no-custom-themes" id="noCustomThemes">
+          <div class="no-themes-icon">🎨</div>
+          <div class="no-themes-text">
+            <strong>No custom themes yet</strong>
+            <p>Create your first custom theme to get started</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="custom-theme-actions">
+        <button class="btn primary" id="createThemeBtn">
+          🎨 Create Custom Theme
+        </button>
+        <button class="btn secondary" id="importThemeBtn">
+          📥 Import Theme
+        </button>
+        <input type="file" id="importThemeFile" accept=".json" hidden />
+      </div>
+    </div>
+  </div>
+
+  <!-- Background Image -->
+  <div class="setting-group">
+    <h3>Background Image</h3>
+    <div class="background-section">
+      <div class="background-current" id="backgroundCurrent">
+        <div class="no-background" id="noBackground">
+          <div class="no-bg-icon">🖼️</div>
+          <div class="no-bg-text">No background image set</div>
+        </div>
+        <div class="background-preview" id="backgroundPreview" style="display: none;">
+          <img id="currentBackgroundImage" alt="Current background" />
+          <div class="background-overlay">
+            <button class="bg-action-btn" id="changeBackgroundBtn">Change</button>
+            <button class="bg-action-btn danger" id="removeBackgroundBtn">Remove</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="background-actions">
+        <button class="btn secondary" id="uploadBackgroundBtn">
+          📁 Upload Background
+        </button>
+        <input type="file" id="backgroundUpload" accept="image/*" hidden />
+      </div>
+      
+      <div class="background-settings" id="backgroundSettings" style="display: none;">
+        <div class="setting-row">
+          <label for="bgOpacity">Background Opacity</label>
+          <div class="slider-container">
+            <input type="range" id="bgOpacity" min="0" max="1" step="0.1" value="0.7" />
+            <span class="slider-value">70%</span>
+          </div>
+        </div>
+        <div class="setting-row">
+          <label for="bgBlur">Background Blur</label>
+          <div class="slider-container">
+            <input type="range" id="bgBlur" min="0" max="10" step="1" value="0" />
+            <span class="slider-value">0px</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Display Options -->
+  <div class="setting-group">
+    <h3>Display Options</h3>
+    
+    <div class="setting-item">
+      <div class="setting-label">
+        <span>Animations</span>
+        <span class="setting-description">Enable UI animations and transitions</span>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="animations" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    
+    <div class="setting-item">
+      <div class="setting-label">
+        <span>Compact Mode</span>
+        <span class="setting-description">Reduce spacing for smaller screens</span>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="compactMode">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div class="setting-item">
+      <div class="setting-label">
+        <span>High Contrast</span>
+        <span class="setting-description">Increase contrast for better accessibility</span>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="highContrast">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Theme Actions -->
+  <div class="setting-group">
+    <h3>Theme Management</h3>
+    <div class="theme-management">
+      <div class="current-theme-info" id="currentThemeInfo">
+        <div class="current-theme-preview"></div>
+        <div class="current-theme-details">
+          <div class="current-theme-name">Professional Light</div>
+          <div class="current-theme-desc">Clean corporate design with traditional blues</div>
+        </div>
+      </div>
+      
+      <div class="theme-actions">
+        <button class="btn secondary" id="exportCurrentThemeBtn">
+          📤 Export Current Theme
+        </button>
+        <button class="btn secondary" id="resetThemeBtn">
+          🔄 Reset to Default
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
       <!-- Data Management Section -->
       <section class="settings-section" id="dataSection">
         <h2 class="section-title">
