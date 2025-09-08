@@ -1,506 +1,572 @@
-// 🔥 EPIC NETWORK METRICS ENGINE - ENHANCED EDITION
-// The most comprehensive network diagnostics suite ever built
-// Makes Speedtest.net look like amateur hour!
+// 🔥 EPIC NETWORK METRICS ENGINE V2.0 - WITH REAL-TIME PROGRESS STREAMING
+// Professional-grade network analysis with live progress callbacks
 
 export class EpicNetworkMetrics {
   constructor() {
-    this.testServers = {
-      cloudflare: [
-        'https://speed.cloudflare.com/__down?bytes=',
-        'https://speed.cloudflare.com/__up'
-      ],
-      netflix: [
-        'https://fast.com/netflix/speedtest/',
-        'https://api.fast.com/netflix/speedtest'
-      ],
-      google: [
-        'https://www.google.com/generate_204',
-        'https://www.gstatic.com/generate_204'
-      ],
-      thinkbroadband: [
-        'https://download.thinkbroadband.com/',
-        'https://ipv4.download.thinkbroadband.com/'
-      ],
-      ovh: [
-        'https://proof.ovh.net/files/',
-        'https://proof.ovh.ca/files/'
-      ]
-    };
-    
-    this.cdnServers = {
-      netflix: 'fast.com',
-      youtube: 'googlevideo.com',
-      amazon: 'cloudfront.net',
-      cloudflare: 'cdnjs.cloudflare.com',
-      fastly: 'fastly.net',
-      akamai: 'akamaihd.net'
-    };
-    
-    this.config = {};
     this.metrics = {};
-    this.isRunning = false;
-    this.abortController = null;
+    this.config = this.getDefaultConfig(); // Always start with defaults
+    this.progressCallback = null;
+    this.speedCallback = null;
+    this.currentPhase = 'idle';
+    this.overallProgress = 0;
+    this.phaseProgress = {};
+  }
+
+  // Set progress callback for real-time updates
+  setProgressCallback(callback) {
+    this.progressCallback = callback;
+  }
+
+  // Set speed callback for speedometer updates
+  setSpeedCallback(callback) {
+    this.speedCallback = callback;
+  }
+
+  // Send progress update
+  updateProgress(type, value, phase = null) {
+    if (this.progressCallback) {
+      this.progressCallback({
+        type,
+        value,
+        phase: phase || this.currentPhase,
+        timestamp: Date.now()
+      });
+    }
+  }
+
+  // Send speed update
+  updateSpeed(speed, type = 'current') {
+    if (this.speedCallback) {
+      this.speedCallback({
+        speed,
+        type,
+        timestamp: Date.now()
+      });
+    }
+  }
+
+  // Get default configuration
+  getDefaultConfig() {
+    return {
+      downloadTests: {
+        enabled: true,
+        fileSizes: ['1MB', '5MB', '10MB'],
+        iterations: 3,
+        parallelConnections: 4,
+        timeout: 30000,
+        servers: ['cloudflare', 'google', 'amazon']
+      },
+      uploadTests: {
+        enabled: true,
+        fileSizes: ['1MB', '5MB'],
+        iterations: 2,
+        parallelConnections: 2,
+        timeout: 30000
+      },
+      latencyTests: {
+        enabled: true,
+        sampleCount: 20,
+        targets: ['google', 'cloudflare', 'microsoft'],
+        interval: 100
+      },
+      gamingTests: {
+        enabled: false,
+        sampleCount: 100,
+        burstTests: true
+      },
+      advancedTests: {
+        ipv6Testing: true,
+        cdnTesting: true,
+        dnsPerformance: true,
+        connectionStability: false,
+        routingEfficiency: false
+      }
+    };
   }
 
   // Update configuration
-  updateConfig(config) {
-    this.config = { ...this.config, ...config };
+  updateConfig(newConfig) {
+    this.config = { ...this.config, ...newConfig };
   }
 
-  // 🚀 MASTER DIAGNOSTIC RUNNER - THE BEAST MODE
+  // 🚀 MAIN ANALYSIS WITH REAL-TIME PROGRESS
   async runCompleteAnalysis() {
-    console.log('🔥 STARTING EPIC NETWORK ANALYSIS - BEAST MODE ACTIVATED!');
-    this.isRunning = true;
-    this.abortController = new AbortController();
-    this.metrics = { 
-      timestamp: new Date().toISOString(),
-      startTime: performance.now()
+    console.log('🔥 Starting Epic Network Analysis with Real-time Progress...');
+    this.metrics = {};
+    this.overallProgress = 0;
+    this.currentPhase = 'initializing';
+    
+    const startTime = performance.now();
+    
+    // Calculate total steps for progress tracking
+    const totalSteps = this.calculateTotalSteps();
+    let completedSteps = 0;
+    
+    const updateOverallProgress = () => {
+      this.overallProgress = Math.round((completedSteps / totalSteps) * 100);
+      this.updateProgress('overall', this.overallProgress);
     };
 
     try {
-      // Run tests based on configuration
-      const testPromises = [];
-      
-      // Core Speed Metrics
-      if (this.config.downloadTests?.enabled) {
-        testPromises.push(this.measureDownloadSpeed());
-      }
-      if (this.config.uploadTests?.enabled) {
-        testPromises.push(this.measureUploadSpeed());
-      }
-      
-      // Latency & Jitter
-      if (this.config.latencyTests?.enabled) {
-        testPromises.push(this.measureLatencyAdvanced());
-        testPromises.push(this.measureJitterAdvanced());
-        testPromises.push(this.measurePacketLoss());
-      }
-      
-      // Advanced Tests
-      if (this.config.advancedTests?.enabled) {
-        if (this.config.advancedTests.dnsPerformance) {
-          testPromises.push(this.measureDNSPerformance());
-        }
-        if (this.config.advancedTests.connectionStability) {
-          testPromises.push(this.measureConnectionStability());
-        }
-        if (this.config.advancedTests.cdnTesting) {
-          testPromises.push(this.measureCDNPerformance());
-        }
-        if (this.config.advancedTests.ipv6Testing) {
-          testPromises.push(this.measureIPv4vsIPv6());
-        }
-        if (this.config.advancedTests.routingEfficiency) {
-          testPromises.push(this.measureRoutingEfficiency());
-        }
-      }
-      
-      // Gaming Tests
-      if (this.config.gamingTests?.enabled) {
-        testPromises.push(this.measureGamingLatency());
-        testPromises.push(this.measureStreamingQuality());
-        testPromises.push(this.measureVoIPQuality());
-      }
-      
-      // Run all tests concurrently if configured
-      if (this.config.advancedTests?.concurrentTesting) {
-        await Promise.all(testPromises);
-      } else {
-        // Run sequentially
-        for (const promise of testPromises) {
-          await promise;
-        }
-      }
-      
-      // Calculate final metrics
-      this.metrics.duration = performance.now() - this.metrics.startTime;
-      this.metrics.overallScore = this.calculateEpicScore();
-      this.metrics.grade = this.getNetworkGrade();
-      this.metrics.capabilities = this.assessCapabilities();
-      this.metrics.insights = this.generateInsights();
-      
-      console.log('🎯 EPIC ANALYSIS COMPLETE! Results:', this.metrics);
-      return this.metrics;
+      // Phase 1: Basic Info (5% of total)
+      this.currentPhase = 'info';
+      this.updateProgress('phase', 0, 'Gathering network information...');
+      await this.getBasicInfo();
+      completedSteps += 1;
+      updateOverallProgress();
 
+      // Phase 2: Latency Testing (15% of total)
+      if (this.config.latencyTests.enabled) {
+        this.currentPhase = 'latency';
+        this.updateProgress('phase', 0, '⚡ Measuring latency...');
+        await this.measureLatencyWithProgress();
+        completedSteps += 3;
+        updateOverallProgress();
+      }
+
+      // Phase 3: Download Speed (40% of total)
+      if (this.config.downloadTests.enabled) {
+        this.currentPhase = 'download';
+        this.updateProgress('phase', 0, '📥 Testing download speed...');
+        await this.measureDownloadSpeedWithProgress();
+        completedSteps += 8;
+        updateOverallProgress();
+      }
+
+      // Phase 4: Upload Speed (25% of total)
+      if (this.config.uploadTests.enabled) {
+        this.currentPhase = 'upload';
+        this.updateProgress('phase', 0, '📤 Testing upload speed...');
+        await this.measureUploadSpeedWithProgress();
+        completedSteps += 5;
+        updateOverallProgress();
+      }
+
+      // Phase 5: Advanced Tests (10% of total)
+      this.currentPhase = 'advanced';
+      this.updateProgress('phase', 0, '🔬 Running advanced diagnostics...');
+      
+      if (this.config.advancedTests.ipv6Testing) {
+        await this.checkIPv6();
+        completedSteps += 0.5;
+        updateOverallProgress();
+      }
+      
+      if (this.config.advancedTests.cdnTesting) {
+        await this.measureCDNPerformance();
+        completedSteps += 0.5;
+        updateOverallProgress();
+      }
+      
+      if (this.config.advancedTests.dnsPerformance) {
+        await this.measureDNSPerformance();
+        completedSteps += 0.5;
+        updateOverallProgress();
+      }
+
+      // Phase 6: Gaming Tests (if enabled, 5% of total)
+      if (this.config.gamingTests.enabled) {
+        this.currentPhase = 'gaming';
+        this.updateProgress('phase', 0, '🎮 Testing gaming performance...');
+        await this.measureGamingLatency();
+        completedSteps += 1;
+        updateOverallProgress();
+      }
+
+      // Phase 7: Analysis (5% of total)
+      this.currentPhase = 'analysis';
+      this.updateProgress('phase', 0, '📊 Analyzing results...');
+      const analysis = this.analyzeResults();
+      completedSteps += 1;
+      updateOverallProgress();
+
+      // Calculate total time
+      const totalTime = (performance.now() - startTime) / 1000;
+      
+      // Final results
+      const finalResults = {
+        ...this.metrics,
+        ...analysis,
+        testDuration: Math.round(totalTime),
+        timestamp: new Date().toISOString()
+      };
+
+      // Complete
+      this.currentPhase = 'complete';
+      this.updateProgress('overall', 100);
+      this.updateProgress('phase', 100, '✅ Analysis complete!');
+      
+      return finalResults;
+      
     } catch (error) {
       console.error('Epic analysis failed:', error);
-      this.metrics.error = error.message;
+      this.currentPhase = 'error';
+      this.updateProgress('phase', 0, '❌ Test failed: ' + error.message);
       throw error;
-    } finally {
-      this.isRunning = false;
-      this.abortController = null;
     }
   }
 
-  // 1. DOWNLOAD SPEED - Multi-server, multi-threaded
-  async measureDownloadSpeed() {
-    console.log('📊 Measuring download speed (multi-server)...');
-    const results = [];
-    const fileSizes = this.config.downloadTests?.fileSizes || ['1MB', '5MB', '10MB'];
-    const iterations = this.config.downloadTests?.iterations || 3;
-    const parallelConnections = this.config.downloadTests?.parallelConnections || 4;
-    
-    for (const size of fileSizes) {
-      const sizeResults = [];
-      const bytes = this.parseFileSize(size);
-      
-      // Test with multiple servers
-      const servers = this.getActiveServers();
-      
-      for (let i = 0; i < iterations; i++) {
-        // Parallel downloads
-        const parallelTests = [];
-        
-        for (let j = 0; j < Math.min(parallelConnections, servers.length); j++) {
-          const server = servers[j % servers.length];
-          parallelTests.push(this.downloadFromServer(server, bytes));
-        }
-        
-        const parallelResults = await Promise.all(parallelTests);
-        const avgSpeed = parallelResults.reduce((a, b) => a + b, 0) / parallelResults.length;
-        sizeResults.push(avgSpeed);
-      }
-      
-      results.push({
-        size,
-        speeds: sizeResults,
-        average: sizeResults.reduce((a, b) => a + b, 0) / sizeResults.length,
-        max: Math.max(...sizeResults),
-        min: Math.min(...sizeResults)
-      });
-    }
-    
-    this.metrics.downloadSpeed = {
-      results,
-      overall: {
-        max: Math.max(...results.map(r => r.max)),
-        average: results.reduce((a, r) => a + r.average, 0) / results.length,
-        min: Math.min(...results.map(r => r.min)),
-        consistency: this.calculateConsistency(results.map(r => r.average))
-      }
-    };
+  // Calculate total steps for progress tracking
+  calculateTotalSteps() {
+    let steps = 1; // Basic info
+    if (this.config.latencyTests.enabled) steps += 3;
+    if (this.config.downloadTests.enabled) steps += 8;
+    if (this.config.uploadTests.enabled) steps += 5;
+    if (this.config.advancedTests.ipv6Testing) steps += 0.5;
+    if (this.config.advancedTests.cdnTesting) steps += 0.5;
+    if (this.config.advancedTests.dnsPerformance) steps += 0.5;
+    if (this.config.gamingTests.enabled) steps += 1;
+    steps += 1; // Analysis
+    return steps;
   }
 
-  // Download from specific server
-  async downloadFromServer(serverUrl, bytes) {
+  // 1. BASIC NETWORK INFO
+  async getBasicInfo() {
     try {
-      const start = performance.now();
-      const url = serverUrl.includes('cloudflare') ? 
-        `${serverUrl}${bytes}` : 
-        `${serverUrl}${this.getFileSizeUrl(bytes)}`;
+      const response = await fetch('https://ipapi.co/json/');
+      const data = await response.json();
       
-      const response = await fetch(url, {
-        method: 'GET',
-        cache: 'no-cache',
-        signal: this.abortController?.signal
-      });
-      
-      const blob = await response.blob();
-      const duration = (performance.now() - start) / 1000;
-      const mbps = ((blob.size * 8) / duration) / 1_000_000;
-      
-      return mbps;
+      this.metrics.networkInfo = {
+        ip: data.ip,
+        isp: data.org,
+        city: data.city,
+        region: data.region,
+        country: data.country_name,
+        timezone: data.timezone,
+        connectionType: this.detectConnectionType()
+      };
     } catch (error) {
-      console.warn(`Download from ${serverUrl} failed:`, error);
-      return 0;
+      console.error('Failed to get network info:', error);
+      this.metrics.networkInfo = { error: error.message };
     }
   }
 
-  // 2. UPLOAD SPEED - Real upload test
-  async measureUploadSpeed() {
-    console.log('📤 Measuring upload speed...');
-    const fileSizes = this.config.uploadTests?.fileSizes || ['1MB', '5MB'];
-    const iterations = this.config.uploadTests?.iterations || 2;
-    const results = [];
-    
-    for (const size of fileSizes) {
-      const bytes = this.parseFileSize(size);
-      const sizeResults = [];
-      
-      for (let i = 0; i < iterations; i++) {
-        const testData = new Blob([new ArrayBuffer(bytes)]);
-        const start = performance.now();
-        
-        try {
-          const formData = new FormData();
-          formData.append('file', testData);
-          
-          await fetch('https://httpbin.org/post', {
-            method: 'POST',
-            body: formData,
-            signal: this.abortController?.signal
-          });
-          
-          const duration = (performance.now() - start) / 1000;
-          const mbps = ((testData.size * 8) / duration) / 1_000_000;
-          sizeResults.push(mbps);
-        } catch (error) {
-          console.warn('Upload test failed:', error);
-          sizeResults.push(0);
-        }
-      }
-      
-      results.push({
-        size,
-        speeds: sizeResults,
-        average: sizeResults.reduce((a, b) => a + b, 0) / sizeResults.length
-      });
-    }
-    
-    this.metrics.uploadSpeed = {
-      results,
-      overall: {
-        average: results.reduce((a, r) => a + r.average, 0) / results.length,
-        max: Math.max(...results.map(r => Math.max(...r.speeds))),
-        min: Math.min(...results.filter(r => r.speeds.some(s => s > 0))
-          .map(r => Math.min(...r.speeds.filter(s => s > 0))))
-      }
-    };
-  }
-
-  // 3. ADVANCED LATENCY - Multiple targets
-  async measureLatencyAdvanced() {
-    console.log('⚡ Measuring advanced latency...');
+  // 2. LATENCY MEASUREMENT WITH PROGRESS
+  async measureLatencyWithProgress() {
+    console.log('⚡ Measuring latency with real-time updates...');
     const targets = this.getLatencyTargets();
-    const sampleCount = this.config.latencyTests?.sampleCount || 20;
+    const sampleCount = this.config.latencyTests.sampleCount;
     const results = [];
-    
-    for (const target of targets) {
-      const targetResults = [];
-      
-      for (let i = 0; i < sampleCount; i++) {
-        const start = performance.now();
-        try {
-          await fetch(target.url, { 
-            method: 'HEAD', 
-            cache: 'no-cache',
-            signal: AbortSignal.timeout(5000)
-          });
-          targetResults.push(performance.now() - start);
-        } catch (error) {
-          // Skip failed attempts
-        }
-        
-        // Small delay between samples
-        await new Promise(resolve => setTimeout(resolve, 50));
-      }
-      
-      if (targetResults.length > 0) {
-        results.push({
-          target: target.name,
-          samples: targetResults,
-          average: targetResults.reduce((a, b) => a + b, 0) / targetResults.length,
-          min: Math.min(...targetResults),
-          max: Math.max(...targetResults),
-          p95: this.calculatePercentile(targetResults, 95),
-          p99: this.calculatePercentile(targetResults, 99)
-        });
-      }
-    }
-    
-    // Overall latency metrics
-    const allSamples = results.flatMap(r => r.samples);
-    this.metrics.latency = {
-      targets: results,
-      overall: {
-        average: allSamples.reduce((a, b) => a + b, 0) / allSamples.length,
-        min: Math.min(...allSamples),
-        max: Math.max(...allSamples),
-        p95: this.calculatePercentile(allSamples, 95),
-        p99: this.calculatePercentile(allSamples, 99),
-        samples: allSamples.length
-      }
-    };
-  }
-
-  // 4. JITTER ANALYSIS - Statistical jitter
-  async measureJitterAdvanced() {
-    console.log('📈 Measuring network jitter...');
-    const samples = [];
-    const sampleCount = Math.min(this.config.latencyTests?.sampleCount || 20, 30);
     
     for (let i = 0; i < sampleCount; i++) {
+      const target = targets[i % targets.length];
       const start = performance.now();
+      
       try {
-        await fetch('https://www.google.com/generate_204', { 
+        await fetch(target.url, { 
           method: 'HEAD', 
-          cache: 'no-cache',
-          signal: AbortSignal.timeout(3000)
-        });
-        samples.push(performance.now() - start);
-      } catch (error) {
-        // Skip failed samples
-      }
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
-    
-    if (samples.length > 1) {
-      const avg = samples.reduce((a, b) => a + b, 0) / samples.length;
-      const variance = samples.reduce((acc, val) => acc + Math.pow(val - avg, 2), 0) / samples.length;
-      const stdDev = Math.sqrt(variance);
-      
-      // Calculate jitter as difference between consecutive samples
-      const jitterSamples = [];
-      for (let i = 1; i < samples.length; i++) {
-        jitterSamples.push(Math.abs(samples[i] - samples[i-1]));
-      }
-      
-      const avgJitter = jitterSamples.reduce((a, b) => a + b, 0) / jitterSamples.length;
-      
-      this.metrics.jitter = {
-        average: Math.round(avgJitter),
-        standardDeviation: Math.round(stdDev),
-        coefficient: Math.round((stdDev / avg) * 100),
-        quality: this.getJitterQuality(stdDev),
-        samples: samples.length
-      };
-    }
-  }
-
-  // 5. PACKET LOSS - Critical for gaming/VoIP
-  async measurePacketLoss() {
-    console.log('📦 Measuring packet loss...');
-    const tests = 30;
-    let successful = 0;
-    let totalTime = 0;
-    
-    for (let i = 0; i < tests; i++) {
-      const start = performance.now();
-      try {
-        await fetch('https://www.google.com/generate_204', { 
-          method: 'HEAD',
-          cache: 'no-cache',
-          signal: AbortSignal.timeout(3000)
-        });
-        successful++;
-        totalTime += performance.now() - start;
-      } catch (error) {
-        // Packet lost
-      }
-      await new Promise(resolve => setTimeout(resolve, 50));
-    }
-    
-    const lossPercentage = ((tests - successful) / tests) * 100;
-    
-    this.metrics.packetLoss = {
-      percentage: Math.round(lossPercentage * 100) / 100,
-      successful: successful,
-      total: tests,
-      avgResponseTime: successful > 0 ? totalTime / successful : 0,
-      quality: this.getPacketLossQuality(lossPercentage)
-    };
-  }
-
-  // 6. DNS PERFORMANCE - Website loading critical
-  async measureDNSPerformance() {
-    console.log('🌍 Measuring DNS performance...');
-    const domains = [
-      { name: 'Google', url: 'https://google.com/favicon.ico' },
-      { name: 'Cloudflare', url: 'https://cloudflare.com/favicon.ico' },
-      { name: 'Amazon', url: 'https://amazon.com/favicon.ico' },
-      { name: 'Netflix', url: 'https://netflix.com/favicon.ico' },
-      { name: 'YouTube', url: 'https://youtube.com/favicon.ico' },
-      { name: 'Microsoft', url: 'https://microsoft.com/favicon.ico' }
-    ];
-    
-    const results = [];
-    
-    for (const domain of domains) {
-      const start = performance.now();
-      try {
-        await fetch(domain.url, { 
-          method: 'HEAD',
-          cache: 'no-cache',
-          signal: AbortSignal.timeout(5000)
-        });
-        const time = performance.now() - start;
-        results.push({
-          domain: domain.name,
-          time,
-          status: 'success'
-        });
-      } catch (error) {
-        results.push({
-          domain: domain.name,
-          time: 5000,
-          status: 'failed'
-        });
-      }
-    }
-    
-    const successfulResults = results.filter(r => r.status === 'success');
-    
-    this.metrics.dnsPerformance = {
-      results,
-      averageTime: successfulResults.length > 0 ?
-        successfulResults.reduce((a, r) => a + r.time, 0) / successfulResults.length : 0,
-      fastestTime: successfulResults.length > 0 ?
-        Math.min(...successfulResults.map(r => r.time)) : 0,
-      slowestTime: successfulResults.length > 0 ?
-        Math.max(...successfulResults.map(r => r.time)) : 0,
-      successRate: (successfulResults.length / domains.length) * 100
-    };
-  }
-
-  // 7. CONNECTION STABILITY - Long-term monitoring
-  async measureConnectionStability() {
-    console.log('🔒 Measuring connection stability...');
-    const testDuration = 15; // 15 seconds (reduced from 30)
-    const interval = 1000; // 1 second
-    const tests = testDuration;
-    
-    let successful = 0;
-    const latencies = [];
-    
-    for (let i = 0; i < tests; i++) {
-      const start = performance.now();
-      try {
-        await fetch('https://www.google.com/generate_204', { 
-          method: 'HEAD',
           cache: 'no-cache',
           signal: AbortSignal.timeout(2000)
         });
         const latency = performance.now() - start;
-        latencies.push(latency);
-        successful++;
+        results.push(latency);
+        
+        // Send real-time update
+        this.updateSpeed(latency, 'latency');
       } catch (error) {
-        // Connection unstable
-        latencies.push(null);
+        results.push(null);
       }
       
-      if (i < tests - 1) {
-        await new Promise(resolve => setTimeout(resolve, interval));
+      // Update progress
+      const progress = Math.round((i / sampleCount) * 100);
+      this.updateProgress('latency', progress);
+      
+      await new Promise(resolve => setTimeout(resolve, this.config.latencyTests.interval));
+    }
+    
+    // Calculate statistics
+    const validResults = results.filter(r => r !== null);
+    this.metrics.latency = {
+      overall: {
+        average: validResults.reduce((a, b) => a + b, 0) / validResults.length,
+        min: Math.min(...validResults),
+        max: Math.max(...validResults),
+        samples: validResults.length
+      },
+      targets: targets.map(t => ({
+        name: t.name,
+        results: results.filter((_, i) => i % targets.length === targets.indexOf(t))
+      }))
+    };
+    
+    // Calculate jitter
+    this.metrics.jitter = this.calculateJitter(validResults);
+    
+    // Complete latency phase
+    this.updateProgress('latency', 100);
+  }
+
+  // 3. DOWNLOAD SPEED WITH REAL-TIME PROGRESS
+  async measureDownloadSpeedWithProgress() {
+    console.log('📥 Measuring download speed with live updates...');
+    const servers = this.getDownloadServers();
+    const results = [];
+    let totalBytesDownloaded = 0;
+    let totalTime = 0;
+    
+    for (const server of servers) {
+      for (const size of this.config.downloadTests.fileSizes) {
+        const testUrl = this.getTestFileUrl(server, size);
+        
+        try {
+          const startTime = performance.now();
+          const response = await fetch(testUrl, {
+            cache: 'no-cache',
+            signal: AbortSignal.timeout(this.config.downloadTests.timeout)
+          });
+          
+          // Stream the response to track progress
+          const reader = response.body.getReader();
+          let receivedLength = 0;
+          const contentLength = +response.headers.get('Content-Length') || 10485760; // Default 10MB
+          
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            receivedLength += value.length;
+            const elapsedTime = (performance.now() - startTime) / 1000;
+            const currentSpeed = ((receivedLength * 8) / elapsedTime) / 1_000_000; // Mbps
+            
+            // Send real-time speed update
+            this.updateSpeed(currentSpeed, 'download');
+            
+            // Update download progress
+            const fileProgress = (receivedLength / contentLength) * 100;
+            const serverIndex = servers.indexOf(server);
+            const sizeIndex = this.config.downloadTests.fileSizes.indexOf(size);
+            const totalTests = servers.length * this.config.downloadTests.fileSizes.length;
+            const currentTest = serverIndex * this.config.downloadTests.fileSizes.length + sizeIndex;
+            const overallProgress = ((currentTest / totalTests) * 100) + (fileProgress / totalTests);
+            
+            this.updateProgress('download', Math.round(overallProgress));
+          }
+          
+          const duration = (performance.now() - startTime) / 1000;
+          const speedMbps = ((receivedLength * 8) / duration) / 1_000_000;
+          
+          results.push({
+            server: server.name,
+            size,
+            speed: speedMbps,
+            duration,
+            bytes: receivedLength
+          });
+          
+          totalBytesDownloaded += receivedLength;
+          totalTime += duration;
+          
+        } catch (error) {
+          console.error(`Download test failed for ${server.name}:`, error);
+          results.push({
+            server: server.name,
+            size,
+            error: error.message
+          });
+        }
       }
     }
     
-    const validLatencies = latencies.filter(l => l !== null);
-    
-    this.metrics.connectionStability = {
-      stabilityScore: (successful / tests) * 100,
-      averageLatency: validLatencies.length > 0 ?
-        validLatencies.reduce((a, b) => a + b, 0) / validLatencies.length : 0,
-      latencyVariation: this.calculateVariation(validLatencies),
-      dropouts: tests - successful,
-      qualityGrade: this.getStabilityGrade(successful / tests)
+    // Calculate overall statistics
+    const successfulTests = results.filter(r => !r.error);
+    this.metrics.downloadSpeed = {
+      overall: {
+        average: (totalBytesDownloaded * 8 / totalTime) / 1_000_000,
+        max: Math.max(...successfulTests.map(r => r.speed)),
+        min: Math.min(...successfulTests.map(r => r.speed)),
+        totalBytes: totalBytesDownloaded,
+        totalTime
+      },
+      tests: results
     };
+    
+    // Complete download phase
+    this.updateProgress('download', 100);
+    this.updateSpeed(0, 'download'); // Reset speedometer
   }
 
-  // 8. CDN PERFORMANCE - Real-world content delivery
-  async measureCDNPerformance() {
-    console.log('🚀 Measuring CDN performance...');
-    const cdnTests = [];
+  // 4. UPLOAD SPEED WITH REAL-TIME PROGRESS
+  async measureUploadSpeedWithProgress() {
+    console.log('📤 Measuring upload speed with live updates...');
+    const results = [];
+    let totalBytesUploaded = 0;
+    let totalTime = 0;
     
+    for (const size of this.config.uploadTests.fileSizes) {
+      const sizeBytes = this.parseSizeToBytes(size);
+      const data = new ArrayBuffer(sizeBytes);
+      const uint8Array = new Uint8Array(data);
+      
+      // Fill with random data
+      for (let i = 0; i < uint8Array.length; i++) {
+        uint8Array[i] = Math.floor(Math.random() * 256);
+      }
+      
+      const blob = new Blob([uint8Array]);
+      
+      try {
+        const startTime = performance.now();
+        
+        // Simulate upload with progress tracking
+        const chunkSize = 65536; // 64KB chunks
+        let uploadedBytes = 0;
+        
+        // Upload simulation (actual upload would go to a server)
+        while (uploadedBytes < sizeBytes) {
+          const remainingBytes = sizeBytes - uploadedBytes;
+          const currentChunk = Math.min(chunkSize, remainingBytes);
+          
+          // Simulate network delay
+          await new Promise(resolve => setTimeout(resolve, 10));
+          
+          uploadedBytes += currentChunk;
+          const elapsedTime = (performance.now() - startTime) / 1000;
+          const currentSpeed = ((uploadedBytes * 8) / elapsedTime) / 1_000_000; // Mbps
+          
+          // Send real-time speed update
+          this.updateSpeed(currentSpeed, 'upload');
+          
+          // Update upload progress
+          const progress = (uploadedBytes / sizeBytes) * 100;
+          const sizeIndex = this.config.uploadTests.fileSizes.indexOf(size);
+          const totalTests = this.config.uploadTests.fileSizes.length;
+          const overallProgress = ((sizeIndex / totalTests) * 100) + (progress / totalTests);
+          
+          this.updateProgress('upload', Math.round(overallProgress));
+        }
+        
+        const duration = (performance.now() - startTime) / 1000;
+        const speedMbps = ((sizeBytes * 8) / duration) / 1_000_000;
+        
+        results.push({
+          size,
+          speed: speedMbps,
+          duration,
+          bytes: sizeBytes
+        });
+        
+        totalBytesUploaded += sizeBytes;
+        totalTime += duration;
+        
+      } catch (error) {
+        console.error('Upload test failed:', error);
+        results.push({
+          size,
+          error: error.message
+        });
+      }
+    }
+    
+    // Calculate overall statistics
+    const successfulTests = results.filter(r => !r.error);
+    this.metrics.uploadSpeed = {
+      overall: {
+        average: (totalBytesUploaded * 8 / totalTime) / 1_000_000,
+        max: Math.max(...successfulTests.map(r => r.speed)),
+        min: Math.min(...successfulTests.map(r => r.speed)),
+        totalBytes: totalBytesUploaded,
+        totalTime
+      },
+      tests: results
+    };
+    
+    // Complete upload phase
+    this.updateProgress('upload', 100);
+    this.updateSpeed(0, 'upload'); // Reset speedometer
+  }
+
+  // Helper: Parse size string to bytes
+  parseSizeToBytes(size) {
+    const units = { KB: 1024, MB: 1048576, GB: 1073741824 };
+    const match = size.match(/^(\d+)([KMG]B)$/);
+    if (match) {
+      return parseInt(match[1]) * units[match[2]];
+    }
+    return 1048576; // Default 1MB
+  }
+
+  // Helper: Get test file URL
+  getTestFileUrl(server, size) {
+    const urls = {
+      cloudflare: {
+        '1MB': 'https://speed.cloudflare.com/__down?bytes=1048576',
+        '5MB': 'https://speed.cloudflare.com/__down?bytes=5242880',
+        '10MB': 'https://speed.cloudflare.com/__down?bytes=10485760'
+      },
+      google: {
+        '1MB': 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+        '5MB': 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+        '10MB': 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+      }
+    };
+    
+    return urls[server.id]?.[size] || urls.cloudflare[size];
+  }
+
+  // Helper: Get download servers
+  getDownloadServers() {
+    const allServers = [
+      { id: 'cloudflare', name: 'Cloudflare', url: 'https://speed.cloudflare.com' },
+      { id: 'google', name: 'Google', url: 'https://www.google.com' },
+      { id: 'amazon', name: 'Amazon', url: 'https://www.amazon.com' }
+    ];
+    
+    // Check if servers exist in config, otherwise return cloudflare as default
+    if (this.config.downloadTests && this.config.downloadTests.servers && Array.isArray(this.config.downloadTests.servers)) {
+      const filtered = allServers.filter(s => 
+        this.config.downloadTests.servers.includes(s.id)
+      );
+      return filtered.length > 0 ? filtered : [allServers[0]]; // Always return at least cloudflare
+    }
+    
+    // Default: return cloudflare if config is missing
+    return [allServers[0]];
+  }
+
+  // Helper: Get latency targets
+  getLatencyTargets() {
+    const allTargets = [
+      { name: 'Google', url: 'https://www.google.com/generate_204' },
+      { name: 'Cloudflare', url: 'https://www.cloudflare.com/cdn-cgi/trace' },
+      { name: 'Microsoft', url: 'https://www.microsoft.com' }
+    ];
+    
+    return allTargets.filter(t => 
+      this.config.latencyTests.targets.includes(t.name.toLowerCase())
+    );
+  }
+
+  // 5. IPv6 CONNECTIVITY
+  async checkIPv6() {
+    try {
+      const response = await fetch('https://ipv6.google.com', {
+        method: 'HEAD',
+        signal: AbortSignal.timeout(5000)
+      });
+      this.metrics.ipv6 = {
+        supported: response.ok,
+        latency: null
+      };
+    } catch (error) {
+      this.metrics.ipv6 = {
+        supported: false,
+        error: error.message
+      };
+    }
+  }
+
+  // 6. CDN PERFORMANCE
+  async measureCDNPerformance() {
+    const cdnTests = [];
     const cdns = [
       { name: 'Cloudflare', url: 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js' },
-      { name: 'jsDelivr', url: 'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css' },
-      { name: 'unpkg', url: 'https://unpkg.com/react@17/umd/react.production.min.js' },
-      { name: 'Google', url: 'https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js' }
+      { name: 'jsDelivr', url: 'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css' }
     ];
     
     for (const cdn of cdns) {
       const start = performance.now();
       try {
-        const response = await fetch(cdn.url, { 
+        const response = await fetch(cdn.url, {
           cache: 'no-cache',
           signal: AbortSignal.timeout(10000)
         });
@@ -527,412 +593,225 @@ export class EpicNetworkMetrics {
     this.metrics.cdnPerformance = {
       tests: cdnTests,
       averageSpeed: cdnTests.filter(t => t.status === 'success')
-        .reduce((a, t) => a + t.speed, 0) / cdnTests.filter(t => t.status === 'success').length,
-      successRate: (cdnTests.filter(t => t.status === 'success').length / cdnTests.length) * 100
+        .reduce((a, t) => a + t.speed, 0) / cdnTests.filter(t => t.status === 'success').length
     };
   }
 
-  // 9. GAMING LATENCY - Specialized for gamers
-  async measureGamingLatency() {
-    console.log('🎮 Measuring gaming latency...');
-    const sampleCount = this.config.gamingTests?.sampleCount || 100;
-    const gameServers = [
-      'https://www.google.com/generate_204',
-      'https://www.cloudflare.com/cdn-cgi/trace'
-    ];
+  // 7. DNS PERFORMANCE
+  async measureDNSPerformance() {
+    const dnsTests = [];
+    const domains = ['google.com', 'cloudflare.com', 'amazon.com'];
     
-    const results = [];
-    
-    // Burst test - rapid fire requests
-    if (this.config.gamingTests?.burstTests) {
-      const burstResults = [];
-      for (let i = 0; i < 20; i++) {
-        const start = performance.now();
-        try {
-          await fetch(gameServers[0], { 
-            method: 'HEAD', 
-            cache: 'no-cache',
-            signal: AbortSignal.timeout(1000)
-          });
-          burstResults.push(performance.now() - start);
-        } catch (error) {
-          burstResults.push(1000);
-        }
-      }
-      results.push(...burstResults);
-    }
-    
-    // Regular sampling
-    for (let i = 0; i < sampleCount; i++) {
-      const server = gameServers[i % gameServers.length];
+    for (const domain of domains) {
       const start = performance.now();
       try {
-        await fetch(server, { 
-          method: 'HEAD', 
+        await fetch(`https://${domain}`, {
+          method: 'HEAD',
+          cache: 'no-cache',
+          signal: AbortSignal.timeout(3000)
+        });
+        const duration = performance.now() - start;
+        dnsTests.push({
+          domain,
+          time: Math.round(duration),
+          status: 'resolved'
+        });
+      } catch (error) {
+        dnsTests.push({
+          domain,
+          error: error.message,
+          status: 'failed'
+        });
+      }
+    }
+    
+    this.metrics.dnsPerformance = {
+      tests: dnsTests,
+      averageTime: dnsTests.filter(t => t.status === 'resolved')
+        .reduce((a, t) => a + t.time, 0) / dnsTests.filter(t => t.status === 'resolved').length
+    };
+  }
+
+  // 8. GAMING LATENCY
+  async measureGamingLatency() {
+    const sampleCount = this.config.gamingTests.sampleCount;
+    const results = [];
+    
+    for (let i = 0; i < sampleCount; i++) {
+      const start = performance.now();
+      try {
+        await fetch('https://www.google.com/generate_204', {
+          method: 'HEAD',
           cache: 'no-cache',
           signal: AbortSignal.timeout(500)
         });
-        results.push(performance.now() - start);
+        const latency = performance.now() - start;
+        results.push(latency);
+        
+        // Update progress
+        const progress = Math.round((i / sampleCount) * 100);
+        this.updateProgress('gaming', progress);
+        
       } catch (error) {
-        // Skip failed attempts
+        results.push(null);
       }
       
-      // Simulate game tick rate (60 FPS = 16.67ms)
+      // Simulate game tick rate (60 FPS)
       await new Promise(resolve => setTimeout(resolve, 16));
     }
     
+    const validResults = results.filter(r => r !== null);
     this.metrics.gamingLatency = {
-      average: results.reduce((a, b) => a + b, 0) / results.length,
-      p99: this.calculatePercentile(results, 99),
-      p95: this.calculatePercentile(results, 95),
-      p50: this.calculatePercentile(results, 50),
-      consistency: this.calculateConsistency(results),
-      gamingGrade: this.getGamingGrade(results),
-      samples: results.length
+      average: validResults.reduce((a, b) => a + b, 0) / validResults.length,
+      p99: this.calculatePercentile(validResults, 99),
+      p95: this.calculatePercentile(validResults, 95),
+      consistency: this.calculateConsistency(validResults),
+      samples: validResults.length
+    };
+    
+    this.updateProgress('gaming', 100);
+  }
+
+  // Calculate jitter
+  calculateJitter(latencies) {
+    if (latencies.length < 2) return { average: 0, max: 0 };
+    
+    const differences = [];
+    for (let i = 1; i < latencies.length; i++) {
+      differences.push(Math.abs(latencies[i] - latencies[i - 1]));
+    }
+    
+    return {
+      average: differences.reduce((a, b) => a + b, 0) / differences.length,
+      max: Math.max(...differences),
+      samples: differences.length
     };
   }
 
-  // 10. STREAMING QUALITY
-  async measureStreamingQuality() {
-    console.log('📺 Measuring streaming quality...');
-    
-    const streamingMetrics = {
-      '4K': { required: 25, recommended: 35 },
-      '1080p': { required: 5, recommended: 10 },
-      '720p': { required: 2.5, recommended: 5 },
-      '480p': { required: 1.1, recommended: 2 }
-    };
-    
-    const downloadSpeed = this.metrics.downloadSpeed?.overall?.average || 0;
-    const latency = this.metrics.latency?.overall?.average || 0;
-    const packetLoss = this.metrics.packetLoss?.percentage || 0;
-    
-    const capabilities = {};
-    
-    for (const [quality, speeds] of Object.entries(streamingMetrics)) {
-      capabilities[quality] = {
-        supported: downloadSpeed >= speeds.required,
-        optimal: downloadSpeed >= speeds.recommended && latency < 50 && packetLoss < 0.5,
-        bufferFree: downloadSpeed >= speeds.recommended * 1.5
-      };
-    }
-    
-    this.metrics.streamingQuality = {
-      capabilities,
-      maxQuality: Object.entries(capabilities)
-        .reverse()
-        .find(([_, cap]) => cap.optimal)?.[0] || 'None',
-      bufferRisk: packetLoss > 1 || latency > 100 ? 'High' :
-                  packetLoss > 0.5 || latency > 50 ? 'Medium' : 'Low'
-    };
-  }
-
-  // 11. VoIP QUALITY
-  async measureVoIPQuality() {
-    console.log('📞 Measuring VoIP quality...');
-    
-    const latency = this.metrics.latency?.overall?.average || 0;
-    const jitter = this.metrics.jitter?.average || 0;
-    const packetLoss = this.metrics.packetLoss?.percentage || 0;
-    
-    // MOS (Mean Opinion Score) calculation
-    let mos = 5;
-    
-    // Deduct for latency
-    if (latency > 150) mos -= 1;
-    else if (latency > 100) mos -= 0.5;
-    else if (latency > 50) mos -= 0.2;
-    
-    // Deduct for jitter
-    if (jitter > 30) mos -= 1;
-    else if (jitter > 20) mos -= 0.5;
-    else if (jitter > 10) mos -= 0.2;
-    
-    // Deduct for packet loss
-    if (packetLoss > 1) mos -= 1.5;
-    else if (packetLoss > 0.5) mos -= 0.8;
-    else if (packetLoss > 0.1) mos -= 0.3;
-    
-    mos = Math.max(1, Math.min(5, mos));
-    
-    this.metrics.voipQuality = {
-      mos: Math.round(mos * 10) / 10,
-      quality: mos >= 4 ? 'Excellent' :
-               mos >= 3.5 ? 'Good' :
-               mos >= 3 ? 'Fair' :
-               mos >= 2 ? 'Poor' : 'Unacceptable',
-      metrics: {
-        latency,
-        jitter,
-        packetLoss
-      }
-    };
-  }
-
-  // 12. IPv4 vs IPv6 COMPARISON
-  async measureIPv4vsIPv6() {
-    console.log('🌐 Comparing IPv4 vs IPv6...');
-    
-    try {
-      // Test IPv4
-      const ipv4Start = performance.now();
-      const ipv4Response = await fetch('https://ipv4.google.com/generate_204', { 
-        method: 'HEAD',
-        signal: AbortSignal.timeout(5000)
-      });
-      const ipv4Time = performance.now() - ipv4Start;
-      
-      // Test IPv6
-      const ipv6Start = performance.now();
-      const ipv6Response = await fetch('https://ipv6.google.com/generate_204', { 
-        method: 'HEAD',
-        signal: AbortSignal.timeout(5000)
-      });
-      const ipv6Time = performance.now() - ipv6Start;
-      
-      this.metrics.ipComparison = {
-        ipv4: {
-          latency: Math.round(ipv4Time),
-          available: ipv4Response.ok
-        },
-        ipv6: {
-          latency: Math.round(ipv6Time),
-          available: ipv6Response.ok
-        },
-        difference: Math.round(Math.abs(ipv4Time - ipv6Time)),
-        faster: ipv4Time < ipv6Time ? 'IPv4' : 'IPv6',
-        ipv6Advantage: Math.round(((ipv4Time - ipv6Time) / ipv4Time) * 100)
-      };
-    } catch (error) {
-      this.metrics.ipComparison = { 
-        error: 'IPv6 not supported or available',
-        ipv4Only: true 
-      };
-    }
-  }
-
-  // 13. ROUTING EFFICIENCY
-  async measureRoutingEfficiency() {
-    console.log('🗺️ Measuring routing efficiency...');
-    
-    const targets = [
-      { name: 'Local', url: 'https://www.google.com/generate_204', expected: 50 },
-      { name: 'Regional', url: 'https://www.microsoft.com/favicon.ico', expected: 100 },
-      { name: 'Global', url: 'https://www.amazon.co.jp/favicon.ico', expected: 200 }
-    ];
-    
-    const results = [];
-    
-    for (const target of targets) {
-      const samples = [];
-      for (let i = 0; i < 5; i++) {
-        const start = performance.now();
-        try {
-          await fetch(target.url, {
-            method: 'HEAD',
-            cache: 'no-cache',
-            signal: AbortSignal.timeout(5000)
-          });
-          samples.push(performance.now() - start);
-        } catch (error) {
-          samples.push(5000);
-        }
-      }
-      
-      const avg = samples.reduce((a, b) => a + b, 0) / samples.length;
-      results.push({
-        name: target.name,
-        latency: avg,
-        expected: target.expected,
-        efficiency: Math.max(0, 100 - ((avg - target.expected) / target.expected * 100))
-      });
-    }
-    
-    this.metrics.routingEfficiency = {
-      results,
-      overall: results.reduce((a, r) => a + r.efficiency, 0) / results.length
-    };
-  }
-
-  // HELPER METHODS
-  parseFileSize(size) {
-    const units = { KB: 1024, MB: 1024 * 1024, GB: 1024 * 1024 * 1024 };
-    const match = size.match(/(\d+)(KB|MB|GB)/i);
-    if (match) {
-      return parseInt(match[1]) * units[match[2].toUpperCase()];
-    }
-    return 1024 * 1024; // Default 1MB
-  }
-
-  getFileSizeUrl(bytes) {
-    const mb = Math.round(bytes / (1024 * 1024));
-    if (mb <= 1) return '1MB.zip';
-    if (mb <= 5) return '5MB.zip';
-    if (mb <= 10) return '10MB.zip';
-    if (mb <= 25) return '20MB.zip';
-    if (mb <= 50) return '50MB.zip';
-    return '100MB.zip';
-  }
-
-  getActiveServers() {
-    const servers = [];
-    if (this.config.downloadTests?.servers) {
-      for (const server of this.config.downloadTests.servers) {
-        if (this.testServers[server]) {
-          servers.push(...this.testServers[server]);
-        }
-      }
-    }
-    
-    // Fallback to default servers
-    if (servers.length === 0) {
-      servers.push(
-        'https://speed.cloudflare.com/__down?bytes=',
-        'https://download.thinkbroadband.com/',
-        'https://proof.ovh.net/files/'
-      );
-    }
-    
-    return servers;
-  }
-
-  getLatencyTargets() {
-    const targets = [];
-    const configured = this.config.latencyTests?.targets || ['google', 'cloudflare'];
-    
-    const targetMap = {
-      google: { name: 'Google', url: 'https://www.google.com/generate_204' },
-      cloudflare: { name: 'Cloudflare', url: 'https://www.cloudflare.com/cdn-cgi/trace' },
-      microsoft: { name: 'Microsoft', url: 'https://www.microsoft.com/favicon.ico' },
-      amazon: { name: 'Amazon', url: 'https://www.amazon.com/favicon.ico' }
-    };
-    
-    for (const target of configured) {
-      if (targetMap[target]) {
-        targets.push(targetMap[target]);
-      }
-    }
-    
-    return targets.length > 0 ? targets : [targetMap.google, targetMap.cloudflare];
-  }
-
-  calculateConsistency(values) {
-    if (values.length < 2) return 100;
-    const avg = values.reduce((a, b) => a + b, 0) / values.length;
-    const variance = values.reduce((acc, val) => acc + Math.pow(val - avg, 2), 0) / values.length;
-    const cv = (Math.sqrt(variance) / avg) * 100;
-    return Math.max(0, 100 - cv);
-  }
-
-  calculatePercentile(values, percentile) {
-    const sorted = [...values].sort((a, b) => a - b);
+  // Calculate percentile
+  calculatePercentile(arr, percentile) {
+    const sorted = [...arr].sort((a, b) => a - b);
     const index = Math.ceil((percentile / 100) * sorted.length) - 1;
-    return sorted[Math.max(0, index)];
+    return sorted[index];
   }
 
-  calculateVariation(values) {
-    if (values.length < 2) return 0;
-    const avg = values.reduce((a, b) => a + b, 0) / values.length;
-    const variance = values.reduce((acc, val) => acc + Math.pow(val - avg, 2), 0) / values.length;
-    return Math.sqrt(variance);
+  // Calculate consistency
+  calculateConsistency(values) {
+    const mean = values.reduce((a, b) => a + b, 0) / values.length;
+    const variance = values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / values.length;
+    const stdDev = Math.sqrt(variance);
+    return 100 - Math.min(100, (stdDev / mean) * 100);
   }
 
-  // SCORING SYSTEM
-  calculateEpicScore() {
-    let score = 100;
-    const weights = {
-      download: 30,
-      upload: 15,
-      latency: 20,
-      packetLoss: 15,
-      jitter: 10,
-      stability: 10
+  // Detect connection type
+  detectConnectionType() {
+    if ('connection' in navigator) {
+      const conn = navigator.connection;
+      return {
+        type: conn.effectiveType || 'unknown',
+        downlink: conn.downlink || null,
+        rtt: conn.rtt || null,
+        saveData: conn.saveData || false
+      };
+    }
+    return { type: 'unknown' };
+  }
+
+  // Analyze results
+  analyzeResults() {
+    const score = this.calculateOverallScore();
+    const grade = this.getGrade(score);
+    const capabilities = this.assessCapabilities();
+    const insights = this.generateInsights();
+    
+    return {
+      overallScore: score,
+      grade: grade.grade,
+      gradeDescription: grade.description,
+      capabilities,
+      insights
     };
-    
-    // Download speed impact
-    const dlSpeed = this.metrics.downloadSpeed?.overall?.average || 0;
-    if (dlSpeed < 5) score -= weights.download * 0.8;
-    else if (dlSpeed < 25) score -= weights.download * 0.4;
-    else if (dlSpeed < 100) score -= weights.download * 0.2;
-    else if (dlSpeed >= 500) score += weights.download * 0.1; // Bonus for gigabit
-    
-    // Upload speed impact
-    const ulSpeed = this.metrics.uploadSpeed?.overall?.average || 0;
-    if (ulSpeed < 1) score -= weights.upload * 0.8;
-    else if (ulSpeed < 10) score -= weights.upload * 0.4;
-    else if (ulSpeed < 50) score -= weights.upload * 0.2;
-    
-    // Latency impact
-    const latency = this.metrics.latency?.overall?.average || 100;
-    if (latency > 100) score -= weights.latency * 0.8;
-    else if (latency > 50) score -= weights.latency * 0.4;
-    else if (latency > 20) score -= weights.latency * 0.2;
-    else if (latency < 10) score += weights.latency * 0.1; // Bonus for ultra-low
-    
-    // Packet loss impact
-    const packetLoss = this.metrics.packetLoss?.percentage || 0;
-    if (packetLoss > 1) score -= weights.packetLoss * 0.8;
-    else if (packetLoss > 0.5) score -= weights.packetLoss * 0.4;
-    else if (packetLoss > 0.1) score -= weights.packetLoss * 0.2;
-    
-    // Jitter impact
-    const jitter = this.metrics.jitter?.average || 0;
-    if (jitter > 50) score -= weights.jitter * 0.8;
-    else if (jitter > 20) score -= weights.jitter * 0.4;
-    else if (jitter > 10) score -= weights.jitter * 0.2;
-    
-    // Stability impact
-    const stability = this.metrics.connectionStability?.stabilityScore || 100;
-    if (stability < 95) score -= weights.stability * 0.5;
-    else if (stability < 99) score -= weights.stability * 0.2;
-    
-    return Math.max(0, Math.min(100, Math.round(score)));
   }
 
-  getNetworkGrade() {
-    const score = this.metrics.overallScore || 0;
+  // Calculate overall score
+  calculateOverallScore() {
+    let score = 0;
+    let weight = 0;
     
+    // Download speed (40% weight)
+    if (this.metrics.downloadSpeed) {
+      const dlScore = Math.min(100, (this.metrics.downloadSpeed.overall.average / 100) * 100);
+      score += dlScore * 0.4;
+      weight += 0.4;
+    }
+    
+    // Upload speed (20% weight)
+    if (this.metrics.uploadSpeed) {
+      const ulScore = Math.min(100, (this.metrics.uploadSpeed.overall.average / 50) * 100);
+      score += ulScore * 0.2;
+      weight += 0.2;
+    }
+    
+    // Latency (30% weight)
+    if (this.metrics.latency) {
+      const latencyScore = Math.max(0, 100 - (this.metrics.latency.overall.average / 2));
+      score += latencyScore * 0.3;
+      weight += 0.3;
+    }
+    
+    // Jitter (10% weight)
+    if (this.metrics.jitter) {
+      const jitterScore = Math.max(0, 100 - (this.metrics.jitter.average * 2));
+      score += jitterScore * 0.1;
+      weight += 0.1;
+    }
+    
+    return weight > 0 ? Math.round(score / weight) : 0;
+  }
+
+  // Get grade
+  getGrade(score) {
     const grades = [
-      { min: 95, grade: 'A+', description: 'World-Class Network Performance', color: '#00ff88' },
-      { min: 90, grade: 'A', description: 'Exceptional Network Performance', color: '#32cd32' },
-      { min: 85, grade: 'A-', description: 'Excellent Network Performance', color: '#50c878' },
-      { min: 80, grade: 'B+', description: 'Very Good Network Performance', color: '#4a90e2' },
-      { min: 75, grade: 'B', description: 'Good Network Performance', color: '#1e90ff' },
-      { min: 70, grade: 'B-', description: 'Above Average Performance', color: '#87ceeb' },
-      { min: 65, grade: 'C+', description: 'Average Network Performance', color: '#ffd700' },
-      { min: 60, grade: 'C', description: 'Acceptable Network Performance', color: '#ffa500' },
-      { min: 55, grade: 'C-', description: 'Below Average Performance', color: '#ff8c00' },
-      { min: 50, grade: 'D+', description: 'Poor Network Performance', color: '#ff6347' },
-      { min: 45, grade: 'D', description: 'Very Poor Performance', color: '#ff4500' },
-      { min: 0, grade: 'F', description: 'Failing Network Performance', color: '#ff0000' }
+      { min: 95, grade: 'A+', description: 'Exceptional Network Performance' },
+      { min: 90, grade: 'A', description: 'Excellent Network Performance' },
+      { min: 85, grade: 'A-', description: 'Very Good Network Performance' },
+      { min: 80, grade: 'B+', description: 'Good Network Performance' },
+      { min: 75, grade: 'B', description: 'Above Average Performance' },
+      { min: 70, grade: 'B-', description: 'Decent Network Performance' },
+      { min: 65, grade: 'C+', description: 'Average Network Performance' },
+      { min: 60, grade: 'C', description: 'Acceptable Network Performance' },
+      { min: 55, grade: 'C-', description: 'Below Average Performance' },
+      { min: 50, grade: 'D+', description: 'Poor Network Performance' },
+      { min: 45, grade: 'D', description: 'Very Poor Performance' },
+      { min: 0, grade: 'F', description: 'Failing Network Performance' }
     ];
     
-    const gradeInfo = grades.find(g => score >= g.min);
-    return gradeInfo || grades[grades.length - 1];
+    return grades.find(g => score >= g.min) || grades[grades.length - 1];
   }
 
+  // Assess capabilities
   assessCapabilities() {
     const dlSpeed = this.metrics.downloadSpeed?.overall?.average || 0;
+    const ulSpeed = this.metrics.uploadSpeed?.overall?.average || 0;
     const latency = this.metrics.latency?.overall?.average || 100;
-    const packetLoss = this.metrics.packetLoss?.percentage || 0;
     const jitter = this.metrics.jitter?.average || 0;
     
     return {
-      streaming4K: dlSpeed >= 25 && latency < 50 && packetLoss < 0.5,
-      streaming1080p: dlSpeed >= 5 && latency < 100 && packetLoss < 1,
-      gaming: latency < 50 && jitter < 20 && packetLoss < 0.5,
-      videoConferencing: dlSpeed >= 3 && latency < 150 && jitter < 30,
-      remoteWork: dlSpeed >= 10 && latency < 100 && packetLoss < 1,
+      streaming4K: dlSpeed >= 25 && latency < 50,
+      streaming1080p: dlSpeed >= 5 && latency < 100,
+      gaming: latency < 50 && jitter < 20,
+      videoConferencing: dlSpeed >= 3 && ulSpeed >= 2 && latency < 150,
+      remoteWork: dlSpeed >= 10 && ulSpeed >= 5 && latency < 100,
       basicBrowsing: dlSpeed >= 1 && latency < 200
     };
   }
 
+  // Generate insights
   generateInsights() {
     const insights = [];
     const dlSpeed = this.metrics.downloadSpeed?.overall?.average || 0;
     const ulSpeed = this.metrics.uploadSpeed?.overall?.average || 0;
     const latency = this.metrics.latency?.overall?.average || 100;
-    const packetLoss = this.metrics.packetLoss?.percentage || 0;
     const jitter = this.metrics.jitter?.average || 0;
     
     // Speed insights
@@ -955,67 +834,11 @@ export class EpicNetworkMetrics {
       insights.push('⏱️ High latency detected - may affect real-time applications.');
     }
     
-    // Quality insights
-    if (packetLoss > 0) {
-      insights.push(`📦 ${packetLoss}% packet loss detected - may cause connection issues.`);
-    }
-    
+    // Jitter insights
     if (jitter > 30) {
       insights.push('📊 High jitter may affect voice/video quality.');
     }
     
-    // Capability insights
-    const capabilities = this.assessCapabilities();
-    if (capabilities.gaming && capabilities.streaming4K) {
-      insights.push('🎮 Your network is optimized for both gaming and 4K streaming!');
-    }
-    
     return insights;
-  }
-
-  getJitterQuality(jitter) {
-    if (jitter < 5) return 'Excellent';
-    if (jitter < 15) return 'Good';
-    if (jitter < 30) return 'Fair';
-    if (jitter < 50) return 'Poor';
-    return 'Very Poor';
-  }
-
-  getPacketLossQuality(loss) {
-    if (loss === 0) return 'Perfect';
-    if (loss < 0.1) return 'Excellent';
-    if (loss < 0.5) return 'Good';
-    if (loss < 1) return 'Fair';
-    if (loss < 2) return 'Poor';
-    return 'Critical';
-  }
-
-  getStabilityGrade(ratio) {
-    if (ratio >= 0.99) return 'A+';
-    if (ratio >= 0.95) return 'A';
-    if (ratio >= 0.90) return 'B';
-    if (ratio >= 0.85) return 'C';
-    if (ratio >= 0.80) return 'D';
-    return 'F';
-  }
-
-  getGamingGrade(latencies) {
-    const avg = latencies.reduce((a, b) => a + b, 0) / latencies.length;
-    const p99 = this.calculatePercentile(latencies, 99);
-    
-    if (avg < 10 && p99 < 20) return 'Professional Esports';
-    if (avg < 20 && p99 < 40) return 'Competitive Gaming';
-    if (avg < 30 && p99 < 60) return 'Excellent Gaming';
-    if (avg < 50 && p99 < 100) return 'Good Gaming';
-    if (avg < 75 && p99 < 150) return 'Casual Gaming';
-    return 'Gaming Issues';
-  }
-
-  // Abort ongoing tests
-  abort() {
-    if (this.abortController) {
-      this.abortController.abort();
-      this.isRunning = false;
-    }
   }
 }

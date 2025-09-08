@@ -1,5 +1,5 @@
-// 🔥 EPIC SPEED TEST OVERLAY CONTROLLER
-// Manages the epic speed test interface with legendary animations
+// 🔥 EPIC SPEED TEST OVERLAY CONTROLLER V2.0
+// Real-time connection to Epic Engine for live progress and speed updates
 
 export class EpicOverlay {
   constructor() {
@@ -13,6 +13,8 @@ export class EpicOverlay {
     this.currentSpeed = 0;
     this.targetSpeed = 0;
     this.testPhase = 'idle';
+    this.port = null;
+    this.connectionId = null;
   }
 
   // Initialize overlay
@@ -23,194 +25,314 @@ export class EpicOverlay {
     // Setup event listeners
     this.setupEventListeners();
     
+    // Initialize speedometer
+    this.initializeSpeedometer();
+    
+    // Establish real-time connection
+    this.establishRealtimeConnection();
+    
     // Load saved preferences
     await this.loadPreferences();
     
-    console.log('🔥 Epic Overlay initialized!');
+    console.log('🔥 Epic Overlay initialized with real-time connection!');
   }
 
-  // Create overlay HTML structure
+  // Create overlay HTML structure - Using string concatenation to avoid template literal issues
   createOverlayHTML() {
     const overlay = document.getElementById('epicOverlay');
     
-    overlay.innerHTML = `
-      <!-- Epic Header -->
-      <div class="epic-header">
-        <div class="epic-title">
-          <span class="epic-icon">🔥</span>
-          Epic Speed Test Engine
-        </div>
-        <button class="epic-close" id="epicClose">×</button>
-      </div>
-      
-      <!-- Epic Content -->
-      <div class="epic-content">
-        <!-- Left Panel - Speedometer -->
-        <div class="speedometer-panel">
-          <!-- Epic Speedometer -->
-          <div class="epic-speedometer">
-            <div class="speedometer-outer">
-              <div class="speedometer-inner">
-                <!-- Speed marks -->
-                <div class="speed-marks" id="speedMarks"></div>
-                
-                <!-- Speed display -->
-                <div class="speed-display">
-                  <div class="speed-value" id="epicSpeedValue">0</div>
-                  <div class="speed-unit">Mbps</div>
-                </div>
-                
-                <!-- Needle -->
-                <div class="speed-needle" id="speedNeedle"></div>
-                <div class="needle-center"></div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Test Status -->
-          <div class="test-status">
-            <div class="status-text" id="testStatus">Ready to begin epic testing</div>
-          </div>
-          
-          <!-- Test Controls -->
-          <div class="test-controls">
-            <button class="test-btn primary" id="startTestBtn">
-              START EPIC TEST
-            </button>
-            <button class="test-btn secondary" id="stopTestBtn" disabled>
-              STOP TEST
-            </button>
-          </div>
-          
-          <!-- Progress Section -->
-          <div class="progress-section">
-            <div class="progress-item">
-              <div class="progress-label">
-                <span>Download Test</span>
-                <span class="progress-value" id="downloadProgress">0%</span>
-              </div>
-              <div class="progress-bar">
-                <div class="progress-fill" id="downloadProgressBar"></div>
-              </div>
-            </div>
-            
-            <div class="progress-item">
-              <div class="progress-label">
-                <span>Upload Test</span>
-                <span class="progress-value" id="uploadProgress">0%</span>
-              </div>
-              <div class="progress-bar">
-                <div class="progress-fill" id="uploadProgressBar"></div>
-              </div>
-            </div>
-            
-            <div class="progress-item">
-              <div class="progress-label">
-                <span>Overall Progress</span>
-                <span class="progress-value" id="overallProgress">0%</span>
-              </div>
-              <div class="progress-bar">
-                <div class="progress-fill" id="overallProgressBar"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Right Panel - Results & Settings -->
-        <div class="results-panel">
-          <!-- Test Modes -->
-          <div class="test-modes">
-            <button class="mode-btn" data-mode="quick">
-              <span class="mode-icon">⚡</span>
-              <span class="mode-name">Quick</span>
-            </button>
-            <button class="mode-btn active" data-mode="standard">
-              <span class="mode-icon">📊</span>
-              <span class="mode-name">Standard</span>
-            </button>
-            <button class="mode-btn" data-mode="thorough">
-              <span class="mode-icon">🔬</span>
-              <span class="mode-name">Thorough</span>
-            </button>
-            <button class="mode-btn" data-mode="gaming">
-              <span class="mode-icon">🎮</span>
-              <span class="mode-name">Gaming</span>
-            </button>
-          </div>
-          
-          <!-- Results Tabs -->
-          <div class="results-tabs">
-            <button class="tab-btn active" data-tab="metrics">Metrics</button>
-            <button class="tab-btn" data-tab="insights">AI Insights</button>
-            <button class="tab-btn" data-tab="capabilities">Capabilities</button>
-            <button class="tab-btn" data-tab="advanced">Advanced</button>
-          </div>
-          
-          <!-- Tab Contents -->
-          <div class="tab-content active" id="metricsTab">
-            <div class="metrics-grid" id="metricsGrid">
-              <!-- Metrics will be populated here -->
-            </div>
-          </div>
-          
-          <div class="tab-content" id="insightsTab">
-            <div class="insights-section">
-              <div class="insights-header">
-                <span class="insights-icon">🤖</span>
-                AI-Powered Network Analysis
-              </div>
-              <div id="insightsList">
-                <!-- Insights will be populated here -->
-              </div>
-            </div>
-          </div>
-          
-          <div class="tab-content" id="capabilitiesTab">
-            <div class="capabilities-grid" id="capabilitiesGrid">
-              <!-- Capabilities will be populated here -->
-            </div>
-          </div>
-          
-          <div class="tab-content" id="advancedTab">
-            <div class="advanced-metrics">
-              <div class="advanced-grid" id="advancedGrid">
-                <!-- Advanced metrics will be populated here -->
-              </div>
-            </div>
-          </div>
-          
-          <!-- Network Score Display -->
-          <div class="network-score-display" id="scoreDisplay" style="display: none;">
-            <div class="score-value-large" id="scoreLarge">--</div>
-            <div class="score-grade" id="scoreGrade">--</div>
-            <div class="score-description" id="scoreDescription">--</div>
-          </div>
-        </div>
-      </div>
-    `;
+    let html = '';
     
-    // Generate speed marks
-    this.generateSpeedMarks();
+    // Header
+    html += '<div class="epic-header">';
+    html += '<div class="epic-title">';
+    html += '<span class="epic-icon">🔥</span>';
+    html += 'Epic Speed Test Engine';
+    html += '<span class="connection-status" id="connectionStatus">';
+    html += '<span class="status-dot"></span>';
+    html += '<span class="status-text">Connected</span>';
+    html += '</span>';
+    html += '</div>';
+    html += '<button class="epic-close" id="epicClose">×</button>';
+    html += '</div>';
+    
+    // Content wrapper
+    html += '<div class="epic-content">';
+    
+    // Left Panel - Speedometer
+    html += '<div class="speedometer-panel">';
+    
+    // Speedometer
+    html += '<div class="epic-speedometer">';
+    html += '<div class="speedometer-outer">';
+    html += '<div class="speedometer-inner">';
+    html += '<div class="speed-marks" id="speedMarks"></div>';
+    html += '<div class="speed-display">';
+    html += '<div class="speed-value" id="epicSpeedValue">0</div>';
+    html += '<div class="speed-unit">Mbps</div>';
+    html += '<div class="speed-phase" id="speedPhase"></div>';
+    html += '</div>';
+    html += '<div class="speed-needle" id="speedNeedle"></div>';
+    html += '<div class="needle-center"></div>';
+    html += '<div class="latency-display" id="latencyDisplay">';
+    html += '<span class="latency-value">--</span>';
+    html += '<span class="latency-unit">ms</span>';
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+    
+    // Test Status
+    html += '<div class="test-status">';
+    html += '<div class="status-text" id="testStatus">Ready to begin epic testing</div>';
+    html += '</div>';
+    
+    // Test Controls
+    html += '<div class="test-controls">';
+    html += '<button class="test-btn primary" id="startTestBtn">START EPIC TEST</button>';
+    html += '<button class="test-btn secondary" id="stopTestBtn" disabled>STOP TEST</button>';
+    html += '</div>';
+    
+    // Progress Section
+    html += '<div class="progress-section">';
+    
+    // Overall Progress
+    html += '<div class="progress-item">';
+    html += '<div class="progress-label">';
+    html += '<span>Overall Progress</span>';
+    html += '<span class="progress-value" id="overallProgress">0%</span>';
+    html += '</div>';
+    html += '<div class="progress-bar">';
+    html += '<div class="progress-fill" id="overallProgressBar"></div>';
+    html += '</div>';
+    html += '</div>';
+    
+    // Download Progress
+    html += '<div class="progress-item" id="downloadProgressItem" style="display: none;">';
+    html += '<div class="progress-label">';
+    html += '<span>Download Test</span>';
+    html += '<span class="progress-value" id="downloadProgress">0%</span>';
+    html += '</div>';
+    html += '<div class="progress-bar">';
+    html += '<div class="progress-fill" id="downloadProgressBar"></div>';
+    html += '</div>';
+    html += '</div>';
+    
+    // Upload Progress
+    html += '<div class="progress-item" id="uploadProgressItem" style="display: none;">';
+    html += '<div class="progress-label">';
+    html += '<span>Upload Test</span>';
+    html += '<span class="progress-value" id="uploadProgress">0%</span>';
+    html += '</div>';
+    html += '<div class="progress-bar">';
+    html += '<div class="progress-fill" id="uploadProgressBar"></div>';
+    html += '</div>';
+    html += '</div>';
+    
+    // Latency Progress
+    html += '<div class="progress-item" id="latencyProgressItem" style="display: none;">';
+    html += '<div class="progress-label">';
+    html += '<span>Latency Test</span>';
+    html += '<span class="progress-value" id="latencyProgress">0%</span>';
+    html += '</div>';
+    html += '<div class="progress-bar">';
+    html += '<div class="progress-fill" id="latencyProgressBar"></div>';
+    html += '</div>';
+    html += '</div>';
+    
+    html += '</div>'; // End progress-section
+    
+    // Test Modes
+    html += '<div class="test-modes">';
+    html += '<button class="mode-btn" data-mode="quick">Quick</button>';
+    html += '<button class="mode-btn active" data-mode="standard">Standard</button>';
+    html += '<button class="mode-btn" data-mode="thorough">Thorough</button>';
+    html += '<button class="mode-btn" data-mode="gaming">Gaming</button>';
+    html += '</div>';
+    
+    html += '</div>'; // End speedometer-panel
+    
+    // Right Panel - Results
+    html += '<div class="results-panel">';
+    
+    // Tabs
+    html += '<div class="result-tabs">';
+    html += '<button class="tab-btn active" data-tab="metrics">Metrics</button>';
+    html += '<button class="tab-btn" data-tab="insights">Insights</button>';
+    html += '<button class="tab-btn" data-tab="advanced">Advanced</button>';
+    html += '</div>';
+    
+    // Tab Content - Metrics
+    html += '<div class="tab-content active" id="metricsTab">';
+    html += '<div class="metrics-grid" id="metricsGrid"></div>';
+    html += '</div>';
+    
+    // Tab Content - Insights
+    html += '<div class="tab-content" id="insightsTab">';
+    html += '<div class="insights-container" id="insightsContainer"></div>';
+    html += '</div>';
+    
+    // Tab Content - Advanced
+    html += '<div class="tab-content" id="advancedTab">';
+    html += '<div class="advanced-container" id="advancedContainer"></div>';
+    html += '</div>';
+    
+    html += '</div>'; // End results-panel
+    html += '</div>'; // End epic-content
+    
+    overlay.innerHTML = html;
   }
 
-  // Generate speedometer marks
-  generateSpeedMarks() {
-    const marksContainer = document.getElementById('speedMarks');
-    const markCount = 36; // One mark every 10 degrees
+  // Establish real-time connection to background script
+  establishRealtimeConnection() {
+    console.log('🔌 Establishing real-time connection...');
     
-    for (let i = 0; i < markCount; i++) {
+    // Connect to background script
+    this.port = chrome.runtime.connect({ name: 'epic-realtime' });
+    
+    // Handle messages from background
+    this.port.onMessage.addListener((msg) => {
+      this.handleRealtimeMessage(msg);
+    });
+    
+    // Handle disconnect
+    this.port.onDisconnect.addListener(() => {
+      console.log('🔌 Connection lost, reconnecting...');
+      setTimeout(() => this.establishRealtimeConnection(), 1000);
+    });
+  }
+
+  // Handle real-time messages from background
+  handleRealtimeMessage(msg) {
+    switch (msg.type) {
+      case 'CONNECTION_ESTABLISHED':
+        this.connectionId = msg.connectionId;
+        console.log('✅ Real-time connection established:', this.connectionId);
+        break;
+        
+      case 'PROGRESS_UPDATE':
+        this.handleProgressUpdate(msg.data);
+        break;
+        
+      case 'SPEED_UPDATE':
+        this.handleSpeedUpdate(msg.data);
+        break;
+        
+      case 'TEST_STARTED':
+        this.onTestStarted(msg);
+        break;
+        
+      case 'TEST_COMPLETE':
+        this.onTestComplete(msg.results);
+        break;
+        
+      case 'TEST_ERROR':
+        this.onTestError(msg.error);
+        break;
+        
+      case 'TEST_RESULTS':
+        if (!this.isTestRunning) {
+          this.testResults = msg.results;
+        }
+        break;
+    }
+  }
+
+  // Handle progress updates
+  handleProgressUpdate(data) {
+    const { type, value, phase } = data;
+    
+    // Update phase status
+    if (phase && phase !== this.testPhase) {
+      this.testPhase = phase;
+      this.updateStatusFromPhase(phase);
+    }
+    
+    // Update progress bars
+    switch (type) {
+      case 'overall':
+        this.updateProgress('overall', value);
+        break;
+      case 'download':
+        this.updateProgress('download', value);
+        break;
+      case 'upload':
+        this.updateProgress('upload', value);
+        break;
+      case 'latency':
+        this.updateProgress('latency', value);
+        break;
+      case 'gaming':
+        this.updateProgress('gaming', value);
+        break;
+      case 'phase':
+        if (phase) {
+          this.updateStatus(phase);
+        }
+        break;
+    }
+  }
+
+  // Handle speed updates
+  handleSpeedUpdate(data) {
+    const { speed, type } = data;
+    
+    if (type === 'download' || type === 'upload') {
+      this.animateSpeed(speed);
+    } else if (type === 'latency') {
+      this.updateLatencyDisplay(speed);
+    }
+  }
+
+  // Update status from phase
+  updateStatusFromPhase(phase) {
+    const phaseMessages = {
+      'initializing': '🚀 Initializing epic test...',
+      'info': '📡 Gathering network information...',
+      'latency': '⚡ Measuring latency...',
+      'download': '📥 Testing download speed...',
+      'upload': '📤 Testing upload speed...',
+      'advanced': '🔬 Running advanced diagnostics...',
+      'gaming': '🎮 Testing gaming performance...',
+      'analysis': '📊 Analyzing results...',
+      'complete': '✅ Epic test complete!',
+      'error': '❌ Test encountered an error'
+    };
+    
+    const message = phaseMessages[phase] || 'Testing: ' + phase;
+    this.updateStatus(message);
+  }
+
+  // Initialize speedometer
+  initializeSpeedometer() {
+    this.speedometerNeedle = document.getElementById('speedNeedle');
+    
+    // Create speed marks
+    const marksContainer = document.getElementById('speedMarks');
+    const speeds = [0, 25, 50, 100, 200, 300, 400, 500];
+    
+    speeds.forEach(speed => {
+      const angle = this.speedToAngle(speed);
       const mark = document.createElement('div');
       mark.className = 'speed-mark';
-      mark.style.transform = `rotate(${-135 + (i * 10)}deg) translateY(-180px)`;
+      mark.style.transform = 'rotate(' + angle + 'deg)';
       
-      // Make every 3rd mark longer
-      if (i % 3 === 0) {
-        mark.style.height = '25px';
-        mark.style.width = '3px';
-      }
+      const label = document.createElement('div');
+      label.className = 'speed-label';
+      label.textContent = speed;
+      label.style.transform = 'rotate(' + angle + 'deg) translateY(-140px) rotate(' + (-angle) + 'deg)';
       
       marksContainer.appendChild(mark);
-    }
+      marksContainer.appendChild(label);
+    });
+  }
+
+  // Convert speed to needle angle
+  speedToAngle(speed) {
+    const maxSpeed = 500;
+    const maxAngle = 135;
+    const normalizedSpeed = Math.min(speed, maxSpeed) / maxSpeed;
+    return (normalizedSpeed * maxAngle * 2) - maxAngle;
   }
 
   // Setup event listeners
@@ -229,21 +351,21 @@ export class EpicOverlay {
       this.stopTest();
     });
     
-    // Test mode buttons
+    // Test modes
     document.querySelectorAll('.mode-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        this.selectTestMode(e.currentTarget.dataset.mode);
+        this.selectTestMode(e.target.dataset.mode);
       });
     });
     
-    // Tab buttons
+    // Tabs
     document.querySelectorAll('.tab-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        this.switchTab(e.currentTarget.dataset.tab);
+        this.switchTab(e.target.dataset.tab);
       });
     });
     
-    // ESC key to close
+    // ESC key
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && this.isVisible) {
         this.hide();
@@ -251,17 +373,12 @@ export class EpicOverlay {
     });
   }
 
-  // Load user preferences
+  // Load saved preferences
   async loadPreferences() {
-    return new Promise((resolve) => {
-      chrome.storage.local.get(['epicTestMode', 'epicConfig'], (result) => {
-        if (result.epicTestMode) {
-          this.testMode = result.epicTestMode;
-          this.selectTestMode(this.testMode);
-        }
-        resolve();
-      });
-    });
+    const result = await chrome.storage.local.get(['epicTestMode', 'epicOverlayTheme']);
+    if (result.epicTestMode) {
+      this.selectTestMode(result.epicTestMode);
+    }
   }
 
   // Show overlay
@@ -269,12 +386,7 @@ export class EpicOverlay {
     const overlay = document.getElementById('epicOverlay');
     overlay.classList.add('active');
     this.isVisible = true;
-    
-    // Start needle animation
-    this.startNeedleAnimation();
-    
-    // Reset UI
-    this.resetUI();
+    this.updateConnectionStatus(this.port ? 'connected' : 'disconnected');
   }
 
   // Hide overlay
@@ -283,12 +395,17 @@ export class EpicOverlay {
     overlay.classList.remove('active');
     this.isVisible = false;
     
-    // Stop animations
-    this.stopNeedleAnimation();
-    
-    // Stop test if running
     if (this.isTestRunning) {
       this.stopTest();
+    }
+  }
+
+  // Toggle overlay
+  toggle() {
+    if (this.isVisible) {
+      this.hide();
+    } else {
+      this.show();
     }
   }
 
@@ -296,15 +413,12 @@ export class EpicOverlay {
   selectTestMode(mode) {
     this.testMode = mode;
     
-    // Update UI
     document.querySelectorAll('.mode-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.mode === mode);
     });
     
-    // Save preference
     chrome.storage.local.set({ epicTestMode: mode });
     
-    // Update status
     const modeDescriptions = {
       quick: 'Quick test - 30 seconds',
       standard: 'Standard test - 2 minutes',
@@ -317,127 +431,39 @@ export class EpicOverlay {
 
   // Switch tab
   switchTab(tabName) {
-    // Update tab buttons
     document.querySelectorAll('.tab-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.tab === tabName);
     });
     
-    // Update tab content
     document.querySelectorAll('.tab-content').forEach(content => {
       content.classList.remove('active');
     });
     
-    const tabContent = document.getElementById(`${tabName}Tab`);
+    const tabContent = document.getElementById(tabName + 'Tab');
     if (tabContent) {
       tabContent.classList.add('active');
     }
   }
 
-  // Start epic test
+  // Start epic test with real-time updates
   async startEpicTest() {
-    if (this.isTestRunning) return;
+    if (this.isTestRunning || !this.port) return;
     
     this.isTestRunning = true;
     this.testPhase = 'starting';
     
-    // Update UI
     document.getElementById('startTestBtn').disabled = true;
     document.getElementById('stopTestBtn').disabled = false;
     this.updateStatus('🚀 Initializing epic test...');
     
-    // Reset progress
-    this.updateProgress('download', 0);
-    this.updateProgress('upload', 0);
-    this.updateProgress('overall', 0);
-    
-    // Clear previous results
+    this.resetProgress();
+    this.showProgressItems();
     this.clearResults();
     
-    try {
-      // Send test request to background
-      const response = await chrome.runtime.sendMessage({
-        type: 'RUN_EPIC_TEST',
-        mode: this.testMode
-      });
-      
-      if (response.success) {
-        this.testResults = response.results;
-        this.displayResults();
-      }
-    } catch (error) {
-      console.error('Epic test failed:', error);
-      this.updateStatus('❌ Test failed. Please try again.');
-    } finally {
-      this.isTestRunning = false;
-      this.testPhase = 'complete';
-      document.getElementById('startTestBtn').disabled = false;
-      document.getElementById('stopTestBtn').disabled = true;
-    }
-    
-    // Simulate test progress (since we can't get real progress from background)
-    this.simulateTestProgress();
-  }
-
-  // Simulate test progress
-  async simulateTestProgress() {
-    const phases = [
-      { name: 'download', duration: 30000, message: '📥 Testing download speed...' },
-      { name: 'upload', duration: 20000, message: '📤 Testing upload speed...' },
-      { name: 'latency', duration: 10000, message: '⚡ Measuring latency...' },
-      { name: 'analysis', duration: 5000, message: '🔬 Analyzing results...' }
-    ];
-    
-    // Adjust durations based on test mode
-    const durationMultiplier = {
-      quick: 0.3,
-      standard: 1,
-      thorough: 2,
-      gaming: 1.5
-    }[this.testMode];
-    
-    let overallProgress = 0;
-    const totalDuration = phases.reduce((sum, p) => sum + p.duration, 0) * durationMultiplier;
-    
-    for (const phase of phases) {
-      if (!this.isTestRunning) break;
-      
-      this.testPhase = phase.name;
-      this.updateStatus(phase.message);
-      
-      const phaseDuration = phase.duration * durationMultiplier;
-      const steps = 100;
-      const stepDuration = phaseDuration / steps;
-      
-      for (let i = 0; i <= steps; i++) {
-        if (!this.isTestRunning) break;
-        
-        const progress = (i / steps) * 100;
-        
-        // Update specific progress
-        if (phase.name === 'download') {
-          this.updateProgress('download', progress);
-          this.animateSpeed(Math.random() * 200 + 50);
-        } else if (phase.name === 'upload') {
-          this.updateProgress('upload', progress);
-          this.animateSpeed(Math.random() * 100 + 20);
-        }
-        
-        // Update overall progress
-        const phaseStartProgress = (phases.slice(0, phases.indexOf(phase))
-          .reduce((sum, p) => sum + p.duration, 0) / totalDuration) * 100;
-        const phaseProgress = (phase.duration / totalDuration) * (progress / 100) * 100;
-        overallProgress = phaseStartProgress + phaseProgress;
-        this.updateProgress('overall', overallProgress);
-        
-        await new Promise(resolve => setTimeout(resolve, stepDuration));
-      }
-    }
-    
-    if (this.isTestRunning) {
-      this.updateStatus('✅ Epic test complete!');
-      this.updateProgress('overall', 100);
-      this.animateSpeed(0);
-    }
+    this.port.postMessage({
+      type: 'START_TEST',
+      mode: this.testMode
+    });
   }
 
   // Stop test
@@ -445,38 +471,201 @@ export class EpicOverlay {
     this.isTestRunning = false;
     this.testPhase = 'stopped';
     
-    // Update UI
     document.getElementById('startTestBtn').disabled = false;
     document.getElementById('stopTestBtn').disabled = true;
     this.updateStatus('Test stopped by user');
     
-    // Reset progress
+    this.resetProgress();
+    this.animateSpeed(0);
+    
+    if (this.port) {
+      this.port.postMessage({ type: 'STOP_TEST' });
+    }
+  }
+
+  // Reset progress
+  resetProgress() {
+    this.updateProgress('overall', 0);
     this.updateProgress('download', 0);
     this.updateProgress('upload', 0);
-    this.updateProgress('overall', 0);
+    this.updateProgress('latency', 0);
+    this.updateProgress('gaming', 0);
+  }
+
+  // Show progress items based on test mode
+  showProgressItems() {
+    const items = ['download', 'upload', 'latency', 'gaming'];
+    items.forEach(item => {
+      const element = document.getElementById(item + 'ProgressItem');
+      if (element) {
+        element.style.display = 'block';
+      }
+    });
+  }
+
+  // Update progress
+  updateProgress(type, value) {
+    const progressElement = document.getElementById(type + 'Progress');
+    const progressBar = document.getElementById(type + 'ProgressBar');
     
-    // Reset speedometer
+    if (progressElement) {
+      progressElement.textContent = Math.round(value) + '%';
+    }
+    
+    if (progressBar) {
+      progressBar.style.width = value + '%';
+    }
+  }
+
+  // Update status
+  updateStatus(message) {
+    const statusElement = document.getElementById('testStatus');
+    if (statusElement) {
+      statusElement.textContent = message;
+      statusElement.className = this.isTestRunning ? 'status-text testing' : 'status-text';
+    }
+  }
+
+  // Update connection status
+  updateConnectionStatus(status) {
+    const statusElement = document.getElementById('connectionStatus');
+    if (statusElement) {
+      const dot = statusElement.querySelector('.status-dot');
+      const text = statusElement.querySelector('.status-text');
+      
+      if (status === 'connected') {
+        dot.style.backgroundColor = '#50c878';
+        text.textContent = 'Connected';
+      } else {
+        dot.style.backgroundColor = '#ff4444';
+        text.textContent = 'Disconnected';
+      }
+    }
+  }
+
+  // Animate speed on speedometer
+  animateSpeed(targetSpeed) {
+    // Clamp speed to reasonable range
+    this.targetSpeed = Math.max(0, Math.min(targetSpeed, 300));
+    
+    const animate = () => {
+      const diff = this.targetSpeed - this.currentSpeed;
+      
+      // Smoother animation with damping
+      if (Math.abs(diff) > 0.1) {
+        this.currentSpeed += diff * 0.08; // Slower, smoother movement
+      } else {
+        this.currentSpeed = this.targetSpeed;
+      }
+      
+      // Update needle position
+      if (this.speedometerNeedle) {
+        const angle = this.speedToAngle(this.currentSpeed);
+        this.speedometerNeedle.style.transform = 'rotate(' + angle + 'deg)';
+      }
+      
+      // Update digital display
+      const speedValue = document.getElementById('epicSpeedValue');
+      if (speedValue) {
+        speedValue.textContent = Math.round(this.currentSpeed);
+      }
+      
+      // Update phase indicator
+      const phaseElement = document.getElementById('speedPhase');
+      if (phaseElement && this.testPhase) {
+        if (this.testPhase === 'download') {
+          phaseElement.textContent = '↓ Download';
+          phaseElement.style.color = '#4a90e2';
+        } else if (this.testPhase === 'upload') {
+          phaseElement.textContent = '↑ Upload';
+          phaseElement.style.color = '#50c878';
+        } else {
+          phaseElement.textContent = '';
+        }
+      }
+      
+      // Continue animation if needed
+      if (Math.abs(diff) > 0.1) {
+        this.animationFrameId = requestAnimationFrame(animate);
+      }
+    };
+    
+    // Cancel previous animation
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+    }
+    
+    animate();
+  }
+
+  // Update latency display
+  updateLatencyDisplay(latency) {
+    const display = document.getElementById('latencyDisplay');
+    if (display) {
+      const valueElement = display.querySelector('.latency-value');
+      if (valueElement) {
+        valueElement.textContent = Math.round(latency);
+        
+        if (latency < 30) {
+          display.style.color = '#50c878';
+        } else if (latency < 100) {
+          display.style.color = '#ffa500';
+        } else {
+          display.style.color = '#ff4444';
+        }
+      }
+    }
+  }
+
+  // Test started handler
+  onTestStarted(msg) {
+    console.log('Test started:', msg);
+    this.testPhase = 'running';
+  }
+
+  // Test complete handler
+  onTestComplete(results) {
+    console.log('Test complete:', results);
+    this.isTestRunning = false;
+    this.testPhase = 'complete';
+    this.testResults = results;
+    
+    document.getElementById('startTestBtn').disabled = false;
+    document.getElementById('stopTestBtn').disabled = true;
+    this.updateStatus('✅ Epic test complete!');
+    
+    this.displayResults();
     this.animateSpeed(0);
+  }
+
+  // Test error handler
+  onTestError(error) {
+    console.error('Test error:', error);
+    this.isTestRunning = false;
+    this.testPhase = 'error';
+    
+    document.getElementById('startTestBtn').disabled = false;
+    document.getElementById('stopTestBtn').disabled = true;
+    this.updateStatus('❌ Test failed: ' + error);
+    
+    this.resetProgress();
+    this.animateSpeed(0);
+  }
+
+  // Clear results
+  clearResults() {
+    document.getElementById('metricsGrid').innerHTML = '';
+    document.getElementById('insightsContainer').innerHTML = '';
+    document.getElementById('advancedContainer').innerHTML = '';
   }
 
   // Display test results
   displayResults() {
     if (!this.testResults) return;
     
-    // Display metrics
     this.displayMetrics();
-    
-    // Display insights
     this.displayInsights();
-    
-    // Display capabilities
-    this.displayCapabilities();
-    
-    // Display advanced metrics
     this.displayAdvancedMetrics();
-    
-    // Display score
-    this.displayScore();
   }
 
   // Display metrics
@@ -489,365 +678,158 @@ export class EpicOverlay {
         label: 'Download Speed',
         value: Math.round(results.downloadSpeed?.overall?.average || 0),
         unit: 'Mbps',
-        status: this.getSpeedStatus(results.downloadSpeed?.overall?.average)
+        icon: '📥'
       },
       {
         label: 'Upload Speed',
         value: Math.round(results.uploadSpeed?.overall?.average || 0),
         unit: 'Mbps',
-        status: this.getSpeedStatus(results.uploadSpeed?.overall?.average, true)
+        icon: '📤'
       },
       {
         label: 'Latency',
         value: Math.round(results.latency?.overall?.average || 0),
         unit: 'ms',
-        status: this.getLatencyStatus(results.latency?.overall?.average)
+        icon: '⚡'
       },
       {
         label: 'Jitter',
         value: Math.round(results.jitter?.average || 0),
         unit: 'ms',
-        status: this.getJitterStatus(results.jitter?.average)
+        icon: '📊'
       },
       {
-        label: 'Packet Loss',
-        value: (results.packetLoss?.percentage || 0).toFixed(1),
-        unit: '%',
-        status: this.getPacketLossStatus(results.packetLoss?.percentage)
-      },
-      {
-        label: 'DNS Performance',
-        value: Math.round(results.dnsPerformance?.averageTime || 0),
-        unit: 'ms',
-        status: this.getDNSStatus(results.dnsPerformance?.averageTime)
+        label: 'Overall Score',
+        value: results.overallScore || 0,
+        unit: results.grade || '',
+        icon: '🏆'
       }
     ];
     
-    metricsGrid.innerHTML = metrics.map(metric => `
-      <div class="metric-card">
-        <div class="metric-label">${metric.label}</div>
-        <div class="metric-value">${metric.value}</div>
-        <div class="metric-unit">${metric.unit}</div>
-        <div class="metric-status ${metric.status.class}">${metric.status.text}</div>
-      </div>
-    `).join('');
+    let html = '';
+    metrics.forEach(metric => {
+      html += '<div class="metric-card">';
+      html += '<div class="metric-icon">' + metric.icon + '</div>';
+      html += '<div class="metric-label">' + metric.label + '</div>';
+      html += '<div class="metric-value">' + metric.value + '</div>';
+      html += '<div class="metric-unit">' + metric.unit + '</div>';
+      html += '</div>';
+    });
+    
+    metricsGrid.innerHTML = html;
   }
 
-  // Display AI insights
+  // Display insights
   displayInsights() {
-    const insightsList = document.getElementById('insightsList');
-    const insights = this.testResults?.insights || [];
+    const container = document.getElementById('insightsContainer');
+    const insights = this.testResults.insights || [];
     
-    if (insights.length === 0) {
-      insightsList.innerHTML = '<div class="insight-card">No insights available yet. Run a test to get AI-powered analysis!</div>';
-      return;
-    }
+    let html = '<div class="insights-list">';
+    insights.forEach(insight => {
+      html += '<div class="insight-item">' + insight + '</div>';
+    });
+    html += '</div>';
     
-    insightsList.innerHTML = insights.map(insight => `
-      <div class="insight-card">${insight}</div>
-    `).join('');
+    html += '<div class="capabilities">';
+    html += '<h3>Network Capabilities</h3>';
+    html += this.renderCapabilities();
+    html += '</div>';
+    
+    container.innerHTML = html;
   }
 
-  // Display capabilities
-  displayCapabilities() {
-    const capabilitiesGrid = document.getElementById('capabilitiesGrid');
-    const capabilities = this.testResults?.capabilities || {};
-    
-    const capabilityItems = [
-      { name: '4K Streaming', icon: '📺', supported: capabilities.streaming4K },
-      { name: '1080p Streaming', icon: '📹', supported: capabilities.streaming1080p },
-      { name: 'Gaming', icon: '🎮', supported: capabilities.gaming },
-      { name: 'Video Calls', icon: '📞', supported: capabilities.videoConferencing },
-      { name: 'Remote Work', icon: '💼', supported: capabilities.remoteWork },
-      { name: 'Basic Browsing', icon: '🌐', supported: capabilities.basicBrowsing }
+  // Render capabilities
+  renderCapabilities() {
+    const capabilities = this.testResults.capabilities || {};
+    const items = [
+      { key: 'streaming4K', label: '4K Streaming', icon: '📺' },
+      { key: 'streaming1080p', label: '1080p Streaming', icon: '🎬' },
+      { key: 'gaming', label: 'Online Gaming', icon: '🎮' },
+      { key: 'videoConferencing', label: 'Video Calls', icon: '📹' },
+      { key: 'remoteWork', label: 'Remote Work', icon: '💼' },
+      { key: 'basicBrowsing', label: 'Web Browsing', icon: '🌐' }
     ];
     
-    capabilitiesGrid.innerHTML = capabilityItems.map(item => `
-      <div class="capability-item ${item.supported ? 'supported' : 'unsupported'}">
-        <span class="capability-icon">${item.icon}</span>
-        <span class="capability-name">${item.name}</span>
-      </div>
-    `).join('');
+    let html = '';
+    items.forEach(item => {
+      const supported = capabilities[item.key];
+      html += '<div class="capability-item ' + (supported ? 'supported' : 'unsupported') + '">';
+      html += '<span class="capability-icon">' + item.icon + '</span>';
+      html += '<span class="capability-label">' + item.label + '</span>';
+      html += '<span class="capability-status">' + (supported ? '✅' : '❌') + '</span>';
+      html += '</div>';
+    });
+    
+    return html;
   }
 
   // Display advanced metrics
   displayAdvancedMetrics() {
-    const advancedGrid = document.getElementById('advancedGrid');
+    const container = document.getElementById('advancedContainer');
     const results = this.testResults;
     
-    if (!results) {
-      advancedGrid.innerHTML = '<p>No advanced metrics available yet.</p>';
-      return;
-    }
+    let html = '<div class="advanced-grid">';
     
-    const advancedSections = [];
+    // IPv6 Support
+    if (results.ipv6) {
+      html += '<div class="advanced-item">';
+      html += '<div class="advanced-title">IPv6 Support</div>';
+      html += '<div class="advanced-value">' + (results.ipv6.supported ? 'Enabled ✅' : 'Disabled ❌') + '</div>';
+      html += '</div>';
+    }
     
     // CDN Performance
     if (results.cdnPerformance?.tests) {
-      const cdnHtml = `
-        <div class="advanced-item">
-          <div class="advanced-title">CDN Performance</div>
-          <div class="advanced-data">
-            ${results.cdnPerformance.tests.map(cdn => `
-              <div class="data-row">
-                <span class="data-label">${cdn.name}</span>
-                <span class="data-value">${cdn.speed ? `${cdn.speed} Mbps` : 'Failed'}</span>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      `;
-      advancedSections.push(cdnHtml);
+      html += '<div class="advanced-item">';
+      html += '<div class="advanced-title">CDN Performance</div>';
+      html += '<div class="advanced-data">';
+      results.cdnPerformance.tests.forEach(cdn => {
+        html += '<div class="data-row">';
+        html += '<span class="data-label">' + cdn.name + '</span>';
+        html += '<span class="data-value">' + (cdn.speed ? cdn.speed + ' Mbps' : 'Failed') + '</span>';
+        html += '</div>';
+      });
+      html += '</div>';
+      html += '</div>';
     }
     
-    // IPv4 vs IPv6
-    if (results.ipComparison && !results.ipComparison.error) {
-      const ipHtml = `
-        <div class="advanced-item">
-          <div class="advanced-title">IP Protocol Comparison</div>
-          <div class="advanced-data">
-            <div class="data-row">
-              <span class="data-label">IPv4 Latency</span>
-              <span class="data-value">${results.ipComparison.ipv4?.latency || '--'} ms</span>
-            </div>
-            <div class="data-row">
-              <span class="data-label">IPv6 Latency</span>
-              <span class="data-value">${results.ipComparison.ipv6?.latency || '--'} ms</span>
-            </div>
-            <div class="data-row">
-              <span class="data-label">Faster Protocol</span>
-              <span class="data-value">${results.ipComparison.faster || '--'}</span>
-            </div>
-          </div>
-        </div>
-      `;
-      advancedSections.push(ipHtml);
+    // DNS Performance
+    if (results.dnsPerformance?.tests) {
+      html += '<div class="advanced-item">';
+      html += '<div class="advanced-title">DNS Resolution</div>';
+      html += '<div class="advanced-data">';
+      results.dnsPerformance.tests.forEach(dns => {
+        html += '<div class="data-row">';
+        html += '<span class="data-label">' + dns.domain + '</span>';
+        html += '<span class="data-value">' + (dns.time ? dns.time + 'ms' : 'Failed') + '</span>';
+        html += '</div>';
+      });
+      html += '</div>';
+      html += '</div>';
     }
     
-    // Gaming Performance
+    // Gaming Metrics
     if (results.gamingLatency) {
-      const gamingHtml = `
-        <div class="advanced-item">
-          <div class="advanced-title">Gaming Performance</div>
-          <div class="advanced-data">
-            <div class="data-row">
-              <span class="data-label">Average Latency</span>
-              <span class="data-value">${Math.round(results.gamingLatency.average)} ms</span>
-            </div>
-            <div class="data-row">
-              <span class="data-label">P95 Latency</span>
-              <span class="data-value">${Math.round(results.gamingLatency.p95)} ms</span>
-            </div>
-            <div class="data-row">
-              <span class="data-label">P99 Latency</span>
-              <span class="data-value">${Math.round(results.gamingLatency.p99)} ms</span>
-            </div>
-            <div class="data-row">
-              <span class="data-label">Gaming Grade</span>
-              <span class="data-value">${results.gamingLatency.gamingGrade}</span>
-            </div>
-          </div>
-        </div>
-      `;
-      advancedSections.push(gamingHtml);
+      html += '<div class="advanced-item">';
+      html += '<div class="advanced-title">Gaming Performance</div>';
+      html += '<div class="advanced-data">';
+      html += '<div class="data-row">';
+      html += '<span class="data-label">Average Latency</span>';
+      html += '<span class="data-value">' + Math.round(results.gamingLatency.average) + 'ms</span>';
+      html += '</div>';
+      html += '<div class="data-row">';
+      html += '<span class="data-label">99th Percentile</span>';
+      html += '<span class="data-value">' + Math.round(results.gamingLatency.p99) + 'ms</span>';
+      html += '</div>';
+      html += '<div class="data-row">';
+      html += '<span class="data-label">Consistency</span>';
+      html += '<span class="data-value">' + Math.round(results.gamingLatency.consistency) + '%</span>';
+      html += '</div>';
+      html += '</div>';
+      html += '</div>';
     }
     
-    // VoIP Quality
-    if (results.voipQuality) {
-      const voipHtml = `
-        <div class="advanced-item">
-          <div class="advanced-title">VoIP Quality</div>
-          <div class="advanced-data">
-            <div class="data-row">
-              <span class="data-label">MOS Score</span>
-              <span class="data-value">${results.voipQuality.mos}/5.0</span>
-            </div>
-            <div class="data-row">
-              <span class="data-label">Quality</span>
-              <span class="data-value">${results.voipQuality.quality}</span>
-            </div>
-          </div>
-        </div>
-      `;
-      advancedSections.push(voipHtml);
-    }
-    
-    advancedGrid.innerHTML = advancedSections.join('');
-  }
-
-  // Display network score
-  displayScore() {
-    const scoreDisplay = document.getElementById('scoreDisplay');
-    const results = this.testResults;
-    
-    if (!results || !results.overallScore) {
-      scoreDisplay.style.display = 'none';
-      return;
-    }
-    
-    const score = results.overallScore;
-    const grade = results.grade;
-    
-    document.getElementById('scoreLarge').textContent = score;
-    document.getElementById('scoreGrade').textContent = grade.grade;
-    document.getElementById('scoreDescription').textContent = grade.description;
-    
-    scoreDisplay.style.display = 'block';
-    
-    // Animate score
-    scoreDisplay.style.animation = 'fadeIn 0.5s ease';
-  }
-
-  // Clear results
-  clearResults() {
-    document.getElementById('metricsGrid').innerHTML = '';
-    document.getElementById('insightsList').innerHTML = '';
-    document.getElementById('capabilitiesGrid').innerHTML = '';
-    document.getElementById('advancedGrid').innerHTML = '';
-    document.getElementById('scoreDisplay').style.display = 'none';
-  }
-
-  // Update status
-  updateStatus(message) {
-    const statusElement = document.getElementById('testStatus');
-    statusElement.textContent = message;
-    
-    if (this.isTestRunning) {
-      statusElement.classList.add('testing');
-    } else {
-      statusElement.classList.remove('testing');
-    }
-  }
-
-  // Update progress
-  updateProgress(type, percentage) {
-    const progressValue = document.getElementById(`${type}Progress`);
-    const progressBar = document.getElementById(`${type}ProgressBar`);
-    
-    if (progressValue) {
-      progressValue.textContent = `${Math.round(percentage)}%`;
-    }
-    
-    if (progressBar) {
-      progressBar.style.width = `${percentage}%`;
-    }
-  }
-
-  // Animate speedometer
-  animateSpeed(targetSpeed) {
-    this.targetSpeed = targetSpeed;
-    
-    if (!this.animationFrameId) {
-      this.animateNeedle();
-    }
-  }
-
-  // Animate needle
-  animateNeedle() {
-    const needle = document.getElementById('speedNeedle');
-    const speedValue = document.getElementById('epicSpeedValue');
-    
-    // Smooth animation
-    const diff = this.targetSpeed - this.currentSpeed;
-    this.currentSpeed += diff * 0.1;
-    
-    // Update needle rotation (-45 to 225 degrees for 0 to 1000 Mbps)
-    const maxSpeed = 1000;
-    const rotation = -45 + (this.currentSpeed / maxSpeed) * 270;
-    needle.style.transform = `translate(-50%, -100%) rotate(${rotation}deg)`;
-    
-    // Update speed display
-    speedValue.textContent = Math.round(this.currentSpeed);
-    
-    // Continue animation if needed
-    if (Math.abs(diff) > 0.1) {
-      this.animationFrameId = requestAnimationFrame(() => this.animateNeedle());
-    } else {
-      this.animationFrameId = null;
-    }
-  }
-
-  // Start needle idle animation
-  startNeedleAnimation() {
-    if (!this.isTestRunning) {
-      // Idle animation
-      const idleAnimation = () => {
-        if (!this.isVisible || this.isTestRunning) return;
-        
-        const randomSpeed = Math.random() * 20;
-        this.animateSpeed(randomSpeed);
-        
-        setTimeout(() => {
-          if (this.isVisible && !this.isTestRunning) {
-            idleAnimation();
-          }
-        }, 2000);
-      };
-      
-      idleAnimation();
-    }
-  }
-
-  // Stop needle animation
-  stopNeedleAnimation() {
-    if (this.animationFrameId) {
-      cancelAnimationFrame(this.animationFrameId);
-      this.animationFrameId = null;
-    }
-    this.currentSpeed = 0;
-    this.targetSpeed = 0;
-  }
-
-  // Reset UI
-  resetUI() {
-    this.updateStatus('Ready to begin epic testing');
-    this.updateProgress('download', 0);
-    this.updateProgress('upload', 0);
-    this.updateProgress('overall', 0);
-    this.clearResults();
-  }
-
-  // Get speed status
-  getSpeedStatus(speed, isUpload = false) {
-    const thresholds = isUpload ? 
-      { excellent: 50, good: 25, fair: 10 } :
-      { excellent: 100, good: 50, fair: 25 };
-    
-    if (speed >= thresholds.excellent) return { text: 'Excellent', class: 'good' };
-    if (speed >= thresholds.good) return { text: 'Good', class: 'good' };
-    if (speed >= thresholds.fair) return { text: 'Fair', class: 'fair' };
-    return { text: 'Poor', class: 'poor' };
-  }
-
-  // Get latency status
-  getLatencyStatus(latency) {
-    if (latency < 20) return { text: 'Excellent', class: 'good' };
-    if (latency < 50) return { text: 'Good', class: 'good' };
-    if (latency < 100) return { text: 'Fair', class: 'fair' };
-    return { text: 'Poor', class: 'poor' };
-  }
-
-  // Get jitter status
-  getJitterStatus(jitter) {
-    if (jitter < 5) return { text: 'Excellent', class: 'good' };
-    if (jitter < 15) return { text: 'Good', class: 'good' };
-    if (jitter < 30) return { text: 'Fair', class: 'fair' };
-    return { text: 'Poor', class: 'poor' };
-  }
-
-  // Get packet loss status
-  getPacketLossStatus(loss) {
-    if (loss === 0) return { text: 'Perfect', class: 'good' };
-    if (loss < 0.5) return { text: 'Good', class: 'good' };
-    if (loss < 1) return { text: 'Fair', class: 'fair' };
-    return { text: 'Poor', class: 'poor' };
-  }
-
-  // Get DNS status
-  getDNSStatus(time) {
-    if (time < 50) return { text: 'Excellent', class: 'good' };
-    if (time < 100) return { text: 'Good', class: 'good' };
-    if (time < 200) return { text: 'Fair', class: 'fair' };
-    return { text: 'Poor', class: 'poor' };
+    html += '</div>';
+    container.innerHTML = html;
   }
 }
