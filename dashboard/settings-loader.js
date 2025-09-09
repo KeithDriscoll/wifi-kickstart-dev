@@ -214,7 +214,7 @@ export class SettingsLoader {
       // Create scoped CSS link
       const cssLink = document.createElement('link');
       cssLink.rel = 'stylesheet';
-      cssLink.href = '../settings/settings.css';
+      cssLink.href = chrome.runtime.getURL('settings/settings.css');
       cssLink.id = 'dynamic-settings-css';
       
       // Add to head
