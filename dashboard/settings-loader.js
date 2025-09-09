@@ -120,7 +120,7 @@ export class SettingsLoader {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), this.config.FETCH_TIMEOUT);
         
-        const response = await fetch('../settings/settings.html', {
+        const response = await fetch(chrome.runtime.getURL('settings/settings.html'), {
           method: 'GET',
           cache: 'no-cache',
           signal: controller.signal,
