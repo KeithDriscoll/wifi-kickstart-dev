@@ -1195,6 +1195,6 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Make dashboard globally available for debugging
   window.dashboard = dashboard;
+  window.dashboard.settingsLoader = dashboard.settingsLoader;
 });
 
-window.dashboard.settingsLoader = dashboard.settingsLoader;

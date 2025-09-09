@@ -180,7 +180,39 @@ async function handleMessage(request, sender, sendResponse) {
       const isCaptive = await checkCaptivePortal();
       sendResponse({ success: true, isCaptive });
       break;
-      
+     
+    case 'UPDATE_SETTING':
+      try {
+        const currentConfig = await chrome.storage.local.get(['epicConfig']);
+        let config = currentConfig.epicConfig || {};
+        
+        const { key, value } = request;
+        const keyPath = key.split('.');
+        let target = config;
+        
+        for (let i = 0; i < keyPath.length - 1; i++) {
+          if (!target[keyPath[i]]) {
+            target[keyPath[i]] = {};
+          }
+          target = target[keyPath[i]];
+        }
+        
+        target[keyPath[keyPath.length - 1]] = value;
+        
+        await chrome.storage.local.set({ epicConfig: config });
+        
+        if (epicEngine) {
+          epicEngine.updateConfig(config);
+        }
+        
+        console.log(`⚙️ Setting updated: ${key} = ${value}`);
+        sendResponse({ success: true });
+        
+      } catch (error) {
+        console.error(`❌ Failed to update setting ${request.key}:`, error);
+        sendResponse({ success: false, error: error.message });
+      }
+      break;
     default:
       sendResponse({ success: false, error: 'Unknown message type' });
   }
