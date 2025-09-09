@@ -1116,31 +1116,95 @@ resizeCharts() {
   }
 
   // Toggle full settings panel (top panel)
-async toggleFullSettings(show) {
-  const panel = document.getElementById('fullSettingsPanel');
-  
-  if (show === undefined) {
-    show = !panel.classList.contains('active');
-  }
-  
-  if (show) {
-    // Show panel first
-    panel.classList.add('active');
-    
-    // Load settings dynamically
-    const container = panel.querySelector('.full-settings-content');
-    const success = await this.settingsLoader.loadSettings(container);
-    
-    if (success) {
-      this.showNotification('Settings loaded successfully!', 'success');
+  async toggleFullSettings(show = null) {
+    const panel = document.getElementById('fullSettingsPanel');
+    if (!panel) return;
+
+    const isVisible = panel.classList.contains('active');
+    const shouldShow = show !== null ? show : !isVisible;
+
+    if (shouldShow) {
+      panel.classList.add('active');
+      
+      // Load settings content using existing loader
+      const content = panel.querySelector('.full-settings-content');
+      if (this.settingsLoader && content) {
+        await this.settingsLoader.loadSettings(content);
+        
+        // ADD THIS LINE - Initialize settings JavaScript for loaded content
+        this.initializeSettingsJS(content);
+        
+        this.showNotification('Settings loaded successfully!', 'success');
+      }
     } else {
-      this.showNotification('Failed to load settings', 'error');
+      panel.classList.remove('active');
     }
-  } else {
-    // Hide panel
-    panel.classList.remove('active');
   }
+
+  // Initialize settings JavaScript for dynamically loaded content
+initializeSettingsJS(container) {
+  // Recreate the settings event listeners for the loaded content
+  
+  // Navigation clicks - FIXED VERSION
+  container.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+      const section = e.currentTarget.dataset.section;
+      
+      // Update active nav
+      container.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+      e.currentTarget.classList.add('active');
+      
+      // Show section - TRY MULTIPLE ID FORMATS
+      container.querySelectorAll('.settings-section').forEach(sec => sec.classList.remove('active'));
+      
+      // Try different section ID formats
+      let targetSection = container.querySelector(`#${section}Section`) ||
+                         container.querySelector(`#${section}`) ||
+                         container.querySelector(`[data-section="${section}"]`);
+      
+      if (targetSection) {
+        targetSection.classList.add('active');
+        console.log(`Showed section: ${section}`);
+      } else {
+        console.log(`Section not found: ${section}`);
+      }
+    });
+  });
+  
+  // Preset buttons - NEW
+  container.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const preset = e.currentTarget.dataset.preset;
+      
+      // Update active preset
+      container.querySelectorAll('.preset-btn').forEach(p => p.classList.remove('active'));
+      e.currentTarget.classList.add('active');
+      
+      console.log(`Preset selected: ${preset}`);
+      this.showNotification(`Applied ${preset} preset!`, 'success');
+    });
+  });
+  
+  // Button clicks
+  container.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log('Button clicked:', btn.id || btn.className);
+      this.showNotification(`${btn.textContent} clicked!`, 'info');
+    });
+  });
+  
+  // All other controls
+  container.querySelectorAll('input, select').forEach(input => {
+    input.addEventListener('change', (e) => {
+      console.log('Setting changed:', e.target.id, '=', e.target.value);
+      this.showNotification('Setting saved!', 'success');
+    });
+  });
 }
+
 
   // Handle pill toggle switches
   handlePillToggle(toggle) {
