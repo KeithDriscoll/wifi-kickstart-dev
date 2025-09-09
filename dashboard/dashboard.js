@@ -2,6 +2,7 @@
 // Manages charts, real-time updates, and dashboard interactions
 
 import { EpicOverlay } from './epic-overlay.js';
+import { SettingsLoader } from './settings-loader.js';
 
 // Dashboard Controller Class
 class DashboardController {
@@ -21,6 +22,7 @@ class DashboardController {
       defaultTestMode: 'standard'
     };
     this.sortableInstances = [];
+    this.settingsLoader = new SettingsLoader();
   }
   
   // Initialize Dashboard
@@ -1114,14 +1116,31 @@ resizeCharts() {
   }
 
   // Toggle full settings panel (top panel)
-  toggleFullSettings(show) {
-    const panel = document.getElementById('fullSettingsPanel');
-    if (show === undefined) {
-      panel.classList.toggle('active');
-    } else {
-      panel.classList.toggle('active', show);
-    }
+async toggleFullSettings(show) {
+  const panel = document.getElementById('fullSettingsPanel');
+  
+  if (show === undefined) {
+    show = !panel.classList.contains('active');
   }
+  
+  if (show) {
+    // Show panel first
+    panel.classList.add('active');
+    
+    // Load settings dynamically
+    const container = panel.querySelector('.full-settings-content');
+    const success = await this.settingsLoader.loadSettings(container);
+    
+    if (success) {
+      this.showNotification('Settings loaded successfully!', 'success');
+    } else {
+      this.showNotification('Failed to load settings', 'error');
+    }
+  } else {
+    // Hide panel
+    panel.classList.remove('active');
+  }
+}
 
   // Handle pill toggle switches
   handlePillToggle(toggle) {
@@ -1177,3 +1196,5 @@ document.addEventListener('DOMContentLoaded', () => {
   // Make dashboard globally available for debugging
   window.dashboard = dashboard;
 });
+
+window.dashboard.settingsLoader = dashboard.settingsLoader;
