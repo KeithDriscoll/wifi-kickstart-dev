@@ -22,7 +22,7 @@ class DashboardController {
     };
     this.sortableInstances = [];
   }
-
+  
   // Initialize Dashboard
   async init() {
     console.log('🚀 Initializing Dashboard...');
@@ -37,14 +37,14 @@ class DashboardController {
     this.epicOverlay = new EpicOverlay();
     await this.epicOverlay.init();
     
+    // ✅ INITIALIZE CHARTS FIRST
+    this.initializeCharts();
+    
     // Load network info
     await this.loadNetworkInfo();
     
-    // Load test history
+    // ✅ THEN load test history (which calls updateChartsWithHistory)
     await this.loadTestHistory();
-    
-    // Initialize charts
-    this.initializeCharts();
     
     // Setup sortable sections
     this.setupSortable();
@@ -540,6 +540,11 @@ class DashboardController {
   // Update charts with history data
   updateChartsWithHistory() {
     if (this.testHistory.length === 0) return;
+
+    if (!this.charts.performance || !this.charts.speed || !this.charts.latency || !this.charts.score) {
+    console.log('Charts not initialized yet, skipping update');
+    return;
+  }
     
     // Get last N data points
     const dataPoints = this.testHistory.slice(0, this.settings.chartDataPoints).reverse();

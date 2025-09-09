@@ -1,11 +1,7 @@
 /* 🚀 Wi-Fi Kickstart Dashboard Styles - Professional Edition */
 
 /* CSS Variables */
-:root {
-  @import url('../themes/theme-variables.css');
-
-  /* Removed your old :root variables - they're now in theme-variables.css */
-}
+@import url('../themes/theme-variables.css');
 
 /* 🔥 KILL ALL SCROLLBARS EVERYWHERE */
 * {
@@ -1087,25 +1083,6 @@ body.compact-mode .chart-canvas {
   border-radius: 50%;
   cursor: pointer;
   font-size: 20px;
-}
-
-/* 🔥 LEFT SLIDE-IN DASHBOARD CUSTOMIZER */
-.dashboard-customizer {
-  position: fixed;
-  top: 0;
-  left: -350px;
-  width: 350px;
-  height: 100vh;
-  background: var(--surface);
-  z-index: 400;
-  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow-y: auto;
-  border-right: 2px solid var(--primary);
-  box-shadow: 5px 0 20px rgba(0, 0, 0, 0.3);
-}
-
-.dashboard-customizer.active {
-  left: 0;
 }
 
 .customizer-header {

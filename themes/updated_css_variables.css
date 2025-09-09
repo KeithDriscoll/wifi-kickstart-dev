@@ -1,0 +1,428 @@
+/* 🎨 EPIC THEME SYSTEM - CSS VARIABLES FOR ALL THEMES */
+
+/* ===== DEFAULT THEME: PROFESSIONAL LIGHT (NEW DEFAULT) ===== */
+:root {
+  /* Primary Colors */
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --primary-light: #3b82f6;
+  --secondary: #059669;
+  --secondary-dark: #047857;
+  
+  /* Background Colors */
+  --background: #ffffff;
+  --surface: #f8fafc;
+  --surface-light: #f1f5f9;
+  --surface-hover: #e2e8f0;
+  
+  /* Text Colors */
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+  
+  /* Border Colors */
+  --border: rgba(0, 0, 0, 0.1);
+  --border-light: rgba(0, 0, 0, 0.05);
+  
+  /* Status Colors */
+  --success: #059669;
+  --warning: #d97706;
+  --error: #dc2626;
+  --info: #2563eb;
+  
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, #2563eb 0%, #059669 100%);
+  --gradient-surface: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  --gradient-epic: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
+  
+  /* Shadows */
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.2);
+  
+  /* Transitions */
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: all 0.15s ease;
+  
+  /* Border Radius */
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+  
+  /* Background Image Support */
+  --background-image: none;
+  --background-overlay: 0.7;
+  --background-blur: 0px;
+}
+
+/* ===== PROFESSIONAL DARK THEME ===== */
+body.theme-professional-dark {
+  --primary: #4a90e2;
+  --primary-dark: #2c5282;
+  --primary-light: #63a4ff;
+  --secondary: #50c878;
+  --secondary-dark: #2e7d46;
+  
+  --background: #0f172a;
+  --surface: #1e293b;
+  --surface-light: #334155;
+  --surface-hover: #475569;
+  
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  
+  --border: rgba(255, 255, 255, 0.1);
+  --border-light: rgba(255, 255, 255, 0.05);
+  
+  --success: #50c878;
+  --warning: #fbbf24;
+  --error: #ef4444;
+  --info: #4a90e2;
+  
+  --gradient-primary: linear-gradient(135deg, #4a90e2 0%, #50c878 100%);
+  --gradient-surface: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  --gradient-epic: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+  
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.6);
+}
+
+/* ===== EPIC LIGHT THEME ===== */
+body.theme-epic-light {
+  --primary: #6366f1;
+  --primary-dark: #4f46e5;
+  --primary-light: #818cf8;
+  --secondary: #06b6d4;
+  --secondary-dark: #0891b2;
+  
+  --background: #fafafa;
+  --surface: #ffffff;
+  --surface-light: #f4f4f5;
+  --surface-hover: #e4e4e7;
+  
+  --text-primary: #18181b;
+  --text-secondary: #52525b;
+  --text-muted: #a1a1aa;
+  
+  --border: rgba(0, 0, 0, 0.1);
+  --border-light: rgba(0, 0, 0, 0.05);
+  
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --info: #6366f1;
+  
+  --gradient-primary: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+  --gradient-surface: linear-gradient(135deg, #ffffff 0%, #f4f4f5 100%);
+  --gradient-epic: linear-gradient(135deg, #fafafa 0%, #ffffff 50%, #f4f4f5 100%);
+}
+
+/* ===== EPIC DARK THEME ===== */
+body.theme-epic-dark {
+  --primary: #4a90e2;
+  --primary-dark: #2c5282;
+  --primary-light: #63a4ff;
+  --secondary: #50c878;
+  --secondary-dark: #2e7d46;
+  
+  --background: #0a0e27;
+  --surface: #1a1f3a;
+  --surface-light: #2d3561;
+  --surface-hover: #3a4570;
+  
+  --text-primary: #e2e8f0;
+  --text-secondary: #8892b0;
+  --text-muted: #64748b;
+  
+  --border: rgba(255, 255, 255, 0.1);
+  --border-light: rgba(255, 255, 255, 0.05);
+  
+  --success: #50c878;
+  --warning: #ffa500;
+  --error: #ff4444;
+  --info: #4a90e2;
+  
+  --gradient-primary: linear-gradient(135deg, #4a90e2 0%, #50c878 100%);
+  --gradient-surface: linear-gradient(135deg, #1a1f3a 0%, #2d3561 100%);
+  --gradient-epic: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #2d1b69 100%);
+  
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.6);
+}
+
+/* ===== HACKER LIGHT THEME ===== */
+body.theme-hacker-light {
+  --primary: #16a085;
+  --primary-dark: #138d7a;
+  --primary-light: #1abc9c;
+  --secondary: #27ae60;
+  --secondary-dark: #229954;
+  
+  --background: #f8f9fa;
+  --surface: #ffffff;
+  --surface-light: #e9ecef;
+  --surface-hover: #dee2e6;
+  
+  --text-primary: #2c3e50;
+  --text-secondary: #5a6c7d;
+  --text-muted: #95a5a6;
+  
+  --border: rgba(0, 0, 0, 0.1);
+  --border-light: rgba(0, 0, 0, 0.05);
+  
+  --success: #27ae60;
+  --warning: #f39c12;
+  --error: #e74c3c;
+  --info: #16a085;
+  
+  --gradient-primary: linear-gradient(135deg, #16a085 0%, #27ae60 100%);
+  --gradient-surface: linear-gradient(135deg, #ffffff 0%, #e9ecef 100%);
+  --gradient-epic: linear-gradient(135deg, #f8f9fa 0%, #ffffff 50%, #e9ecef 100%);
+}
+
+/* ===== HACKER DARK THEME ===== */
+body.theme-hacker-dark {
+  --primary: #00ff88;
+  --primary-dark: #00cc6a;
+  --primary-light: #33ffa3;
+  --secondary: #00ffff;
+  --secondary-dark: #00cccc;
+  
+  --background: #000000;
+  --surface: #0d1117;
+  --surface-light: #161b22;
+  --surface-hover: #21262d;
+  
+  --text-primary: #00ff88;
+  --text-secondary: #8cc8aa;
+  --text-muted: #6e7681;
+  
+  --border: rgba(0, 255, 136, 0.2);
+  --border-light: rgba(0, 255, 136, 0.1);
+  
+  --success: #00ff88;
+  --warning: #ffff00;
+  --error: #ff0066;
+  --info: #00ffff;
+  
+  --gradient-primary: linear-gradient(135deg, #00ff88 0%, #00ffff 100%);
+  --gradient-surface: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+  --gradient-epic: linear-gradient(135deg, #000000 0%, #0d1117 50%, #161b22 100%);
+  
+  --shadow: 0 4px 6px rgba(0, 255, 136, 0.2);
+  --shadow-lg: 0 10px 25px rgba(0, 255, 136, 0.3);
+  --shadow-xl: 0 20px 40px rgba(0, 255, 136, 0.4);
+}
+
+/* ===== GAMING LIGHT THEME ===== */
+body.theme-gaming-light {
+  --primary: #8b5cf6;
+  --primary-dark: #7c3aed;
+  --primary-light: #a78bfa;
+  --secondary: #06b6d4;
+  --secondary-dark: #0891b2;
+  
+  --background: #fafafa;
+  --surface: #ffffff;
+  --surface-light: #f4f4f5;
+  --surface-hover: #e4e4e7;
+  
+  --text-primary: #18181b;
+  --text-secondary: #52525b;
+  --text-muted: #a1a1aa;
+  
+  --border: rgba(0, 0, 0, 0.1);
+  --border-light: rgba(0, 0, 0, 0.05);
+  
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --info: #8b5cf6;
+  
+  --gradient-primary: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+  --gradient-surface: linear-gradient(135deg, #ffffff 0%, #f4f4f5 100%);
+  --gradient-epic: linear-gradient(135deg, #fafafa 0%, #ffffff 50%, #f4f4f5 100%);
+}
+
+/* ===== GAMING DARK THEME ===== */
+body.theme-gaming-dark {
+  --primary: #9c88ff;
+  --primary-dark: #8c7ae6;
+  --primary-light: #baacff;
+  --secondary: #ff6b9d;
+  --secondary-dark: #e055a6;
+  
+  --background: #1a1a2e;
+  --surface: #16213e;
+  --surface-light: #0f3460;
+  --surface-hover: #1e3a5f;
+  
+  --text-primary: #ffffff;
+  --text-secondary: #c7d2fe;
+  --text-muted: #94a3b8;
+  
+  --border: rgba(255, 255, 255, 0.1);
+  --border-light: rgba(255, 255, 255, 0.05);
+  
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --error: #f87171;
+  --info: #9c88ff;
+  
+  --gradient-primary: linear-gradient(135deg, #9c88ff 0%, #ff6b9d 100%);
+  --gradient-surface: linear-gradient(135deg, #16213e 0%, #0f3460 100%);
+  --gradient-epic: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  
+  --shadow: 0 4px 6px rgba(156, 136, 255, 0.2);
+  --shadow-lg: 0 10px 25px rgba(156, 136, 255, 0.3);
+  --shadow-xl: 0 20px 40px rgba(156, 136, 255, 0.4);
+}
+
+/* ===== BACKGROUND IMAGE SUPPORT ===== */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: var(--background-image);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: blur(var(--background-blur));
+  opacity: var(--background-overlay);
+  z-index: -2;
+  pointer-events: none;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--background);
+  opacity: calc(1 - var(--background-overlay));
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ===== SPECIAL EFFECTS FOR THEMES ===== */
+
+/* Hacker Dark Theme Matrix Effect */
+body.theme-hacker-dark::before {
+  background-image: 
+    var(--background-image),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 98px,
+      rgba(0, 255, 136, 0.1) 100px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 98px,
+      rgba(0, 255, 136, 0.1) 100px
+    );
+  animation: matrix-scroll 20s linear infinite;
+}
+
+@keyframes matrix-scroll {
+  0% { background-position: 0 0, 0 0, 0 0; }
+  100% { background-position: 0 0, 100px 0, 0 100px; }
+}
+
+/* Gaming Theme RGB Glow */
+body.theme-gaming-dark .epic-overlay,
+body.theme-gaming-dark .popup-container,
+body.theme-gaming-dark .settings-container {
+  box-shadow: 
+    var(--shadow-lg),
+    0 0 50px rgba(156, 136, 255, 0.3),
+    0 0 100px rgba(255, 107, 157, 0.2);
+}
+
+/* Epic Theme Particle Effect */
+body.theme-epic-dark::after {
+  background-image: 
+    radial-gradient(2px 2px at 20px 30px, rgba(74, 144, 226, 0.5), transparent),
+    radial-gradient(2px 2px at 40px 70px, rgba(80, 200, 120, 0.5), transparent),
+    radial-gradient(1px 1px at 90px 40px, rgba(74, 144, 226, 0.3), transparent),
+    radial-gradient(1px 1px at 130px 80px, rgba(80, 200, 120, 0.3), transparent);
+  background-repeat: repeat;
+  background-size: 200px 100px;
+  animation: particle-float 30s linear infinite;
+}
+
+@keyframes particle-float {
+  0% { background-position: 0 0, 0 0, 0 0, 0 0; }
+  100% { background-position: 200px 100px, -200px 50px, 100px -100px, -100px 200px; }
+}
+
+/* ===== ACCESSIBILITY IMPROVEMENTS ===== */
+
+/* High Contrast Mode */
+body.high-contrast {
+  --border: rgba(255, 255, 255, 0.3);
+  --border-light: rgba(255, 255, 255, 0.15);
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.7);
+}
+
+body.high-contrast.theme-professional-light,
+body.high-contrast.theme-epic-light,
+body.high-contrast.theme-hacker-light,
+body.high-contrast.theme-gaming-light {
+  --border: rgba(0, 0, 0, 0.3);
+  --border-light: rgba(0, 0, 0, 0.15);
+  --text-primary: #000000;
+  --text-secondary: #333333;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition: none;
+    --transition-fast: none;
+  }
+  
+  body::before,
+  body::after {
+    animation: none;
+  }
+}
+
+/* ===== THEME TRANSITION ANIMATIONS ===== */
+body {
+  transition: var(--transition);
+}
+
+body * {
+  transition: 
+    background-color var(--transition),
+    border-color var(--transition),
+    color var(--transition),
+    box-shadow var(--transition);
+}
+
+/* Smooth theme switching */
+.theme-switching {
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-switching * {
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== CUSTOM THEME SUPPORT ===== */
+
+/* Custom themes will have their variables injected dynamically */
+body[class*="theme-custom-"] {
+  /* Custom theme variables will be set via JavaScript */
+}
