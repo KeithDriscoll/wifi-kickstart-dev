@@ -220,6 +220,31 @@ class DashboardController {
         this.handleTestResults(request.results);
       }
     });
+
+        // Dashboard customizer (left panel)
+    document.getElementById('customizerToggle').addEventListener('click', () => {
+      this.toggleCustomizer();
+    });
+
+    document.getElementById('closeCustomizer').addEventListener('click', () => {
+      this.toggleCustomizer(false);
+    });
+
+    // Full settings panel (top panel)
+    document.getElementById('fullSettingsToggle').addEventListener('click', () => {
+      this.toggleFullSettings();
+    });
+
+    document.getElementById('closeFullSettings').addEventListener('click', () => {
+      this.toggleFullSettings(false);
+    });
+
+    // Pill toggle switches
+    document.querySelectorAll('.pill-toggle').forEach(toggle => {
+      toggle.addEventListener('click', () => {
+        this.handlePillToggle(toggle);
+      });
+    });
   }
 
   // Initialize all charts
@@ -1071,6 +1096,71 @@ resizeCharts() {
       return `${minutes}m ${seconds % 60}s`;
     }
     return `${seconds}s`;
+  }
+
+    // Toggle dashboard customizer (left panel)
+  toggleCustomizer(show) {
+    const panel = document.getElementById('dashboardCustomizer');
+    if (show === undefined) {
+      panel.classList.toggle('active');
+    } else {
+      panel.classList.toggle('active', show);
+    }
+  }
+
+  // Toggle full settings panel (top panel)
+  toggleFullSettings(show) {
+    const panel = document.getElementById('fullSettingsPanel');
+    if (show === undefined) {
+      panel.classList.toggle('active');
+    } else {
+      panel.classList.toggle('active', show);
+    }
+  }
+
+  // Handle pill toggle switches
+  handlePillToggle(toggle) {
+    toggle.classList.toggle('active');
+    
+    const chartId = toggle.dataset.chart;
+    const sectionId = toggle.dataset.section;
+    
+    if (chartId) {
+      // Hide/show chart
+      const chartContainer = document.querySelector(`[data-chart="${chartId}"]`);
+      if (chartContainer) {
+        chartContainer.style.display = toggle.classList.contains('active') ? 'block' : 'none';
+      }
+    }
+    
+    if (sectionId) {
+      // Hide/show section
+      const section = document.getElementById(sectionId);
+      if (section) {
+        section.style.display = toggle.classList.contains('active') ? 'block' : 'none';
+      }
+    }
+    
+    // Save preferences
+    this.saveCustomizerSettings();
+  }
+
+  // Save customizer settings
+  saveCustomizerSettings() {
+    const settings = {
+      charts: {},
+      sections: {}
+    };
+    
+    document.querySelectorAll('.pill-toggle[data-chart]').forEach(toggle => {
+      settings.charts[toggle.dataset.chart] = toggle.classList.contains('active');
+    });
+    
+    document.querySelectorAll('.pill-toggle[data-section]').forEach(toggle => {
+      settings.sections[toggle.dataset.section] = toggle.classList.contains('active');
+    });
+    
+    chrome.storage.local.set({ dashboardCustomizer: settings });
   }
 }
 
