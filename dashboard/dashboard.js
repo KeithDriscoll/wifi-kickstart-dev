@@ -923,14 +923,37 @@ class DashboardController {
     });
   }
 
-  // Toggle fullscreen
-  toggleFullscreen() {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-    } else {
-      document.exitFullscreen();
-    }
+ // Toggle fullscreen
+toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().then(() => {
+      document.body.classList.add('fullscreen-mode');
+      this.showNotification('Entered fullscreen mode', 'info');
+      // Re-render charts for new dimensions
+      setTimeout(() => {
+        this.resizeCharts();
+      }, 300);
+    });
+  } else {
+    document.exitFullscreen().then(() => {
+      document.body.classList.remove('fullscreen-mode');
+      this.showNotification('Exited fullscreen mode', 'info');
+      // Re-render charts for normal dimensions
+      setTimeout(() => {
+        this.resizeCharts();
+      }, 300);
+    });
   }
+}
+
+// Resize charts when entering/exiting fullscreen
+resizeCharts() {
+  Object.values(this.charts).forEach(chart => {
+    if (chart && chart.resize) {
+      chart.resize();
+    }
+  });
+}
 
   // Toggle settings panel
   toggleSettingsPanel(show) {

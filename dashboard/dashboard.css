@@ -7,6 +7,26 @@
   /* Removed your old :root variables - they're now in theme-variables.css */
 }
 
+/* 🔥 KILL ALL SCROLLBARS EVERYWHERE */
+* {
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE and Edge */
+}
+
+*::-webkit-scrollbar {
+  display: none !important; /* Chrome, Safari, Opera */
+}
+
+html, body {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none !important;
+}
+
 /* Light Mode */
 body.light-mode {
   --background: #f5f7fa;
@@ -88,6 +108,82 @@ body {
   background: var(--primary-dark);
   transform: scale(1.1);
 }
+
+/* 🔥 FULLSCREEN RESPONSIVE ENHANCEMENTS */
+body.fullscreen-mode .dashboard-container {
+  max-width: none;
+  width: 100vw;
+  padding: 30px;
+  margin: 0;
+}
+
+body.fullscreen-mode .dashboard-header {
+  padding: 40px;
+  margin-bottom: 40px;
+}
+
+body.fullscreen-mode .dashboard-title {
+  font-size: 42px;
+}
+
+body.fullscreen-mode .dashboard-subtitle {
+  font-size: 16px;
+}
+
+body.fullscreen-mode .charts-grid {
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 30px;
+}
+
+body.fullscreen-mode .chart-canvas {
+  height: 300px !important;
+}
+
+body.fullscreen-mode .status-cards {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+body.fullscreen-mode .dashboard-section {
+  padding: 35px;
+  margin-bottom: 35px;
+}
+
+body.fullscreen-mode .info-grid {
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+body.fullscreen-mode .stats-grid {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+/* Fullscreen mode responsive breakpoints */
+@media screen and (min-width: 1800px) {
+  body.fullscreen-mode .charts-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  body.fullscreen-mode .status-cards {
+    grid-template-columns: repeat(6, 1fr);
+  }
+  
+  body.fullscreen-mode .info-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media screen and (min-width: 2400px) {
+  body.fullscreen-mode .charts-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  body.fullscreen-mode .status-cards {
+    grid-template-columns: repeat(8, 1fr);
+  }
+}
+
 
 /* Settings Panel Toggle */
 .settings-panel-toggle {

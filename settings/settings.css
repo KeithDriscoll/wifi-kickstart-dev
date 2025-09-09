@@ -45,6 +45,26 @@ body.light-mode {
   --border-light: rgba(0, 0, 0, 0.05);
 }
 
+/* 🔥 KILL ALL SCROLLBARS IN SETTINGS */
+* {
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE and Edge */
+}
+
+*::-webkit-scrollbar {
+  display: none !important; /* Chrome, Safari, Opera */
+}
+
+html, body {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none !important;
+}
+
 /* Base Styles */
 * {
   margin: 0;
@@ -60,6 +80,18 @@ body {
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
+}
+
+/* Hide scrollbars but keep scrollability */
+body::-webkit-scrollbar,
+.settings-content::-webkit-scrollbar {
+  display: none;
+}
+
+body,
+.settings-content {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
 }
 
 /* Header */
@@ -178,7 +210,7 @@ body {
   border: 1px solid var(--border);
   height: fit-content;
   position: sticky;
-  top: 120px;
+  top: 137px; /* Anything less will cause it to jump */
 }
 
 .settings-nav {
@@ -231,6 +263,7 @@ body {
   padding: 30px;
   border: 1px solid var(--border);
   min-height: 600px;
+  margin-bottom: 100px;
 }
 
 /* Settings Sections */
@@ -801,7 +834,11 @@ input:checked + .toggle-slider:before {
   background: var(--surface);
   border-top: 1px solid var(--border);
   padding: 20px 0;
-  margin-top: auto;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
 }
 
 .footer-content {
