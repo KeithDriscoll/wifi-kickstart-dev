@@ -61,6 +61,7 @@ class DashboardController {
     }
     
     console.log('✅ Dashboard initialized successfully!');
+    this.initPanels();
   }
 
   // Load settings from storage
@@ -104,13 +105,23 @@ class DashboardController {
       this.toggleFullscreen();
     });
     
-    // Settings panel
+    // 1. RIGHT panel - Settings Flyout (top right button)
     document.getElementById('settingsPanelToggle').addEventListener('click', () => {
-      this.toggleSettingsPanel();
+      this.toggleSettingsFlyout();  // For RIGHT panel
+    });
+
+    // 2. TOP panel - Full Settings (center button)  
+    document.getElementById('fullSettingsToggle').addEventListener('click', () => {
+      this.toggleFullSettings();  // For TOP panel
+    });
+
+    // 3. LEFT panel - Customizer (top left button)
+    document.getElementById('customizerToggle').addEventListener('click', () => {
+      this.toggleCustomizer();  // For LEFT panel
     });
     
     document.getElementById('closeFlyout').addEventListener('click', () => {
-      this.toggleSettingsPanel(false);
+      this.toggleSettingsFlyout(false);
     });
     
     // Header buttons
@@ -956,7 +967,7 @@ resizeCharts() {
 }
 
   // Toggle settings panel
-  toggleSettingsPanel(show) {
+  toggleSettingsFlyout(show) {
     const panel = document.getElementById('settingsFlyout');
     if (show === undefined) {
       panel.classList.toggle('active');
@@ -1072,6 +1083,126 @@ resizeCharts() {
     }
     return `${seconds}s`;
   }
+
+  // ADD THESE METHODS TO YOUR EXISTING DashboardController class in dashboard.js
+
+// Initialize the new panels
+initPanels() {
+  // Left panel toggle
+  const customizerToggle = document.getElementById('customizerToggle');
+  if (customizerToggle) {
+    customizerToggle.addEventListener('click', () => this.toggleCustomizer());
+  }
+  
+  // Close customizer
+  const closeCustomizer = document.getElementById('closeCustomizer');
+  if (closeCustomizer) {
+    closeCustomizer.addEventListener('click', () => this.toggleCustomizer(false));
+  }
+  
+  // Settings panel toggle  
+  const settingsToggle = document.getElementById('fullSettingsToggle');
+  if (settingsToggle) {
+    settingsToggle.addEventListener('click', () => this.toggleSettingsFlyout());
+  }
+  
+  // Close settings
+  const closeSettings = document.getElementById('closeFullSettings');
+  if (closeSettings) {
+    closeSettings.addEventListener('click', () => this.toggleSettingsFlyout(false));
+  }
+  
+  // Initialize pill toggles
+  this.initPillToggles();
+}
+
+// RIGHT flyout
+toggleSettingsFlyout(show) {
+  const flyout = document.getElementById('settingsFlyout');
+  if (show === undefined) {
+    flyout.classList.toggle('active');
+  } else {
+    flyout.classList.toggle('active', show);
+  }
+}
+
+// TOP slide-down  
+toggleFullSettings(show) {
+  const panel = document.getElementById('fullSettingsPanel');
+  if (show === undefined) {
+    panel.classList.toggle('active');
+  } else {
+    panel.classList.toggle('active', show);
+  }
+}
+
+// LEFT slide-in
+toggleCustomizer(show) {
+  const panel = document.getElementById('dashboardCustomizer');
+  if (show === undefined) {
+    panel.classList.toggle('active');
+  } else {
+    panel.classList.toggle('active', show);
+  }
+}
+
+// Initialize pill toggle switches
+initPillToggles() {
+  document.querySelectorAll('.pill-toggle').forEach(toggle => {
+    toggle.addEventListener('click', () => this.handlePillToggle(toggle));
+  });
+}
+
+// Handle pill toggle switches
+handlePillToggle(toggle) {
+  toggle.classList.toggle('active');
+  
+  const chartId = toggle.dataset.chart;
+  const sectionId = toggle.dataset.section;
+  
+  if (chartId) {
+    // Hide/show chart
+    const chartContainer = document.querySelector(`[data-chart="${chartId}"]`);
+    if (chartContainer) {
+      chartContainer.style.display = toggle.classList.contains('active') ? 'block' : 'none';
+    }
+  }
+  
+  if (sectionId) {
+    // Hide/show section
+    const section = document.getElementById(sectionId);
+    if (section) {
+      section.style.display = toggle.classList.contains('active') ? 'block' : 'none';
+    }
+  }
+  
+  // Save preferences
+  this.saveCustomizerSettings();
+}
+
+// Save customizer settings
+saveCustomizerSettings() {
+  const settings = {
+    charts: {},
+    sections: {}
+  };
+  
+  document.querySelectorAll('.pill-toggle[data-chart]').forEach(toggle => {
+    settings.charts[toggle.dataset.chart] = toggle.classList.contains('active');
+  });
+  
+  document.querySelectorAll('.pill-toggle[data-section]').forEach(toggle => {
+    settings.sections[toggle.dataset.section] = toggle.classList.contains('active');
+  });
+  
+  chrome.storage.local.set({ dashboardCustomizer: settings });
+}
+
+
+
+
+
+
 }
 
 // Initialize dashboard when DOM is ready
