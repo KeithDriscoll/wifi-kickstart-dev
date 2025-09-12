@@ -516,7 +516,7 @@ async function openDashboard() {
 
 // Open settings
 async function openSettings() {
-  const settingsUrl = chrome.runtime.getURL('settings/settings.html');
+  const settingsUrl = chrome.runtime.getURL('settings/full-settings.html');
   const tabs = await chrome.tabs.query({ url: settingsUrl });
   
   if (tabs.length > 0) {

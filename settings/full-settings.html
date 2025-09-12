@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wi-Fi Kickstart - Full Settings Configuration</title>
+  <link rel="stylesheet" href="../themes/theme-variables.css">
+  <link rel="stylesheet" href="full-settings.css">
+</head>
+<body class="dark-mode">
+  <!-- Full Settings Panel -->
+  <div class="full-settings-panel active" id="fullSettingsPanel">
+    <!-- Modern Settings Header -->
+    <header class="settings-header-pro">
+      <div class="header-section left">
+        <button class="nav-toggle" id="navToggle">☰</button>
+        <h1 class="settings-title-pro">
+          <span class="title-badge">PRO</span>
+          WiFi Performance & Privacy Suite
+        </h1>
+      </div>
+      
+      <div class="header-section center">
+        <div class="search-container">
+          <input type="text" class="settings-search" placeholder="Search all settings..." id="settingsSearch">
+          <span class="search-icon">🔍</span>
+        </div>
+      </div>
+      
+      <div class="header-section right">
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span class="status-text">All systems operational</span>
+        </div>
+        <button class="icon-btn" title="Help">?</button>
+        <button class="icon-btn close-btn" id="closeFullSettings">✕</button>
+      </div>
+    </header>
+
+    <div class="settings-body-pro">
+      <!-- Collapsible Icon Navigation -->
+      <nav class="settings-nav-pro" id="settingsNav">
+        <div class="nav-group">
+          <div class="nav-group-title">TESTING</div>
+          <button class="nav-icon-item active" data-category="performance">
+            <span class="nav-icon">🚀</span>
+            <span class="nav-label">Performance</span>
+            <span class="nav-badge">12</span>
+          </button>
+          <button class="nav-icon-item" data-category="network">
+            <span class="nav-icon">🌐</span>
+            <span class="nav-label">Network</span>
+            <span class="nav-badge">8</span>
+          </button>
+          <button class="nav-icon-item" data-category="gaming">
+            <span class="nav-icon">🎮</span>
+            <span class="nav-label">Gaming</span>
+          </button>
+        </div>
+        
+        <div class="nav-group">
+          <div class="nav-group-title">MONITORING</div>
+          <button class="nav-icon-item" data-category="realtime">
+            <span class="nav-icon">📊</span>
+            <span class="nav-label">Real-time</span>
+          </button>
+          <button class="nav-icon-item" data-category="alerts">
+            <span class="nav-icon">🔔</span>
+            <span class="nav-label">Alerts</span>
+            <span class="nav-indicator"></span>
+          </button>
+          <button class="nav-icon-item" data-category="automation">
+            <span class="nav-icon">⚡</span>
+            <span class="nav-label">Automation</span>
+          </button>
+        </div>
+        
+        <div class="nav-group">
+          <div class="nav-group-title">PRIVACY</div>
+          <button class="nav-icon-item" data-category="security">
+            <span class="nav-icon">🔒</span>
+            <span class="nav-label">Security</span>
+          </button>
+          <button class="nav-icon-item" data-category="vpn">
+            <span class="nav-icon">🛡️</span>
+            <span class="nav-label">VPN/Proxy</span>
+          </button>
+        </div>
+        
+        <div class="nav-group">
+          <div class="nav-group-title">SYSTEM</div>
+          <button class="nav-icon-item" data-category="interface">
+            <span class="nav-icon">🎨</span>
+            <span class="nav-label">Interface</span>
+          </button>
+          <button class="nav-icon-item" data-category="data">
+            <span class="nav-icon">💾</span>
+            <span class="nav-label">Data</span>
+          </button>
+          <button class="nav-icon-item" data-category="experimental">
+            <span class="nav-icon">🧪</span>
+            <span class="nav-label">Labs</span>
+            <span class="nav-badge new">NEW</span>
+          </button>
+        </div>
+      </nav>
+
+      <!-- Main Content Area -->
+      <main class="settings-content-pro">
+        <!-- Performance Category (Default Active) -->
+        <div class="category-panel active" id="performancePanel">
+          <!-- Quick Actions Bar -->
+          <div class="quick-actions-bar">
+            <div class="breadcrumb">
+              Settings / Performance / Test Configuration
+            </div>
+            <div class="quick-toggles">
+              <button class="quick-toggle active">Simple</button>
+              <button class="quick-toggle">Advanced</button>
+              <button class="quick-toggle">Expert</button>
+            </div>
+          </div>
+
+          <!-- Test Presets -->
+          <section class="settings-section-pro">
+            <div class="section-header-pro">
+              <h2>Test Presets</h2>
+              <button class="section-action">Manage Presets</button>
+            </div>
+            
+            <div class="preset-grid">
+              <div class="preset-card">
+                <div class="preset-icon">⚡</div>
+                <div class="preset-name">Quick Test</div>
+                <div class="preset-time">~30 seconds</div>
+                <div class="preset-desc">Basic connectivity check</div>
+              </div>
+              <div class="preset-card active">
+                <div class="preset-icon">📊</div>
+                <div class="preset-name">Standard</div>
+                <div class="preset-time">~2 minutes</div>
+                <div class="preset-desc">Comprehensive analysis</div>
+              </div>
+              <div class="preset-card">
+                <div class="preset-icon">🔬</div>
+                <div class="preset-name">Deep Scan</div>
+                <div class="preset-time">~5 minutes</div>
+                <div class="preset-desc">Full network diagnostic</div>
+              </div>
+              <div class="preset-card">
+                <div class="preset-icon">🎮</div>
+                <div class="preset-name">Gaming</div>
+                <div class="preset-time">~3 minutes</div>
+                <div class="preset-desc">Latency & jitter focus</div>
+              </div>
+              <div class="preset-card">
+                <div class="preset-icon">📺</div>
+                <div class="preset-name">Streaming</div>
+                <div class="preset-time">~2 minutes</div>
+                <div class="preset-desc">Bandwidth optimization</div>
+              </div>
+              <div class="preset-card custom">
+                <div class="preset-icon">⚙️</div>
+                <div class="preset-name">Custom</div>
+                <div class="preset-time">Variable</div>
+                <div class="preset-desc">Your configuration</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Download Configuration -->
+          <section class="settings-section-pro">
+            <div class="section-header-pro collapsible">
+              <h2>Download Speed Tests</h2>
+              <span class="collapse-icon">−</span>
+            </div>
+            
+            <div class="section-content">
+              <div class="settings-row">
+                <div class="setting-block">
+                  <label class="setting-label">Enable Download Testing</label>
+                  <div class="setting-description">Test download speeds using various file sizes</div>
+                  <label class="modern-toggle-container">
+                    <input type="checkbox" class="modern-toggle" id="downloadEnabled" checked>
+                    <span class="toggle-slider-modern"></span>
+                    <span class="toggle-desc">Download speed analysis</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="settings-row">
+                <div class="setting-block">
+                  <label class="setting-label">Test File Sizes</label>
+                  <div class="setting-description">Select file sizes for speed measurement</div>
+                  <div class="file-size-selector">
+                    <button class="size-tag active" data-size="256KB">256KB</button>
+                    <button class="size-tag active" data-size="512KB">512KB</button>
+                    <button class="size-tag active" data-size="1MB">1MB</button>
+                    <button class="size-tag active" data-size="5MB">5MB</button>
+                    <button class="size-tag active" data-size="10MB">10MB</button>
+                    <button class="size-tag" data-size="25MB">25MB</button>
+                    <button class="size-tag" data-size="50MB">50MB</button>
+                    <button class="size-tag" data-size="100MB">100MB</button>
+                    <button class="size-tag" data-size="250MB">250MB</button>
+                    <button class="size-tag" data-size="500MB">500MB</button>
+                    <button class="size-tag" data-size="1GB">1GB</button>
+                    <button class="size-tag custom" data-size="custom">Custom</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="settings-row">
+                <div class="setting-block">
+                  <label class="setting-label">Test Configuration</label>
+                  <div class="setting-description">Control how tests are performed</div>
+                  
+                  <div class="slider-container">
+                    <label>Iterations per File Size</label>
+                    <input type="range" class="modern-slider" id="downloadIterations" min="1" max="10" value="3">
+                    <span class="slider-value">3 iterations</span>
+                  </div>
+                  
+                  <div class="slider-container">
+                    <label>Parallel Connections</label>
+                    <input type="range" class="modern-slider" id="downloadConnections" min="1" max="8" value="4">
+                    <span class="slider-value">4 connections</span>
+                  </div>
+                  
+                  <div class="input-container">
+                    <label>Timeout (seconds)</label>
+                    <input type="number" class="modern-input" id="downloadTimeout" min="10" max="120" value="30">
+                  </div>
+                </div>
+              </div>
+
+              <div class="settings-row">
+                <div class="setting-block">
+                  <label class="setting-label">Advanced Options</label>
+                  <div class="setting-description">Additional testing features</div>
+                  
+                  <label class="modern-toggle-container">
+                    <input type="checkbox" class="modern-toggle" id="ipv6Testing">
+                    <span class="toggle-slider-modern"></span>
+                    <span class="toggle-desc">IPv6 Protocol Testing</span>
+                  </label>
+                  
+                  <label class="modern-toggle-container">
+                    <input type="checkbox" class="modern-toggle" id="http3Testing">
+                    <span class="toggle-slider-modern"></span>
+                    <span class="toggle-desc">HTTP/3 QUIC Protocol</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Upload Configuration -->
+          <section class="settings-section-pro">
+            <div class="section-header-pro collapsible collapsed">
+              <h2>Upload Speed Tests</h2>
+              <span class="collapse-icon">+</span>
+            </div>
+            
+            <div class="section-content" style="display: none;">
+              <div class="settings-row">
+                <div class="setting-block">
+                  <label class="setting-label">Enable Upload Testing</label>
+                  <div class="setting-description">Test upload speeds using various file sizes</div>
+                  <label class="modern-toggle-container">
+                    <input type="checkbox" class="modern-toggle" id="uploadEnabled" checked>
+                    <span class="toggle-slider-modern"></span>
+                    <span class="toggle-desc">Upload speed analysis</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="settings-row">
+                <div class="setting-block">
+                  <label class="setting-label">Upload File Sizes</label>
+                  <div class="setting-description">Select file sizes for upload testing</div>
+                  <div class="file-size-selector">
+                    <button class="size-tag active" data-size="1MB">1MB</button>
+                    <button class="size-tag active" data-size="5MB">5MB</button>
+                    <button class="size-tag" data-size="10MB">10MB</button>
+                    <button class="size-tag" data-size="25MB">25MB</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="settings-row">
+                <div class="setting-block">
+                  <label class="setting-label">Upload Configuration</label>
+                  <div class="setting-description">Control upload test parameters</div>
+                  
+                  <div class="slider-container">
+                    <label>Iterations per File Size</label>
+                    <input type="range" class="modern-slider" id="uploadIterations" min="1" max="5" value="2">
+                    <span class="slider-value">2 iterations</span>
+                  </div>
+                  
+                  <div class="slider-container">
+                    <label>Parallel Connections</label>
+                    <input type="range" class="modern-slider" id="uploadConnections" min="1" max="4" value="2">
+                    <span class="slider-value">2 connections</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Latency Configuration -->
+          <section class="settings-section-pro">
+            <div class="section-header-pro collapsible collapsed">
+              <h2>Latency & Jitter Tests</h2>
+              <span class="collapse-icon">+</span>
+            </div>
+            
+            <div class="section-content" style="display: none;">
+              <div class="settings-row">
+                <div class="setting-block">
+                  <label class="setting-label">Latency Testing</label>
+                  <div class="setting-description">Measure network response times</div>
+                  
+                  <label class="modern-toggle-container">
+                    <input type="checkbox" class="modern-toggle" id="latencyEnabled" checked>
+                    <span class="toggle-slider-modern"></span>
+                    <span class="toggle-desc">Enable latency testing</span>
+                  </label>
+                  
+                  <label class="modern-toggle-container">
+                    <input type="checkbox" class="modern-toggle" id="jitterEnabled" checked>
+                    <span class="toggle-slider-modern"></span>
+                    <span class="toggle-desc">Enable jitter analysis</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="settings-row">
+                <div class="setting-block">
+                  <label class="setting-label">Sample Configuration</label>
+                  <div class="setting-description">More samples = more accurate results</div>
+                  
+                  <div class="slider-container">
+                    <label>Sample Count</label>
+                    <input type="range" class="modern-slider" id="latencySamples" min="5" max="100" value="20">
+                    <span class="slider-value">20 samples</span>
+                  </div>
+                  
+                  <div class="slider-container">
+                    <label>Test Interval (ms)</label>
+                    <input type="range" class="modern-slider" id="latencyInterval" min="100" max="2000" value="500">
+                    <span class="slider-value">500ms</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Network Category Panel -->
+        <div class="category-panel" id="networkPanel">
+          <div class="quick-actions-bar">
+            <div class="breadcrumb">Settings / Network / Advanced Configuration</div>
+          </div>
+
+          <section class="settings-section-pro">
+            <div class="section-header-pro">
+              <h2>Network Protocols</h2>
+            </div>
+            
+            <div class="section-content">
+              <div class="settings-row">
+                <div class="setting-block">
+                  <label class="setting-label">Protocol Testing</label>
+                  <div class="setting-description">Test different network protocols</div>
+                  
+                  <label class="modern-toggle-container">
+                    <input type="checkbox" class="modern-toggle" id="ipv6Testing2" checked>
+                    <span class="toggle-slider-modern"></span>
+                    <span class="toggle-desc">IPv6 Protocol Testing</span>
+                  </label>
+                  
+                  <label class="modern-toggle-container">
+                    <input type="checkbox" class="modern-toggle" id="http3Testing2">
+                    <span class="toggle-slider-modern"></span>
+                    <span class="toggle-desc">HTTP/3 QUIC Testing</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="settings-row">
+                <div class="setting-block">
+                  <label class="setting-label">CDN & Infrastructure</label>
+                  <div class="setting-description">Test infrastructure performance</div>
+                  
+                  <label class="modern-toggle-container">
+                    <input type="checkbox" class="modern-toggle" id="cdnTesting" checked>
+                    <span class="toggle-slider-modern"></span>
+                    <span class="toggle-desc">CDN Performance Testing</span>
+                  </label>
+                  
+                  <label class="modern-toggle-container">
+                    <input type="checkbox" class="modern-toggle" id="dnsPerformance" checked>
+                    <span class="toggle-slider-modern"></span>
+                    <span class="toggle-desc">DNS Performance Analysis</span>
+                  </label>
+                  
+                  <label class="modern-toggle-container">
+                    <input type="checkbox" class="modern-toggle" id="routingEfficiency">
+                    <span class="toggle-slider-modern"></span>
+                    <span class="toggle-desc">Routing Efficiency Analysis</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="settings-row">
+                <div class="setting-block">
+                  <label class="setting-label">Connection Analysis</label>
+                  <div class="setting-description">Advanced connection testing</div>
+                  
+                  <label class="modern-toggle-container">
+                    <input type="checkbox" class="modern-toggle" id="connectionStability">
+                    <span class="toggle-slider-modern"></span>
+                    <span class="toggle-desc">Connection Stability Testing</span>
+                  </label>
+                  
+                  <label class="modern-toggle-container">
+                    <input type="checkbox" class="modern-toggle" id="concurrentTesting">
+                    <span class="toggle-slider-modern"></span>
+                    <span class="toggle-desc">Concurrent Testing</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Gaming Category Panel -->
+        <div class="category-panel" id="gamingPanel">
+          <div class="quick-actions-bar">
+            <div class="breadcrumb">Settings / Gaming / Performance Optimization</div>
+          </div>
+
+          <section class="settings-section-pro">
+            <div class="section-header-pro">
+              <h2>Gaming Performance</h2>
+            </div>
+            
+            <div class="section-content">
+              <div class="settings-row">
+                <div class="setting-block">
+                  <label class="setting-label">Gaming Tests</label>
+                  <div class="setting-description">Optimize for gaming performance</div>
+                  
+                  <label class="modern-toggle-container">
+                    <input type="checkbox" class="modern-toggle" id="gamingLatency" checked>
+                    <span class="toggle-slider-modern"></span>
+                    <span class="toggle-desc">Gaming Latency Testing</span>
+                  </label>
+                  
+                  <label class="modern-toggle-container">
+                    <input type="checkbox" class="modern-toggle" id="packetLoss" checked>
+                    <span class="toggle-slider-modern"></span>
+                    <span class="toggle-desc">Packet Loss Detection</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Interface Category Panel -->
+        <div class="category-panel" id="interfacePanel">
+          <div class="quick-actions-bar">
+            <div class="breadcrumb">Settings / Interface / Themes & Appearance</div>
+          </div>
+
+          <!-- Theme Selection -->
+          <section class="settings-section-pro">
+            <div class="section-header-pro">
+              <h2>Theme Selection</h2>
+            </div>
+            
+            <div class="section-content">
+              <div class="theme-grid" id="builtinThemeGrid">
+                <!-- Professional Themes -->
+                <button class="theme-card active" data-theme="professional-light">
+                  <div class="theme-preview professional-light-theme"></div>
+                  <span class="theme-name">Professional Light</span>
+                  <span class="theme-desc">Clean corporate design</span>
+                </button>
+                <button class="theme-card" data-theme="professional-dark">
+                  <div class="theme-preview professional-dark-theme"></div>
+                  <span class="theme-name">Professional Dark</span>
+                  <span class="theme-desc">Professional with dark aesthetics</span>
+                </button>
+                
+                <!-- Epic Themes -->
+                <button class="theme-card" data-theme="epic-light">
+                  <div class="theme-preview epic-light-theme"></div>
+                  <span class="theme-name">Epic Light</span>
+                  <span class="theme-desc">Cosmic vibes, bright background</span>
+                </button>
+                <button class="theme-card" data-theme="epic-dark">
+                  <div class="theme-preview epic-dark-theme"></div>
+                  <span class="theme-name">Epic Dark</span>
+                  <span class="theme-desc">Deep space gradients</span>
+                </button>
+                
+                <!-- Hacker Themes -->
+                <button class="theme-card" data-theme="hacker-light">
+                  <div class="theme-preview hacker-light-theme"></div>
+                  <span class="theme-name">Hacker Light</span>
+                  <span class="theme-desc">Terminal aesthetics</span>
+                </button>
+                <button class="theme-card" data-theme="hacker-dark">
+                  <div class="theme-preview hacker-dark-theme"></div>
+                  <span class="theme-name">Hacker Dark</span>
+                  <span class="theme-desc">Matrix green terminal</span>
+                </button>
+                
+                <!-- Gaming Themes -->
+                <button class="theme-card" data-theme="gaming-light">
+                  <div class="theme-preview gaming-light-theme"></div>
+                  <span class="theme-name">Gaming Light</span>
+                  <span class="theme-desc">RGB aesthetics</span>
+                </button>
+                <button class="theme-card" data-theme="gaming-dark">
+                  <div class="theme-preview gaming-dark-theme"></div>
+                  <span class="theme-name">Gaming Dark</span>
+                  <span class="theme-desc">RGB neon beast mode</span>
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Custom Themes -->
+          <section class="settings-section-pro">
+            <div class="section-header-pro">
+              <h2>Custom Themes</h2>
+              <button class="section-action" id="createThemeBtn">Create Theme</button>
+            </div>
+            
+            <div class="section-content">
+              <div class="custom-themes-grid" id="customThemesGrid">
+                <div class="no-custom-themes" id="noCustomThemes">
+                  <div class="no-themes-icon">🎨</div>
+                  <div class="no-themes-text">
+                    <strong>No custom themes yet</strong>
+                    <p>Create your first custom theme to get started</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="theme-actions">
+                <button class="btn secondary" id="importThemeBtn">📁 Import Theme</button>
+                <input type="file" id="importThemeFile" accept=".json" style="display: none;">
+              </div>
+            </div>
+          </section>
+
+          <!-- Appearance Settings -->
+          <section class="settings-section-pro">
+            <div class="section-header-pro">
+              <h2>Appearance Options</h2>
+            </div>
+            
+            <div class="section-content">
+              <div class="settings-row">
+                <div class="setting-block">
+                  <label class="setting-label">Display Options</label>
+                  <div class="setting-description">Customize interface appearance</div>
+                  
+                  <label class="modern-toggle-container">
+                    <input type="checkbox" class="modern-toggle" id="animationsEnabled" checked>
+                    <span class="toggle-slider-modern"></span>
+                    <span class="toggle-desc">Enable Animations</span>
+                  </label>
+                  
+                  <label class="modern-toggle-container">
+                    <input type="checkbox" class="modern-toggle" id="compactMode">
+                    <span class="toggle-slider-modern"></span>
+                    <span class="toggle-desc">Compact Mode</span>
+                  </label>
+                  
+                  <label class="modern-toggle-container">
+                    <input type="checkbox" class="modern-toggle" id="highContrast">
+                    <span class="toggle-slider-modern"></span>
+                    <span class="toggle-desc">High Contrast</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Theme Management -->
+          <section class="settings-section-pro">
+            <div class="section-header-pro">
+              <h2>Theme Management</h2>
+            </div>
+            
+            <div class="section-content">
+              <div class="theme-management">
+                <div class="current-theme-info" id="currentThemeInfo">
+                  <div class="current-theme-preview"></div>
+                  <div class="current-theme-details">
+                    <div class="current-theme-name">Professional Light</div>
+                    <div class="current-theme-desc">Clean corporate design with traditional blues</div>
+                  </div>
+                </div>
+                
+                <div class="theme-actions">
+                  <button class="btn secondary" id="exportCurrentThemeBtn">📤 Export Current Theme</button>
+                  <button class="btn secondary" id="resetThemeBtn">🔄 Reset to Default</button>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Data Category Panel -->
+        <div class="category-panel" id="dataPanel">
+          <div class="quick-actions-bar">
+            <div class="breadcrumb">Settings / Data / Management & History</div>
+          </div>
+
+          <!-- Test History Management -->
+          <section class="settings-section-pro">
+            <div class="section-header-pro">
+              <h2>Test History</h2>
+            </div>
+            
+            <div class="section-content">
+              <div class="settings-row">
+                <div class="setting-block">
+                  <label class="setting-label">History Retention</label>
+                  <div class="setting-description">How long to keep test results</div>
+                  <select class="modern-select" id="historyRetention">
+                    <option value="7">1 week</option>
+                    <option value="30" selected>1 month</option>
+                    <option value="90">3 months</option>
+                    <option value="365">1 year</option>
+                    <option value="0">Forever</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="settings-row">
+                <div class="setting-block">
+                  <label class="setting-label">Storage Limits</label>
+                  <div class="setting-description">Control data storage usage</div>
+                  
+                  <div class="input-container">
+                    <label>Maximum Tests Stored</label>
+                    <input type="number" class="modern-input" id="maxTestsStored" min="10" max="1000" value="100">
+                  </div>
+                </div>
+              </div>
+
+              <div class="data-stats">
+                <div class="stat-item">
+                  <span class="stat-label">Tests Stored:</span>
+                  <span class="stat-value" id="testsStored">0</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">Storage Used:</span>
+                  <span class="stat-value" id="storageUsed">0 MB</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Data Export/Import -->
+          <section class="settings-section-pro">
+            <div class="section-header-pro">
+              <h2>Data Export & Import</h2>
+            </div>
+            
+            <div class="section-content">
+              <div class="export-options">
+                <button class="btn secondary" id="exportDataBtn">📤 Export All Data</button>
+                <button class="btn secondary" id="importDataBtn">📁 Import Data</button>
+                <input type="file" id="importDataFile" accept=".json" style="display: none;">
+              </div>
+            </div>
+          </section>
+
+          <!-- Data Cleanup -->
+          <section class="settings-section-pro">
+            <div class="section-header-pro">
+              <h2>Data Cleanup</h2>
+            </div>
+            
+            <div class="section-content">
+              <div class="cleanup-actions">
+                <button class="btn danger" id="clearOldDataBtn">🗑️ Clear Old Data</button>
+                <button class="btn danger" id="clearAllDataBtn">⚠️ Clear All Data</button>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Other empty category panels for future expansion -->
+        <div class="category-panel" id="realtimePanel">
+          <div class="quick-actions-bar">
+            <div class="breadcrumb">Settings / Real-time / Monitoring</div>
+          </div>
+          <section class="settings-section-pro">
+            <div class="section-header-pro">
+              <h2>Real-time Monitoring</h2>
+            </div>
+            <div class="section-content">
+              <p>Real-time monitoring features coming soon...</p>
+            </div>
+          </section>
+        </div>
+
+        <div class="category-panel" id="alertsPanel">
+          <div class="quick-actions-bar">
+            <div class="breadcrumb">Settings / Alerts / Notifications</div>
+          </div>
+          <section class="settings-section-pro">
+            <div class="section-header-pro">
+              <h2>Alert Configuration</h2>
+            </div>
+            <div class="section-content">
+              <p>Alert configuration features coming soon...</p>
+            </div>
+          </section>
+        </div>
+
+        <div class="category-panel" id="automationPanel">
+          <div class="quick-actions-bar">
+            <div class="breadcrumb">Settings / Automation / Scheduled Tests</div>
+          </div>
+          <section class="settings-section-pro">
+            <div class="section-header-pro">
+              <h2>Test Automation</h2>
+            </div>
+            <div class="section-content">
+              <p>Automation features coming soon...</p>
+            </div>
+          </section>
+        </div>
+
+        <div class="category-panel" id="securityPanel">
+          <div class="quick-actions-bar">
+            <div class="breadcrumb">Settings / Security / Privacy Settings</div>
+          </div>
+          <section class="settings-section-pro">
+            <div class="section-header-pro">
+              <h2>Security & Privacy</h2>
+            </div>
+            <div class="section-content">
+              <p>Security features coming soon...</p>
+            </div>
+          </section>
+        </div>
+
+        <div class="category-panel" id="vpnPanel">
+          <div class="quick-actions-bar">
+            <div class="breadcrumb">Settings / VPN/Proxy / Configuration</div>
+          </div>
+          <section class="settings-section-pro">
+            <div class="section-header-pro">
+              <h2>VPN & Proxy Settings</h2>
+            </div>
+            <div class="section-content">
+              <p>VPN/Proxy features coming soon...</p>
+            </div>
+          </section>
+        </div>
+
+        <div class="category-panel" id="experimentalPanel">
+          <div class="quick-actions-bar">
+            <div class="breadcrumb">Settings / Labs / Experimental Features</div>
+          </div>
+          <section class="settings-section-pro">
+            <div class="section-header-pro">
+              <h2>Experimental Features</h2>
+            </div>
+            <div class="section-content">
+              <p>Experimental features coming soon...</p>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <!-- Right Sidebar -->
+      <aside class="settings-sidebar-pro">
+        <div class="info-card">
+          <h3>Quick Stats</h3>
+          <div class="stat-item">
+            <span class="stat-label">Tests Run</span>
+            <span class="stat-value" id="totalTestsRun">0</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Data Stored</span>
+            <span class="stat-value" id="totalDataStored">0 MB</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Last Test</span>
+            <span class="stat-value" id="lastTestTime">Never</span>
+          </div>
+        </div>
+        
+        <div class="info-card">
+          <h3>Tips</h3>
+          <p class="tip">💡 Use keyboard shortcuts: <kbd>Ctrl+S</kbd> to save, <kbd>Ctrl+/</kbd> to search</p>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Fixed Footer Actions -->
+    <footer class="settings-footer-pro">
+      <div class="footer-left">
+        <button class="text-btn" id="resetDefaultsBtn">Reset to Defaults</button>
+        <button class="text-btn" id="importConfigBtn">Import Config</button>
+        <button class="text-btn" id="exportConfigBtn">Export Config</button>
+        <input type="file" id="importConfigFile" accept=".json" style="display: none;">
+      </div>
+      
+      <div class="footer-center">
+        <span class="save-indicator" id="saveIndicator">All changes saved</span>
+      </div>
+      
+      <div class="footer-right">
+        <button class="btn-ghost" id="cancelBtn">Cancel</button>
+        <button class="btn-primary" id="saveBtn">Apply Changes</button>
+      </div>
+    </footer>
+  </div>
+
+  <script src="../themes/theme-manager.js"></script>
+  <script src="full-settings.js"></script>
+  <script src="settings.js"></script>
+</body>
+</html>
