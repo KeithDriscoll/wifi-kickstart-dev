@@ -1,0 +1,180 @@
+/* 👁️ Visibility Panel Styles */
+/* Left-side flyout for toggling element visibility */
+
+/* Visibility Panel Toggle Button */
+.visibility-panel-toggle {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: var(--surface);
+  border-radius: 50%;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  z-index: 100;
+  box-shadow: var(--shadow);
+}
+
+.visibility-panel-toggle:hover {
+  background: var(--surface-light);
+  color: var(--primary);
+  transform: scale(1.1);
+}
+
+.visibility-panel-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Visibility Flyout Panel */
+.visibility-flyout {
+  position: fixed;
+  top: 0;
+  left: -400px;
+  width: 400px;
+  height: 100%;
+  background: var(--surface);
+  box-shadow: 5px 0 20px rgba(0, 0, 0, 0.5);
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 200;
+  overflow-y: auto;
+}
+
+.visibility-flyout.active {
+  left: 0;
+}
+
+/* Quick Actions */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.action-btn {
+  padding: 8px 12px;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.action-btn:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+/* Toggle List */
+.toggle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Visibility Row */
+.visibility-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: var(--background);
+  border-radius: var(--radius-sm);
+  transition: var(--transition-fast);
+}
+
+.visibility-row:hover {
+  background: var(--surface-light);
+}
+
+.visibility-label {
+  font-size: 13px;
+  color: var(--text-primary);
+  font-weight: 400;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-right: 10px;
+}
+
+/* Hidden by toggle state */
+.hidden-by-toggle {
+  display: none !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .visibility-flyout {
+    width: 85%;
+    left: -85%;
+  }
+  
+  .visibility-panel-toggle {
+    width: 40px;
+    height: 40px;
+    left: 10px;
+  }
+}
+
+/* Dark mode enhancements */
+body.dark-mode .visibility-flyout {
+  background: #1a1f3a;
+  box-shadow: 5px 0 30px rgba(0, 0, 0, 0.8);
+}
+
+body.dark-mode .visibility-row {
+  background: rgba(26, 31, 58, 0.4);
+}
+
+body.dark-mode .visibility-row:hover {
+  background: rgba(26, 31, 58, 0.8);
+}
+
+body.dark-mode .action-btn {
+  background: rgba(26, 31, 58, 0.6);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Animations */
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.visibility-flyout.active {
+  animation: slideInLeft 0.3s ease;
+}
+
+/* Section indicators */
+.visibility-row[data-target-type="section"] .visibility-label::before {
+  content: "📊 ";
+  margin-right: 4px;
+}
+
+.visibility-row[data-target-type="chart"] .visibility-label::before {
+  content: "📈 ";
+  margin-right: 4px;
+}
+
+.visibility-row[data-target-type="status"] .visibility-label::before {
+  content: "📌 ";
+  margin-right: 4px;
+}

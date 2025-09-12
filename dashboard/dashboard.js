@@ -2,6 +2,7 @@
 // Manages charts, real-time updates, and dashboard interactions
 
 import { EpicOverlay } from './epic-overlay.js';
+import { VisibilityPanel } from './visibility-panel.js';
 
 // Dashboard Controller Class
 class DashboardController {
@@ -21,6 +22,7 @@ class DashboardController {
       defaultTestMode: 'standard'
     };
     this.sortableInstances = [];
+    this.visibilityPanel = null;
   }
 
   // Initialize Dashboard
@@ -36,7 +38,11 @@ class DashboardController {
     // Initialize epic overlay
     this.epicOverlay = new EpicOverlay();
     await this.epicOverlay.init();
-    
+
+    // Initialize visibility panel
+    this.visibilityPanel = new VisibilityPanel();
+    await this.visibilityPanel.init();
+        
     // Load network info
     await this.loadNetworkInfo();
     
