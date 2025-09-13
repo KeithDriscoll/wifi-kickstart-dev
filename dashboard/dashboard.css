@@ -1047,3 +1047,29 @@ body.compact-mode .chart-canvas {
 .mb-3 { margin-bottom: 1rem; }
 .mb-4 { margin-bottom: 1.5rem; }
 .mb-5 { margin-bottom: 2rem; }
+
+.settings-trigger-btn {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: var(--surface);
+  border-radius: 50%;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  z-index: 100;
+  box-shadow: var(--shadow);
+  font-size: 18px;
+}
+
+.settings-trigger-btn:hover {
+  background: var(--surface-light);
+  color: var(--primary);
+  transform: scale(1.1);
+}
