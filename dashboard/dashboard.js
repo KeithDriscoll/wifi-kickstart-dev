@@ -26,84 +26,98 @@ class DashboardController {
   }
 
   // Add this to your existing DashboardController class
-  async showSettingsPanel() {
-    try {
-      // Check if already loaded
-      if (!document.getElementById('fullSettingsPanel')) {
-        console.log('🔄 Loading settings panel...');
-        
-        // Fetch the settings HTML
-        const response = await fetch('../settings/full-settings.html');
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        
-        const html = await response.text();
-        
-        // Extract just the settings panel div
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const settingsPanel = doc.getElementById('fullSettingsPanel');
-        
-        if (!settingsPanel) {
-          throw new Error('Settings panel not found in HTML');
-        }
-        
-        // Inject into container
-        document.getElementById('settingsContainer').appendChild(settingsPanel);
-        
-        // Load settings CSS if not already loaded
-        if (!document.querySelector('link[href*="full-settings.css"]')) {
-          const link = document.createElement('link');
-          link.rel = 'stylesheet';
-          link.href = '../settings/full-settings.css';
-          document.head.appendChild(link);
-        }
-        
-        // Load settings JS if not already loaded
-        if (!window.FullSettingsPanel) {
-          const script = document.createElement('script');
-          script.src = '../settings/full-settings.js';
-          document.head.appendChild(script);
-          
-          // Wait for script to load
-          await new Promise((resolve) => {
-            script.onload = resolve;
-            script.onerror = () => {
-              throw new Error('Failed to load settings script');
-            };
-          });
-        }
-        
-        console.log('✅ Settings panel loaded successfully');
+async showSettingsPanel() {
+  try {
+    // Check if already loaded
+    if (!document.getElementById('fullSettingsPanel')) {
+      console.log('🔄 Loading settings panel...');
+      
+      // Fetch the settings HTML
+      const response = await fetch('../settings/full-settings.html');
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
       
-    } catch (error) {
-      console.error('❌ Failed to load settings panel:', error);
+      const html = await response.text();
       
-      // Show user-friendly error
-      const notification = document.createElement('div');
-      notification.className = 'error-notification';
-      notification.textContent = 'Failed to load settings. Please refresh and try again.';
-      notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #dc3545;
-        color: white;
-        padding: 12px 20px;
-        border-radius: 6px;
-        z-index: 10001;
-      `;
-      document.body.appendChild(notification);
+      // Extract just the settings panel div
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const settingsPanel = doc.getElementById('fullSettingsPanel');
       
-      setTimeout(() => notification.remove(), 5000);
+      if (!settingsPanel) {
+        throw new Error('Settings panel not found in HTML');
+      }
+      
+      // Inject into container
+      document.getElementById('settingsContainer').appendChild(settingsPanel);
+      
+      // Load settings CSS if not already loaded
+      if (!document.querySelector('link[href*="full-settings.css"]')) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = '../settings/full-settings.css';
+        document.head.appendChild(link);
+      }
+      
+      // Load settings JS if not already loaded
+      if (!window.FullSettingsPanel) {
+        const script = document.createElement('script');
+        script.src = '../settings/full-settings.js';
+        document.head.appendChild(script);
+        
+        // Wait for script to load
+        await new Promise((resolve) => {
+          script.onload = resolve;
+          script.onerror = () => {
+            throw new Error('Failed to load settings script');
+          };
+        });
+      }
+      
+      console.log('✅ Settings panel loaded successfully');
     }
-
+    
     // Show the panel (slide down)
     const panel = document.getElementById('fullSettingsPanel');
     panel.classList.add('active');
+    
+    // Fix close button after panel is shown
+    setTimeout(() => {
+      const closeBtn = document.getElementById('closeFullSettings');
+      if (closeBtn) {
+        // Override the close button completely
+        closeBtn.onclick = (e) => {
+          e.stopImmediatePropagation();
+          e.preventDefault();
+          this.hideSettingsPanel();
+        };
+        console.log('✅ Close button overridden');
+      }
+    }, 200);
+    
+  } catch (error) {
+    console.error('❌ Failed to load settings panel:', error);
+    
+    // Show user-friendly error
+    const notification = document.createElement('div');
+    notification.className = 'error-notification';
+    notification.textContent = 'Failed to load settings. Please refresh and try again.';
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #dc3545;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 6px;
+      z-index: 10001;
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => notification.remove(), 5000);
   }
+}
 
   // Add this method to close the panel cleanly
   hideSettingsPanel() {
@@ -188,15 +202,6 @@ class DashboardController {
 
   // Setup event listeners
   setupEventListeners() {
-
-    // Simple close button - no unsaved changes checking
-    document.addEventListener('click', (e) => {
-      if (e.target.id === 'closeFullSettings') {
-        e.preventDefault();
-        e.stopPropagation();
-        this.hideSettingsPanel();
-      }
-    });
 
     // Settings trigger button
     const settingsTriggerBtn = document.getElementById('settingsTriggerBtn');
