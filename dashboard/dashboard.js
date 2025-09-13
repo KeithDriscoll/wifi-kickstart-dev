@@ -188,35 +188,13 @@ class DashboardController {
 
   // Setup event listeners
   setupEventListeners() {
-    // Add this to your existing setupEventListeners() method
-    // Settings panel trigger
-    const settingsBtn = document.querySelector('.settings-panel-toggle') || 
-                      document.querySelector('[data-action="settings"]') ||
-                      document.getElementById('settingsBtn');
 
-    if (settingsBtn) {
-      settingsBtn.addEventListener('click', () => {
-        this.showSettingsPanel();
-      });
-    }
-
-    // Smart close button - only prompt if there are unsaved changes
+    // Simple close button - no unsaved changes checking
     document.addEventListener('click', (e) => {
       if (e.target.id === 'closeFullSettings') {
-        // Check if there are actually unsaved changes
-        if (window.FullSettingsPanel && 
-            typeof settingsConfig !== 'undefined' && 
-            settingsConfig.isDirty) {
-          
-          // There are unsaved changes - let the original handler run
-          // (it will show the confirmation dialog)
-          return;
-        } else {
-          // No unsaved changes - close immediately
-          e.preventDefault();
-          e.stopPropagation();
-          this.hideSettingsPanel();
-        }
+        e.preventDefault();
+        e.stopPropagation();
+        this.hideSettingsPanel();
       }
     });
 
