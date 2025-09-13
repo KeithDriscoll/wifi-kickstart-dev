@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Wi-Fi Kickstart - Epic Network Testing Suite",
+  "name": "Wi-Fi Kickstart – Network and Privacy Diagnostics",
   "version": "2.0.0",
   "description": "Professional network diagnostics with epic speed testing, real-time monitoring, and comprehensive analysis tools.",
   "homepage_url": "https://keithdriscoll.nyc",
@@ -35,7 +35,7 @@
   },
   
   "action": {
-    "default_title": "Wi-Fi Kickstart",
+    "default_title": "Wi-Fi Kickstart – Network and Privacy Diagnostics",
     "default_popup": "popup/popup.html",
     "default_icon": {
       "16": "icons/icon16.png",
