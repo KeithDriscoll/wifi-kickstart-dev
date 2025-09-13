@@ -78,10 +78,6 @@ class DashboardController {
         console.log('✅ Settings panel loaded successfully');
       }
       
-      // Show the panel (slide down)
-      const panel = document.getElementById('fullSettingsPanel');
-      panel.classList.add('active');
-      
     } catch (error) {
       console.error('❌ Failed to load settings panel:', error);
       
@@ -107,6 +103,14 @@ class DashboardController {
     // Show the panel (slide down)
     const panel = document.getElementById('fullSettingsPanel');
     panel.classList.add('active');
+  }
+
+  // Add this method to close the panel cleanly
+  hideSettingsPanel() {
+    const panel = document.getElementById('fullSettingsPanel');
+    if (panel) {
+      panel.classList.remove('active');
+    }
   }
 
   // Initialize Dashboard
@@ -195,6 +199,26 @@ class DashboardController {
         this.showSettingsPanel();
       });
     }
+
+    // Smart close button - only prompt if there are unsaved changes
+    document.addEventListener('click', (e) => {
+      if (e.target.id === 'closeFullSettings') {
+        // Check if there are actually unsaved changes
+        if (window.FullSettingsPanel && 
+            typeof settingsConfig !== 'undefined' && 
+            settingsConfig.isDirty) {
+          
+          // There are unsaved changes - let the original handler run
+          // (it will show the confirmation dialog)
+          return;
+        } else {
+          // No unsaved changes - close immediately
+          e.preventDefault();
+          e.stopPropagation();
+          this.hideSettingsPanel();
+        }
+      }
+    });
 
     // Settings trigger button
     const settingsTriggerBtn = document.getElementById('settingsTriggerBtn');
