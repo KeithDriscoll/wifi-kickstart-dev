@@ -261,7 +261,7 @@
       card.addEventListener('click', () => {
         const themeId = card.dataset.theme;
         if (themeId && window.ThemeManager) {
-          window.ThemeManager.setTheme(themeId);
+          window.ThemeManager.applyTheme(themeId);
           updateThemeSelection(themeId);
           markUnsaved();
           showNotification(`Theme "${themeId}" applied`);
@@ -273,7 +273,7 @@
     const createThemeBtn = panel.querySelector('#createThemeBtn');
     if (createThemeBtn) {
       createThemeBtn.addEventListener('click', () => {
-        window.open('custom-theme-builder.html', '_blank');
+        window.open('../settings/custom-theme-builder.html', '_blank');
       });
     }
 

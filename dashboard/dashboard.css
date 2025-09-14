@@ -1,8 +1,8 @@
 /* 🚀 Wi-Fi Kickstart Dashboard Styles - Professional Edition */
-
+ @import url('../themes/theme-variables.css');
 /* CSS Variables */
 :root {
-  @import url('../themes/theme-variables.css');
+ 
 
   /* Removed your old :root variables - they're now in theme-variables.css */
 }
