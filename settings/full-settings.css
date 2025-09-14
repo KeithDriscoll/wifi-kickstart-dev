@@ -1,16 +1,21 @@
 /* Production-Ready Styles */
 .full-settings-panel {
   position: fixed;
-  top: 0;
+  top: -100vh;  /* ← Hidden by default */
   left: 0;
   right: 0;
   height: 100vh;
   background: var(--background, #0a0a0a);
   z-index: 10000;
+  transition: top 0.4s cubic-bezier(0.4, 0, 0.2, 1);  /* ← Animation */
   display: flex;
   flex-direction: column;
   font-family: -apple-system, system-ui, sans-serif;
   color: var(--text-primary, #ffffff);
+}
+
+.full-settings-panel.active {
+  top: 0;  /* ← Slides down when active */
 }
 
 /* Header */

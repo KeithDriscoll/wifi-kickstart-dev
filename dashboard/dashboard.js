@@ -82,19 +82,37 @@ async showSettingsPanel() {
     const panel = document.getElementById('fullSettingsPanel');
     panel.classList.add('active');
     
-    // Fix close button after panel is shown
-    setTimeout(() => {
-      const closeBtn = document.getElementById('closeFullSettings');
-      if (closeBtn) {
-        // Override the close button completely
-        closeBtn.onclick = (e) => {
-          e.stopImmediatePropagation();
-          e.preventDefault();
-          this.hideSettingsPanel();
-        };
-        console.log('✅ Close button overridden');
+// Fix close button after panel is shown
+setTimeout(() => {
+  const closeBtn = document.getElementById('closeFullSettings');
+  if (closeBtn) {
+    // Clone button to remove existing handlers
+    const newCloseBtn = closeBtn.cloneNode(true);
+    closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
+    
+    // Add smart close handler
+    newCloseBtn.addEventListener('click', (e) => {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      
+      // Check if settings are dirty (from the settings JS)
+      if (window.settingsConfig && window.settingsConfig.isDirty) {
+        // There are unsaved changes - show confirmation
+        if (confirm('You have unsaved changes. Save before closing?')) {
+          // User wants to save - let settings handle it
+          window.saveAllSettings?.();
+        }
+        // Either way, close the panel
+        this.hideSettingsPanel();
+      } else {
+        // No unsaved changes - close immediately
+        this.hideSettingsPanel();
       }
-    }, 200);
+    });
+    
+    console.log('✅ Smart close button installed');
+  }
+}, 200);
     
   } catch (error) {
     console.error('❌ Failed to load settings panel:', error);
@@ -119,13 +137,14 @@ async showSettingsPanel() {
   }
 }
 
-  // Add this method to close the panel cleanly
-  hideSettingsPanel() {
-    const panel = document.getElementById('fullSettingsPanel');
-    if (panel) {
-      panel.classList.remove('active');
+    hideSettingsPanel() {
+      console.log('🔥 hideSettingsPanel called');
+      const panel = document.getElementById('fullSettingsPanel');
+      if (panel) {
+        panel.classList.remove('active');
+        console.log('🔥 active class removed');
+      }
     }
-  }
 
   // Initialize Dashboard
   async init() {
