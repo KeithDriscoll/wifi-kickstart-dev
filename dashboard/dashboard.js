@@ -95,19 +95,20 @@ setTimeout(() => {
       e.stopImmediatePropagation();
       e.preventDefault();
       
-      // Check if settings are dirty (from the settings JS)
-      if (window.settingsConfig && window.settingsConfig.isDirty) {
-        // There are unsaved changes - show confirmation
-        if (confirm('You have unsaved changes. Save before closing?')) {
-          // User wants to save - let settings handle it
-          window.saveAllSettings?.();
+      // Use the FullSettingsPanel API to check if dirty
+      if (window.FullSettingsPanel && window.FullSettingsPanel.getConfig) {
+        const config = window.FullSettingsPanel.getConfig();
+        if (config.isDirty) {
+          // There are unsaved changes - show confirmation
+          if (confirm('You have unsaved changes. Save before closing?')) {
+            // User wants to save
+            window.FullSettingsPanel.save?.();
+          }
         }
-        // Either way, close the panel
-        this.hideSettingsPanel();
-      } else {
-        // No unsaved changes - close immediately
-        this.hideSettingsPanel();
       }
+      
+      // Always close the panel
+      this.hideSettingsPanel();
     });
     
     console.log('✅ Smart close button installed');
