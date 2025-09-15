@@ -3,6 +3,10 @@
 
 // DOM Elements
 const elements = {
+
+  ipAddressContainer: document.getElementById('ipAddressContainer'),
+  ipTooltip: document.getElementById('ipTooltip'),
+  
   // Settings
   settingsToggle: document.getElementById('settingsToggle'),
   settingsPanel: document.getElementById('settingsPanel'),
@@ -104,14 +108,18 @@ async function loadNetworkInfo() {
       updateElementWithAnimation(elements.ipAddress, info.ip || 'Unknown');
       updateElementWithAnimation(elements.location, info.location || 'Unknown');
       
-      // Update VPN/WARP status
-      updateStatusWithColor(elements.vpnStatus, info.vpnStatus || 'Unknown');
-      updateStatusWithColor(elements.warpStatus, info.warpStatus || 'Unknown');
+      // Update VPN/WARP status with better fallbacks
+      updateStatusWithColor(elements.vpnStatus, info.vpnStatus || 'Not Detected');
+      updateStatusWithColor(elements.warpStatus, info.warpStatus || 'Not Active');
+
+      // Handle location and latency loading states
+      updateElementWithAnimation(elements.location, info.location || 'Unavailable');
+      updateElementWithAnimation(elements.latencyValue, info.latency ? `${Math.round(info.latency)}ms` : 'Testing...');
       
       // Update diagnostic scores based on network info
       updateDiagnosticScores(info);
       
-      // Check for WARP/VPN if enabled
+      // Only show notifications if user wants them
       if (currentSettings.warpDetection && info.warpStatus) {
         showNotification(`WARP: ${info.warpStatus}`, 'info');
       }
@@ -243,6 +251,11 @@ async function loadLastTestResults() {
 
 // Setup event listeners
 function setupEventListeners() {
+  
+  elements.ipAddress.addEventListener('click', copyToClipboard);
+  elements.ipAddress.addEventListener('mouseenter', showFullIP);
+  elements.ipAddress.addEventListener('mouseleave', hideTooltip);
+
   // Settings panel
   elements.settingsToggle.addEventListener('click', () => {
     elements.settingsPanel.classList.add('active');
@@ -528,6 +541,24 @@ function getDefaultSettings() {
     warpDetection: true,
     captivePortal: true
   };
+}
+
+function copyToClipboard() {
+  const fullIP = elements.ipAddress.dataset.fullIp || elements.ipAddress.textContent;
+  navigator.clipboard.writeText(fullIP);
+  showNotification('IP copied to clipboard!', 'success');
+}
+
+function showFullIP() {
+  const fullIP = elements.ipAddress.dataset.fullIp;
+  if (fullIP && fullIP !== elements.ipAddress.textContent) {
+    elements.ipTooltip.textContent = fullIP;
+    elements.ipTooltip.style.display = 'block';
+  }
+}
+
+function hideTooltip() {
+  elements.ipTooltip.style.display = 'none';
 }
 
 // Add fade animations to CSS
