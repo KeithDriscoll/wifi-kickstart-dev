@@ -402,6 +402,20 @@ function getTestConfig(mode) {
           burstTests: true
         }
       };
+
+    case 'burst':
+      return {
+        downloadTests: {
+          fileSizes: ['50KB'],
+          iterations: 1,
+          parallelConnections: 1,
+          timeout: 2000,
+          servers: ['cloudflare']
+        },
+        uploadTests: { enabled: false },
+        latencyTests: { sampleCount: 3 },
+        // etc...
+      };
       
     default: // standard
       return baseConfig;

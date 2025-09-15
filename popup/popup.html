@@ -31,17 +31,29 @@
       <p class="popup-subtitle">Professional Network and Privacy Diagnostics</p>
     </header>
 
-    <!-- Quick Actions -->
-    <section class="quick-actions">
-      <button class="action-card dashboard-card" id="openDashboard">
-        <div class="card-icon">📊</div>
-        <div class="card-content">
-          <div class="card-title">Dashboard</div>
-          <div class="card-subtitle">Analytics & Charts</div>
+    <!-- Diagnostic Scores (Hero Section) -->
+    <section class="diagnostic-scores">
+      <h2 class="section-title">Diagnostic Scores</h2>
+      
+      <div class="score-grid">
+        <div class="score-card network-score" id="networkScoreCard">
+          <div class="score-icon">📊</div>
+          <div class="score-content">
+            <div class="score-label">Network</div>
+            <div class="score-value" id="networkScore">--</div>
+            <div class="score-status" id="networkStatus">Analyzing...</div>
+          </div>
         </div>
-        <div class="card-arrow">→</div>
-      </button>
- 
+        
+        <div class="score-card privacy-score" id="privacyScoreCard">
+          <div class="score-icon">🔒</div>
+          <div class="score-content">
+            <div class="score-label">Privacy</div>
+            <div class="score-value" id="privacyScore">--</div>
+            <div class="score-status" id="privacyStatus">Analyzing...</div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- Network Status -->
@@ -64,42 +76,34 @@
         </div>
         
         <div class="status-item">
-          <div class="status-label">Provider</div>
-          <div class="status-value" id="provider">Loading...</div>
+          <div class="status-label">VPN Status</div>
+          <div class="status-value" id="vpnStatus">Checking...</div>
         </div>
         
         <div class="status-item">
-          <div class="status-label">Connection</div>
-          <div class="status-value" id="connectionType">Loading...</div>
+          <div class="status-label">WARP Status</div>
+          <div class="status-value" id="warpStatus">Checking...</div>
         </div>
       </div>
     </section>
 
-    <!-- Quick Metrics -->
-    <section class="quick-metrics" id="quickMetrics">
-      <h2 class="section-title">Quick Metrics</h2>
-      
-      <div class="metrics-grid">
-        <div class="metric-card">
-          <div class="metric-value" id="latencyValue">--</div>
-          <div class="metric-label">Latency (ms)</div>
-        </div>
+    <!-- Quick Actions -->
+    <section class="quick-actions">
+      <div class="action-grid">
+        <button class="action-card dashboard-card" id="openDashboard">
+          <div class="card-icon">📊</div>
+          <div class="card-content">
+            <div class="card-title">Dashboard</div>
+          </div>
+        </button>
         
-        <div class="metric-card">
-          <div class="metric-value" id="speedValue">--</div>
-          <div class="metric-label">Speed (Mbps)</div>
-        </div>
-        
-        <div class="metric-card">
-          <div class="metric-value" id="scoreValue">--</div>
-          <div class="metric-label">Score</div>
-        </div>
+        <button class="action-card burst-card" id="runBurstTest">
+          <div class="card-icon">⚡</div>
+          <div class="card-content">
+            <div class="card-title">Burst Test</div>
+          </div>
+        </button>
       </div>
-      
-      <button class="test-button" id="runQuickTest">
-        <span class="button-icon">🔍</span>
-        Run Quick Test
-      </button>
     </section>
 
     <!-- Footer -->
@@ -114,8 +118,11 @@
   <!-- Settings Panel (Slide-out) -->
   <div class="settings-panel" id="settingsPanel">
     <div class="settings-header">
-      <h2 class="settings-title">Settings</h2>
-      <button class="settings-close" id="closeSettings">×</button>
+      <h2 class="settings-title">Quick Settings</h2>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" title="Themes">🎨</button>
+        <button class="settings-close" id="closeSettings">×</button>
+      </div>
     </div>
     
     <div class="settings-content">
@@ -146,10 +153,10 @@
         </div>
       </div>
       
-      <!-- Features -->
+      <!-- Test Configuration -->
       <div class="settings-section">
-        <h3 class="settings-section-title">Features</h3>
-
+        <h3 class="settings-section-title">Testing</h3>
+        
         <div class="setting-item">
           <div class="setting-label">
             <span>Auto Test</span>
@@ -160,6 +167,24 @@
             <span class="toggle-slider"></span>
           </label>
         </div>
+        
+        <div class="setting-item">
+          <div class="setting-label">
+            <span>Default Test Mode</span>
+          </div>
+          <select class="setting-select" id="defaultTestMode">
+            <option value="burst">Burst</option>
+            <option value="quick">Quick</option>
+            <option value="standard" selected>Standard</option>
+            <option value="thorough">Thorough</option>
+            <option value="gaming">Gaming</option>
+          </select>
+        </div>
+      </div>
+      
+      <!-- Features -->
+      <div class="settings-section">
+        <h3 class="settings-section-title">Features</h3>
         
         <div class="setting-item">
           <div class="setting-label">
@@ -195,9 +220,27 @@
         </div>
       </div>
       
+      <!-- Actions -->
+      <div class="settings-section">
+        <div class="action-buttons">
+          <button class="settings-button compact primary" id="saveSettings" title="Save Settings">💾</button>
+          <button class="settings-button compact secondary" id="resetSettings" title="Reset to Defaults">🔄</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Theme Panel (2nd Slide-out) -->
+  <div class="theme-panel" id="themePanel">
+    <div class="settings-header">
+      <h2 class="settings-title">Themes</h2>
+      <button class="settings-close" id="closeTheme">×</button>
+    </div>
+    
+    <div class="settings-content">
       <!-- Theme Selection -->
       <div class="settings-section">
-        <h3 class="settings-section-title">Theme</h3>
+        <h3 class="settings-section-title">Quick Themes</h3>
         
         <div class="theme-grid">
           <button class="theme-option" data-theme="default">
@@ -219,10 +262,16 @@
         </div>
       </div>
       
-      <!-- Actions -->
+      <!-- Future: Favorite Themes -->
       <div class="settings-section">
-        <button class="settings-button primary" id="saveSettings">Save Settings</button>
-        <button class="settings-button secondary" id="resetSettings">Reset to Defaults</button>
+        <h3 class="settings-section-title">Favorite Themes</h3>
+        <div class="info-message">
+          <span>🎨</span>
+          <div>
+            <strong>Coming Soon!</strong><br>
+            Choose your top 4 themes from the Epic Theme Manager
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -230,7 +279,7 @@
   <!-- Loading Overlay -->
   <div class="loading-overlay" id="loadingOverlay">
     <div class="loading-spinner"></div>
-    <div class="loading-text">Running Epic Test...</div>
+    <div class="loading-text">Running Burst Test...</div>
   </div>
 
   <!-- Scripts -->
