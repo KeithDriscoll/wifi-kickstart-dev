@@ -178,7 +178,7 @@ body.zen-mode .network-status {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 15px;
+  padding: 10px;
   cursor: pointer;
   transition: var(--transition);
   display: flex;

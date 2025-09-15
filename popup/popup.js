@@ -24,11 +24,6 @@ const elements = {
   scoreValue: document.getElementById('scoreValue'),
   runQuickTest: document.getElementById('runQuickTest'),
   
-  // Advanced Features
-  openSettings: document.getElementById('openSettings'),
-  exportData: document.getElementById('exportData'),
-  clearHistory: document.getElementById('clearHistory'),
-  
   // Settings Controls
   darkModeToggle: document.getElementById('darkModeToggle'),
   zenModeToggle: document.getElementById('zenModeToggle'),
@@ -68,7 +63,6 @@ async function loadSettings() {
       elements.darkModeToggle.checked = currentSettings.darkMode;
       elements.zenModeToggle.checked = currentSettings.zenMode;
       elements.autoTestToggle.checked = currentSettings.autoTest;
-      elements.defaultTestMode.value = currentSettings.defaultTestMode;
       elements.vpnDetectionToggle.checked = currentSettings.vpnDetection;
       elements.warpDetectionToggle.checked = currentSettings.warpDetection;
       elements.captivePortalToggle.checked = currentSettings.captivePortal;
@@ -147,17 +141,7 @@ function setupEventListeners() {
     window.close();
   });
   
-  elements.quickEpicTest.addEventListener('click', runEpicTest);
   elements.runQuickTest.addEventListener('click', runQuickTest);
-  
-  // Advanced Features
-  elements.openSettings.addEventListener('click', async () => {
-    await chrome.runtime.sendMessage({ type: 'OPEN_SETTINGS' });
-    window.close();
-  });
-  
-  elements.exportData.addEventListener('click', exportData);
-  elements.clearHistory.addEventListener('click', clearHistory);
   
   // Settings controls
   elements.darkModeToggle.addEventListener('change', (e) => {
@@ -460,7 +444,7 @@ function getDefaultSettings() {
     darkMode: true,
     zenMode: false,
     autoTest: false,
-    defaultTestMode: 'standard',
+    defaultTestMode: 'quick',
     vpnDetection: true,
     warpDetection: true,
     captivePortal: true
