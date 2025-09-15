@@ -33,8 +33,6 @@
 
     <!-- Diagnostic Scores (Hero Section) -->
     <section class="diagnostic-scores">
-      <h2 class="section-title">Diagnostic Scores</h2>
-      
       <div class="score-grid">
         <div class="score-card network-score" id="networkScoreCard">
           <div class="score-icon">📊</div>
@@ -57,10 +55,14 @@
     </section>
 
     <!-- Network Status -->
-    <section class="network-status">
-      <h2 class="section-title">Current Network</h2>
-      
+    <section class="network-status">      
       <div class="status-grid">
+        
+        <div class="status-item">
+          <div class="status-label">Connection</div>
+          <div class="status-value" id="location">Loading...</div>
+        </div>
+                
         <div class="status-item">
           <div class="status-label">IP Address</div>
           <div class="status-value" id="ipAddress">
@@ -69,12 +71,17 @@
             <span class="loading-dot"></span>
           </div>
         </div>
-        
+                
         <div class="status-item">
           <div class="status-label">Location</div>
           <div class="status-value" id="location">Loading...</div>
         </div>
-        
+
+        <div class="status-item">
+          <div class="status-label">Latency</div>
+          <div class="status-value" id="location">Loading...</div>
+        </div>
+                
         <div class="status-item">
           <div class="status-label">VPN Status</div>
           <div class="status-value" id="vpnStatus">Checking...</div>
@@ -84,6 +91,7 @@
           <div class="status-label">WARP Status</div>
           <div class="status-value" id="warpStatus">Checking...</div>
         </div>
+        
       </div>
     </section>
 
