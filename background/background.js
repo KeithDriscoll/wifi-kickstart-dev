@@ -1,32 +1,32 @@
-// 🚀 Wi-Fi Kickstart Background Service Worker V2.0
-// Handles epic testing with real-time progress streaming
+// 🚀 Wi-Fi Kickstart Background Service Worker V3.0
+// Professional service worker with modular test orchestration
 
-import { EpicNetworkMetrics } from './epic-engine.js';
+import { TestOrchestrator } from './test-orchestrator.js';
 
 // Initialize
-let epicEngine = null;
+let testOrchestrator = null;
 let testHistory = [];
 let currentConfig = {};
 let activeConnections = new Map(); // Track active connections for real-time updates
 
-// Initialize engine on startup
-async function initializeEngine() {
-  if (!epicEngine) {
-    console.log('🔥 Initializing Epic Engine with Real-time Callbacks...');
-    epicEngine = new EpicNetworkMetrics();
+// Initialize orchestrator on startup
+async function initializeOrchestrator() {
+  if (!testOrchestrator) {
+    console.log('🚀 Initializing Test Orchestrator with Real-time Callbacks...');
+    testOrchestrator = new TestOrchestrator();
     
     // Setup real-time progress callbacks
-    epicEngine.setProgressCallback(handleProgressUpdate);
-    epicEngine.setSpeedCallback(handleSpeedUpdate);
+    testOrchestrator.setProgressCallback(handleProgressUpdate);
+    testOrchestrator.setSpeedCallback(handleSpeedUpdate);
     
     // Load saved config
-    const result = await chrome.storage.local.get(['epicConfig', 'testHistory', 'theme']);
-    currentConfig = result.epicConfig || getDefaultConfig();
+    const result = await chrome.storage.local.get(['networkConfig', 'testHistory', 'theme']);
+    currentConfig = result.networkConfig || getDefaultConfig();
     testHistory = result.testHistory || [];
   }
 }
 
-// Handle progress updates from Epic Engine
+// Handle progress updates from Test Orchestrator
 function handleProgressUpdate(update) {
   // Broadcast to all active connections
   broadcastToAll({
@@ -35,7 +35,7 @@ function handleProgressUpdate(update) {
   });
 }
 
-// Handle speed updates from Epic Engine
+// Handle speed updates from Test Orchestrator
 function handleSpeedUpdate(update) {
   // Broadcast to all active connections
   broadcastToAll({
@@ -56,13 +56,13 @@ function broadcastToAll(message) {
 }
 
 // Initialize immediately when background script loads
-initializeEngine();
+initializeOrchestrator();
 
 // Setup persistent connection for real-time updates
 chrome.runtime.onConnect.addListener((port) => {
   console.log('🔌 New connection established:', port.name);
   
-  if (port.name === 'epic-realtime') {
+  if (port.name === 'network-realtime') {
     const connectionId = Date.now().toString();
     activeConnections.set(connectionId, port);
     
@@ -89,15 +89,17 @@ chrome.runtime.onConnect.addListener((port) => {
 function handlePortMessage(msg, port) {
   switch (msg.type) {
     case 'START_TEST':
-      runEpicTestWithProgress(msg.mode, port);
+      runTestWithProgress(msg.mode, port);
       break;
     case 'STOP_TEST':
-      // Implement test cancellation if needed
+      if (testOrchestrator) {
+        testOrchestrator.stopTests();
+      }
       break;
     case 'GET_STATUS':
       port.postMessage({
         type: 'STATUS',
-        isRunning: epicEngine?.currentPhase !== 'idle'
+        isRunning: testOrchestrator?.currentPhase !== 'idle'
       });
       break;
   }
@@ -107,14 +109,14 @@ function handlePortMessage(msg, port) {
 chrome.runtime.onInstalled.addListener(async () => {
   console.log('🚀 Wi-Fi Kickstart installed/updated');
   
-  // Initialize epic engine
-  await initializeEngine();
+  // Initialize test orchestrator
+  await initializeOrchestrator();
   
   // Set initial badge
   chrome.action.setBadgeBackgroundColor({ color: '#4a90e2' });
   chrome.action.setBadgeText({ text: '✓' });
   
-  // Start periodic network check
+  // Start periodic network monitoring
   startNetworkMonitoring();
 });
 
@@ -128,13 +130,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 async function handleMessage(request, sender, sendResponse) {
   console.log('📨 Message received:', request.type);
   
-  // Ensure engine is initialized
-  await initializeEngine();
+  // Ensure orchestrator is initialized
+  await initializeOrchestrator();
   
   switch (request.type) {
-    case 'RUN_EPIC_TEST':
-      const testType = request.mode || 'standard';
-      const results = await runEpicTest(testType);
+    case 'RUN_NETWORK_TEST':
+      const testType = request.mode || 'comprehensive';
+      const results = await runNetworkTest(testType);
       sendResponse({ success: true, results });
       break;
       
@@ -155,9 +157,9 @@ async function handleMessage(request, sender, sendResponse) {
       
     case 'UPDATE_CONFIG':
       currentConfig = { ...currentConfig, ...request.config };
-      await chrome.storage.local.set({ epicConfig: currentConfig });
-      if (epicEngine) {
-        epicEngine.updateConfig(currentConfig);
+      await chrome.storage.local.set({ networkConfig: currentConfig });
+      if (testOrchestrator) {
+        testOrchestrator.updateConfig(currentConfig);
       }
       sendResponse({ success: true });
       break;
@@ -176,307 +178,190 @@ async function handleMessage(request, sender, sendResponse) {
       sendResponse({ success: true });
       break;
       
-    case 'CHECK_CAPTIVE_PORTAL':
-      const isCaptive = await checkCaptivePortal();
-      sendResponse({ success: true, isCaptive });
-      break;
-      
     default:
       sendResponse({ success: false, error: 'Unknown message type' });
   }
 }
 
-// 🔥 Run Epic Speed Test with Real-time Progress
-async function runEpicTestWithProgress(mode = 'standard', port) {
-  console.log(`🚀 Starting Epic Test with Real-time Progress - Mode: ${mode}`);
-  
-  // Send test started message
-  port.postMessage({
-    type: 'TEST_STARTED',
-    mode
-  });
-  
-  // Update badge to show testing
-  chrome.action.setBadgeText({ text: '...' });
-  chrome.action.setBadgeBackgroundColor({ color: '#ffa500' });
-  
+// Run network test with real-time progress
+async function runTestWithProgress(mode, port) {
   try {
-    // Configure test based on mode
-    const testConfig = getTestConfig(mode);
-    epicEngine.updateConfig(testConfig);
+    console.log(`🚀 Starting ${mode} network test with real-time progress...`);
     
-    // Run the epic analysis (progress callbacks will fire automatically)
-    const results = await epicEngine.runCompleteAnalysis();
+    // Update orchestrator config if needed
+    testOrchestrator.updateConfig(currentConfig);
+    
+    // Run the test
+    const results = await testOrchestrator.runCompleteAnalysis();
     
     // Save to history
-    const historyEntry = {
-      timestamp: new Date().toISOString(),
-      mode,
-      results,
-      score: results.overallScore,
-      grade: results.grade
+    const testRecord = {
+      id: Date.now().toString(),
+      timestamp: Date.now(),
+      mode: mode,
+      results: results
     };
     
-    testHistory.unshift(historyEntry);
-    if (testHistory.length > 100) {
-      testHistory = testHistory.slice(0, 100);
-    }
+    testHistory.unshift(testRecord);
+    if (testHistory.length > 50) testHistory = testHistory.slice(0, 50); // Keep last 50
     
     await chrome.storage.local.set({ testHistory });
     
-    // Update badge with score
-    chrome.action.setBadgeText({ text: results.overallScore.toString() });
-    const badgeColor = results.overallScore >= 80 ? '#50c878' : 
-                       results.overallScore >= 60 ? '#ffa500' : '#ff4444';
-    chrome.action.setBadgeBackgroundColor({ color: badgeColor });
-    
-    // Send test complete message
+    // Send completion message
     port.postMessage({
       type: 'TEST_COMPLETE',
-      results
+      results: results
     });
     
-    // Also broadcast to other connections
-    broadcastToAll({
-      type: 'TEST_RESULTS',
-      results
-    });
-    
-    return results;
+    console.log('✅ Network test completed successfully');
     
   } catch (error) {
-    console.error('Epic test failed:', error);
-    chrome.action.setBadgeText({ text: '!' });
-    chrome.action.setBadgeBackgroundColor({ color: '#ff4444' });
+    console.error('❌ Network test failed:', error);
     
-    // Send error message
     port.postMessage({
       type: 'TEST_ERROR',
       error: error.message
     });
-    
-    throw error;
   }
 }
 
-// 🔥 Run Epic Speed Test (legacy, without real-time updates)
-async function runEpicTest(mode = 'standard') {
-  console.log(`🚀 Starting Epic Test - Mode: ${mode}`);
-  
-  // Update badge to show testing
-  chrome.action.setBadgeText({ text: '...' });
-  chrome.action.setBadgeBackgroundColor({ color: '#ffa500' });
-  
+// Run network test (for message API)
+async function runNetworkTest(mode) {
   try {
-    // Configure test based on mode
-    const testConfig = getTestConfig(mode);
-    epicEngine.updateConfig(testConfig);
+    console.log(`🚀 Starting ${mode} network test...`);
     
-    // Run the epic analysis
-    const results = await epicEngine.runCompleteAnalysis();
+    // Update orchestrator config
+    testOrchestrator.updateConfig(currentConfig);
+    
+    // Run the test
+    const results = await testOrchestrator.runCompleteAnalysis();
     
     // Save to history
-    const historyEntry = {
-      timestamp: new Date().toISOString(),
-      mode,
-      results,
-      score: results.overallScore,
-      grade: results.grade
+    const testRecord = {
+      id: Date.now().toString(),
+      timestamp: Date.now(),
+      mode: mode,
+      results: results
     };
     
-    testHistory.unshift(historyEntry);
-    if (testHistory.length > 100) {
-      testHistory = testHistory.slice(0, 100);
-    }
+    testHistory.unshift(testRecord);
+    if (testHistory.length > 50) testHistory = testHistory.slice(0, 50);
     
     await chrome.storage.local.set({ testHistory });
-    
-    // Update badge with score
-    chrome.action.setBadgeText({ text: results.overallScore.toString() });
-    const badgeColor = results.overallScore >= 80 ? '#50c878' : 
-                       results.overallScore >= 60 ? '#ffa500' : '#ff4444';
-    chrome.action.setBadgeBackgroundColor({ color: badgeColor });
-    
-    // Broadcast results
-    broadcastTestResults(results);
     
     return results;
     
   } catch (error) {
-    console.error('Epic test failed:', error);
-    chrome.action.setBadgeText({ text: '!' });
-    chrome.action.setBadgeBackgroundColor({ color: '#ff4444' });
+    console.error('❌ Network test failed:', error);
     throw error;
   }
 }
 
-// Get test configuration based on mode
-function getTestConfig(mode) {
-  const baseConfig = { ...currentConfig };
-  
-  switch (mode) {
-    case 'quick':
-      return {
-        ...baseConfig,
-        downloadTests: {
-          ...baseConfig.downloadTests,
-          fileSizes: ['1MB'],
-          iterations: 1,
-          servers: ['cloudflare']
-        },
-        uploadTests: {
-          ...baseConfig.uploadTests,
-          fileSizes: ['1MB'],
-          iterations: 1
-        },
-        latencyTests: {
-          ...baseConfig.latencyTests,
-          sampleCount: 10
-        },
-        gamingTests: {
-          ...baseConfig.gamingTests,
-          enabled: false
-        },
-        advancedTests: {
-          ...baseConfig.advancedTests,
-          cdnTesting: false,
-          dnsPerformance: false
-        }
-      };
-      
-    case 'thorough':
-      return {
-        ...baseConfig,
-        downloadTests: {
-          ...baseConfig.downloadTests,
-          fileSizes: ['1MB', '5MB', '10MB', '25MB'],
-          iterations: 5,
-          servers: ['cloudflare', 'google', 'amazon']
-        },
-        uploadTests: {
-          ...baseConfig.uploadTests,
-          fileSizes: ['1MB', '5MB', '10MB'],
-          iterations: 3
-        },
-        latencyTests: {
-          ...baseConfig.latencyTests,
-          sampleCount: 50
-        },
-        gamingTests: {
-          ...baseConfig.gamingTests,
-          enabled: true,
-          sampleCount: 200
-        },
-        advancedTests: {
-          ...baseConfig.advancedTests,
-          ipv6Testing: true,
-          cdnTesting: true,
-          dnsPerformance: true,
-          connectionStability: true,
-          routingEfficiency: true
-        }
-      };
-      
-    case 'gaming':
-      return {
-        ...baseConfig,
-        downloadTests: {
-          ...baseConfig.downloadTests,
-          fileSizes: ['1MB', '5MB'],
-          iterations: 2
-        },
-        uploadTests: {
-          ...baseConfig.uploadTests,
-          fileSizes: ['1MB'],
-          iterations: 2
-        },
-        latencyTests: {
-          ...baseConfig.latencyTests,
-          sampleCount: 100,
-          interval: 16 // 60 FPS timing
-        },
-        gamingTests: {
-          ...baseConfig.gamingTests,
-          enabled: true,
-          sampleCount: 300,
-          burstTests: true
-        }
-      };
-
-    case 'burst':
-      return {
-        downloadTests: {
-          fileSizes: ['50KB'],
-          iterations: 1,
-          parallelConnections: 1,
-          timeout: 2000,
-          servers: ['cloudflare']
-        },
-        uploadTests: { enabled: false },
-        latencyTests: { sampleCount: 3 },
-        // etc...
-      };
-      
-    default: // standard
-      return baseConfig;
-  }
-}
-
-// Get network information
+// Get current network information
 async function getNetworkInfo() {
   try {
-    const response = await fetch('https://ipapi.co/json/');
-    const data = await response.json();
+    // Get basic network info from security tests
+    if (testOrchestrator) {
+      await testOrchestrator.securityTests.runAnalysis();
+      const securityResults = testOrchestrator.securityTests.getResults();
+      
+      return {
+        ip: securityResults.networkInfo?.ip || 'Unknown',
+        isp: securityResults.networkInfo?.isp || 'Unknown',
+        location: securityResults.networkInfo?.location || 'Unknown',
+        city: securityResults.networkInfo?.city || 'Unknown',
+        region: securityResults.networkInfo?.region || 'Unknown',
+        country: securityResults.networkInfo?.country || 'Unknown',
+        vpnStatus: securityResults.vpnStatus?.status || 'Unknown',
+        warpStatus: securityResults.warpStatus || 'Unknown',
+        connectionType: securityResults.networkInfo?.connectionType?.type || 'Unknown',
+        timestamp: Date.now()
+      };
+    }
     
+    // Fallback basic info
     return {
-      ip: data.ip,
-      isp: data.org,
-      city: data.city,
-      region: data.region,
-      country: data.country_name,
-      timezone: data.timezone,
-      connectionType: getConnectionType()
+      ip: 'Unknown',
+      location: 'Unknown',
+      vpnStatus: 'Unknown',
+      warpStatus: 'Unknown',
+      connectionType: 'Unknown',
+      timestamp: Date.now()
     };
+    
   } catch (error) {
     console.error('Failed to get network info:', error);
-    return {
-      error: error.message,
-      connectionType: getConnectionType()
-    };
+    return { error: error.message };
   }
 }
 
-// Get connection type
-function getConnectionType() {
-  if ('connection' in navigator) {
-    const conn = navigator.connection;
-    return {
-      type: conn.effectiveType || 'unknown',
-      downlink: conn.downlink || null,
-      rtt: conn.rtt || null,
-      saveData: conn.saveData || false
-    };
-  }
-  return { type: 'unknown' };
-}
-
-// Check for captive portal
-async function checkCaptivePortal() {
-  try {
-    const response = await fetch('http://neverssl.com/', {
-      method: 'HEAD',
-      cache: 'no-cache',
-      redirect: 'manual'
-    });
-    
-    // If redirected, likely a captive portal
-    return response.type === 'opaqueredirect' || response.status === 302;
-  } catch (error) {
-    return false;
+// Open dashboard
+async function openDashboard() {
+  const url = chrome.runtime.getURL('dashboard/dashboard.html');
+  
+  // Try to find existing dashboard tab
+  const tabs = await chrome.tabs.query({ url: url });
+  
+  if (tabs.length > 0) {
+    // Focus existing tab
+    await chrome.tabs.update(tabs[0].id, { active: true });
+    await chrome.windows.update(tabs[0].windowId, { focused: true });
+  } else {
+    // Create new tab
+    await chrome.tabs.create({ url: url });
   }
 }
 
-// Start network monitoring
+// Open settings
+async function openSettings() {
+  const url = chrome.runtime.getURL('settings/settings.html');
+  await chrome.tabs.create({ url: url });
+}
+
+// Get default configuration
+function getDefaultConfig() {
+  return {
+    downloadTests: {
+      enabled: true,
+      fileSizes: ['1MB', '5MB', '10MB'],
+      iterations: 3,
+      parallelConnections: 4,
+      timeout: 30000
+    },
+    uploadTests: {
+      enabled: true,
+      fileSizes: ['1MB', '5MB'],
+      iterations: 2,
+      parallelConnections: 2,
+      timeout: 30000
+    },
+    latencyTests: {
+      enabled: true,
+      sampleCount: 20,
+      targets: ['google', 'cloudflare', 'microsoft'],
+      interval: 100
+    },
+    securityTests: {
+      enabled: true,
+      vpnDetection: true,
+      warpDetection: true,
+      captivePortalCheck: true
+    },
+    protocolTests: {
+      enabled: false,
+      ipv6Testing: true,
+      cdnTesting: true,
+      dnsPerformance: true
+    },
+    ui: {
+      realTimeUpdates: true,
+      soundNotifications: false,
+      autoSaveResults: true
+    }
+  };
+}
+
+// Network monitoring functions
 function startNetworkMonitoring() {
   // Check network every 5 minutes
   chrome.alarms.create('networkCheck', { periodInMinutes: 5 });
@@ -492,124 +377,50 @@ function startNetworkMonitoring() {
 async function checkNetworkStatus() {
   try {
     const start = performance.now();
+    
     await fetch('https://www.google.com/generate_204', {
       method: 'HEAD',
-      cache: 'no-cache'
+      cache: 'no-cache',
+      signal: AbortSignal.timeout(5000)
     });
+    
     const latency = performance.now() - start;
     
     // Update badge color based on latency
     if (latency < 50) {
       chrome.action.setBadgeBackgroundColor({ color: '#50c878' });
+      chrome.action.setBadgeText({ text: '✓' });
     } else if (latency < 150) {
       chrome.action.setBadgeBackgroundColor({ color: '#ffa500' });
+      chrome.action.setBadgeText({ text: '~' });
     } else {
       chrome.action.setBadgeBackgroundColor({ color: '#ff4444' });
+      chrome.action.setBadgeText({ text: '!' });
     }
+    
   } catch (error) {
     // Network error
     chrome.action.setBadgeBackgroundColor({ color: '#ff0000' });
-    chrome.action.setBadgeText({ text: '!' });
+    chrome.action.setBadgeText({ text: '✗' });
+    console.warn('Network status check failed:', error);
   }
 }
 
-// Open dashboard
-async function openDashboard() {
-  const dashboardUrl = chrome.runtime.getURL('dashboard/dashboard.html');
-  const tabs = await chrome.tabs.query({ url: dashboardUrl });
-  
-  if (tabs.length > 0) {
-    // Focus existing dashboard
-    await chrome.tabs.update(tabs[0].id, { active: true });
-    await chrome.windows.update(tabs[0].windowId, { focused: true });
-  } else {
-    // Open new dashboard
-    await chrome.tabs.create({ url: dashboardUrl });
-  }
-}
-
-// Open settings
-async function openSettings() {
-  const settingsUrl = chrome.runtime.getURL('settings/full-settings.html');
-  const tabs = await chrome.tabs.query({ url: settingsUrl });
-  
-  if (tabs.length > 0) {
-    await chrome.tabs.update(tabs[0].id, { active: true });
-    await chrome.windows.update(tabs[0].windowId, { focused: true });
-  } else {
-    await chrome.tabs.create({ url: settingsUrl });
-  }
-}
-
-// Broadcast test results to all tabs
-function broadcastTestResults(results) {
-  chrome.tabs.query({}, (tabs) => {
-    tabs.forEach(tab => {
-      chrome.tabs.sendMessage(tab.id, {
-        type: 'TEST_RESULTS',
-        results
-      }).catch(() => {
-        // Tab might not have content script
-      });
+// Check for captive portal (basic implementation)
+async function checkCaptivePortal() {
+  try {
+    const response = await fetch('http://neverssl.com/', {
+      method: 'HEAD',
+      cache: 'no-cache',
+      redirect: 'manual',
+      signal: AbortSignal.timeout(5000)
     });
-  });
+    
+    // If redirected, likely a captive portal
+    return response.type === 'opaqueredirect' || response.status === 302;
+  } catch (error) {
+    return false;
+  }
 }
 
-// Get default configuration
-function getDefaultConfig() {
-  return {
-    downloadTests: {
-      enabled: true,
-      fileSizes: ['1MB', '5MB', '10MB'],
-      iterations: 3,
-      parallelConnections: 4,
-      timeout: 30000,
-      servers: ['cloudflare', 'google', 'amazon']
-    },
-    uploadTests: {
-      enabled: true,
-      fileSizes: ['1MB', '5MB'],
-      iterations: 2,
-      parallelConnections: 2,
-      timeout: 30000
-    },
-    latencyTests: {
-      enabled: true,
-      sampleCount: 20,
-      targets: ['google', 'cloudflare', 'microsoft'],
-      interval: 100
-    },
-    gamingTests: {
-      enabled: false,
-      sampleCount: 100,
-      burstTests: true,
-      servers: ['google', 'cloudflare']
-    },
-    advancedTests: {
-      ipv6Testing: true,
-      cdnTesting: true,
-      dnsPerformance: true,
-      connectionStability: false,
-      routingEfficiency: false,
-      concurrentTesting: true,
-      detailedLogging: false
-    },
-    ui: {
-      theme: 'dark',
-      showAdvancedMetrics: true,
-      autoRunOnNetworkChange: false,
-      notifications: true,
-      epicOverlayAnimation: 'slide',
-      chartUpdateInterval: 1000
-    }
-  };
-}
-
-// Export for testing
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    runEpicTest,
-    getNetworkInfo,
-    checkCaptivePortal
-  };
-}
+console.log('🚀 Wi-Fi Kickstart Background Service Worker V3.0 loaded');
