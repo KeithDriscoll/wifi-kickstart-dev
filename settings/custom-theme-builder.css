@@ -828,3 +828,17 @@
 .builder-controls::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
 }
+
+.theme-builder-footer {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1rem 0;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+  z-index: 10;
+}
