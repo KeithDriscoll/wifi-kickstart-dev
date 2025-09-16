@@ -394,10 +394,10 @@ async function runBurstTest() {
   
   try {
     const response = await chrome.runtime.sendMessage({ 
-      type: 'RUN_EPIC_TEST',
+      type: 'RUN_NETWORK_TEST',
       mode: 'burst'
     });
-    
+      
     if (response.success) {
       lastTestResults = response.results;
       

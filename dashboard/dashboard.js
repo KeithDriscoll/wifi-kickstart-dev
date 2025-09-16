@@ -911,7 +911,7 @@ setTimeout(() => {
       this.showNotification('Starting quick test...', 'info');
       
       const response = await chrome.runtime.sendMessage({
-        type: 'RUN_EPIC_TEST',
+        type: 'RUN_NETWORK_TEST',
         mode: 'quick'
       });
       
