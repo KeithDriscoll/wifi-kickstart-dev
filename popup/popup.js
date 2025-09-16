@@ -3,7 +3,7 @@
 
 // DOM Elements
 const elements = {
-
+  // IP Address & Tooltip
   ipAddressContainer: document.getElementById('ipAddressContainer'),
   ipTooltip: document.getElementById('ipTooltip'),
   
@@ -29,9 +29,11 @@ const elements = {
   networkStatus: document.getElementById('networkStatus'),
   privacyStatus: document.getElementById('privacyStatus'),
   
-  // Network Status
+  // Network Status (FIXED IDs)
+  connectionStatus: document.getElementById('connectionStatus'),
   ipAddress: document.getElementById('ipAddress'),
   location: document.getElementById('location'),
+  latencyValue: document.getElementById('latencyValue'),
   vpnStatus: document.getElementById('vpnStatus'),
   warpStatus: document.getElementById('warpStatus'),
   
@@ -54,6 +56,8 @@ const elements = {
 let currentSettings = {};
 let isTestRunning = false;
 let lastTestResults = null;
+let connectionStartTime = null;
+let connectionTimer = null;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
@@ -62,7 +66,39 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadLastTestResults();
   setupEventListeners();
   applyTheme();
+  startConnectionTimer();
 });
+
+// Connection Timer Functions
+function startConnectionTimer() {
+  connectionStartTime = new Date();
+  updateConnectionTimer();
+  
+  // Update every second
+  connectionTimer = setInterval(updateConnectionTimer, 1000);
+}
+
+function updateConnectionTimer() {
+  if (!connectionStartTime) return;
+  
+  const now = new Date();
+  const diff = now - connectionStartTime;
+  
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+  
+  const timeString = `Online: ${hours}h${minutes.toString().padStart(2, '0')}m${seconds.toString().padStart(2, '0')}s`;
+  
+  if (elements.connectionStatus) {
+    elements.connectionStatus.textContent = timeString;
+    elements.connectionStatus.style.color = 'var(--success)';
+  }
+}
+
+function resetConnectionTimer() {
+  connectionStartTime = new Date();
+}
 
 // Load settings from storage
 async function loadSettings() {
@@ -71,13 +107,13 @@ async function loadSettings() {
       currentSettings = result.settings || getDefaultSettings();
       
       // Apply settings to UI
-      elements.darkModeToggle.checked = currentSettings.darkMode;
-      elements.zenModeToggle.checked = currentSettings.zenMode;
-      elements.autoTestToggle.checked = currentSettings.autoTest;
-      elements.defaultTestMode.value = currentSettings.defaultTestMode;
-      elements.vpnDetectionToggle.checked = currentSettings.vpnDetection;
-      elements.warpDetectionToggle.checked = currentSettings.warpDetection;
-      elements.captivePortalToggle.checked = currentSettings.captivePortal;
+      if (elements.darkModeToggle) elements.darkModeToggle.checked = currentSettings.darkMode;
+      if (elements.zenModeToggle) elements.zenModeToggle.checked = currentSettings.zenMode;
+      if (elements.autoTestToggle) elements.autoTestToggle.checked = currentSettings.autoTest;
+      if (elements.defaultTestMode) elements.defaultTestMode.value = currentSettings.defaultTestMode;
+      if (elements.vpnDetectionToggle) elements.vpnDetectionToggle.checked = currentSettings.vpnDetection;
+      if (elements.warpDetectionToggle) elements.warpDetectionToggle.checked = currentSettings.warpDetection;
+      if (elements.captivePortalToggle) elements.captivePortalToggle.checked = currentSettings.captivePortal;
       
       // Apply theme
       if (result.theme) {
@@ -106,18 +142,28 @@ async function loadNetworkInfo() {
       
       // Update UI with animation
       updateElementWithAnimation(elements.ipAddress, info.ip || 'Unknown');
+      
+      // Store full IP for tooltip
+      if (elements.ipAddress && info.ip) {
+        elements.ipAddress.dataset.fullIp = info.ip;
+        // Truncate IPv6 addresses for display
+        if (info.ip.includes(':') && info.ip.length > 20) {
+          elements.ipAddress.textContent = info.ip.substring(0, 15) + '...';
+        }
+      }
+      
       updateElementWithAnimation(elements.location, info.location || 'Unknown');
+      updateElementWithAnimation(elements.latencyValue, info.latency ? `${Math.round(info.latency)}ms` : 'Testing...');
       
       // Update VPN/WARP status with better fallbacks
       updateStatusWithColor(elements.vpnStatus, info.vpnStatus || 'Not Detected');
       updateStatusWithColor(elements.warpStatus, info.warpStatus || 'Not Active');
-
-      // Handle location and latency loading states
-      updateElementWithAnimation(elements.location, info.location || 'Unavailable');
-      updateElementWithAnimation(elements.latencyValue, info.latency ? `${Math.round(info.latency)}ms` : 'Testing...');
       
       // Update diagnostic scores based on network info
       updateDiagnosticScores(info);
+      
+      // Reset connection timer when network changes
+      resetConnectionTimer();
       
       // Only show notifications if user wants them
       if (currentSettings.warpDetection && info.warpStatus) {
@@ -139,14 +185,14 @@ function updateDiagnosticScores(networkInfo, testResults = null) {
   let privacyScore = calculatePrivacyScore(networkInfo);
   
   // Update Network Score
-  elements.networkScore.textContent = networkScore;
-  elements.networkStatus.textContent = getScoreDescription(networkScore);
-  updateScoreCardStyle(elements.networkScoreCard, networkScore);
+  if (elements.networkScore) elements.networkScore.textContent = networkScore;
+  if (elements.networkStatus) elements.networkStatus.textContent = getScoreDescription(networkScore);
+  if (elements.networkScoreCard) updateScoreCardStyle(elements.networkScoreCard, networkScore);
   
   // Update Privacy Score
-  elements.privacyScore.textContent = privacyScore;
-  elements.privacyStatus.textContent = getScoreDescription(privacyScore);
-  updateScoreCardStyle(elements.privacyScoreCard, privacyScore);
+  if (elements.privacyScore) elements.privacyScore.textContent = privacyScore;
+  if (elements.privacyStatus) elements.privacyStatus.textContent = getScoreDescription(privacyScore);
+  if (elements.privacyScoreCard) updateScoreCardStyle(elements.privacyScoreCard, privacyScore);
 }
 
 // Calculate Network Score (placeholder - you'll improve this later)
@@ -223,6 +269,8 @@ function updateScoreCardStyle(card, score) {
 
 // Update status with color coding
 function updateStatusWithColor(element, status) {
+  if (!element) return;
+  
   element.textContent = status;
   
   // Color code based on status
@@ -251,51 +299,74 @@ async function loadLastTestResults() {
 
 // Setup event listeners
 function setupEventListeners() {
-  
-  elements.ipAddress.addEventListener('click', copyToClipboard);
-  elements.ipAddress.addEventListener('mouseenter', showFullIP);
-  elements.ipAddress.addEventListener('mouseleave', hideTooltip);
+  // IP Address tooltip functionality  
+  if (elements.ipAddress) {
+    elements.ipAddress.addEventListener('click', copyToClipboard);
+    elements.ipAddress.addEventListener('mouseenter', showFullIP);
+    elements.ipAddress.addEventListener('mouseleave', hideTooltip);
+  }
 
   // Settings panel
-  elements.settingsToggle.addEventListener('click', () => {
-    elements.settingsPanel.classList.add('active');
-  });
+  if (elements.settingsToggle) {
+    elements.settingsToggle.addEventListener('click', () => {
+      if (elements.settingsPanel) elements.settingsPanel.classList.add('active');
+    });
+  }
   
-  elements.closeSettings.addEventListener('click', () => {
-    elements.settingsPanel.classList.remove('active');
-  });
+  if (elements.closeSettings) {
+    elements.closeSettings.addEventListener('click', () => {
+      if (elements.settingsPanel) elements.settingsPanel.classList.remove('active');
+    });
+  }
   
   // Theme panel
-  elements.themeToggle.addEventListener('click', () => {
-    elements.themePanel.classList.add('active');
-  });
+  if (elements.themeToggle) {
+    elements.themeToggle.addEventListener('click', () => {
+      if (elements.themePanel) elements.themePanel.classList.add('active');
+    });
+  }
   
-  elements.closeTheme.addEventListener('click', () => {
-    elements.themePanel.classList.remove('active');
-  });
+  if (elements.closeTheme) {
+    elements.closeTheme.addEventListener('click', () => {
+      if (elements.themePanel) elements.themePanel.classList.remove('active');
+    });
+  }
   
   // Quick Actions
-  elements.openDashboard.addEventListener('click', async () => {
-    await chrome.runtime.sendMessage({ type: 'OPEN_DASHBOARD' });
-    window.close();
-  });
+  if (elements.openDashboard) {
+    elements.openDashboard.addEventListener('click', async () => {
+      await chrome.runtime.sendMessage({ type: 'OPEN_DASHBOARD' });
+      window.close();
+    });
+  }
   
   // Burst Test Button
-  elements.runBurstTest.addEventListener('click', runBurstTest);
+  if (elements.runBurstTest) {
+    elements.runBurstTest.addEventListener('click', runBurstTest);
+  }
   
   // Settings controls
-  elements.darkModeToggle.addEventListener('change', (e) => {
-    document.body.classList.toggle('dark-mode', e.target.checked);
-    currentSettings.darkMode = e.target.checked;
-  });
+  if (elements.darkModeToggle) {
+    elements.darkModeToggle.addEventListener('change', (e) => {
+      document.body.classList.toggle('dark-mode', e.target.checked);
+      currentSettings.darkMode = e.target.checked;
+    });
+  }
   
-  elements.zenModeToggle.addEventListener('change', (e) => {
-    document.body.classList.toggle('zen-mode', e.target.checked);
-    currentSettings.zenMode = e.target.checked;
-  });
+  if (elements.zenModeToggle) {
+    elements.zenModeToggle.addEventListener('change', (e) => {
+      document.body.classList.toggle('zen-mode', e.target.checked);
+      currentSettings.zenMode = e.target.checked;
+    });
+  }
   
-  elements.saveSettings.addEventListener('click', saveSettings);
-  elements.resetSettings.addEventListener('click', resetSettings);
+  if (elements.saveSettings) {
+    elements.saveSettings.addEventListener('click', saveSettings);
+  }
+  
+  if (elements.resetSettings) {
+    elements.resetSettings.addEventListener('click', resetSettings);
+  }
   
   // Theme selection
   document.querySelectorAll('.theme-option').forEach(button => {
@@ -307,22 +378,24 @@ function setupEventListeners() {
   });
 }
 
-// Run Burst Test (NEW!)
+// Run Burst Test
 async function runBurstTest() {
   if (isTestRunning) return;
   
   isTestRunning = true;
-  elements.runBurstTest.textContent = 'Testing...';
-  elements.runBurstTest.disabled = true;
+  if (elements.runBurstTest) {
+    elements.runBurstTest.textContent = 'Testing...';
+    elements.runBurstTest.disabled = true;
+  }
   
   // Update scores to show testing state
-  elements.networkScore.textContent = '--';
-  elements.networkStatus.textContent = 'Testing...';
+  if (elements.networkScore) elements.networkScore.textContent = '--';
+  if (elements.networkStatus) elements.networkStatus.textContent = 'Testing...';
   
   try {
     const response = await chrome.runtime.sendMessage({ 
       type: 'RUN_EPIC_TEST',
-      mode: 'burst'  // ← Using your new burst mode!
+      mode: 'burst'
     });
     
     if (response.success) {
@@ -340,12 +413,14 @@ async function runBurstTest() {
     showNotification('Burst test failed. Please try again.', 'error');
     
     // Reset scores on error
-    elements.networkScore.textContent = '--';
-    elements.networkStatus.textContent = 'Test Failed';
+    if (elements.networkScore) elements.networkScore.textContent = '--';
+    if (elements.networkStatus) elements.networkStatus.textContent = 'Test Failed';
   } finally {
     isTestRunning = false;
-    elements.runBurstTest.innerHTML = '<div class="card-icon">⚡</div><div class="card-content"><div class="card-title">Burst Test</div></div>';
-    elements.runBurstTest.disabled = false;
+    if (elements.runBurstTest) {
+      elements.runBurstTest.innerHTML = '<div class="card-icon">⚡</div><div class="card-content"><div class="card-title">Burst Test</div></div>';
+      elements.runBurstTest.disabled = false;
+    }
   }
 }
 
@@ -359,58 +434,42 @@ async function getNetworkInfo() {
   }
 }
 
-// Display quick metrics
-function displayQuickMetrics(results) {
-  if (!results) return;
-  
-  // Latency
-  const latency = results.latency?.overall?.average;
-  if (latency) {
-    elements.latencyValue.textContent = Math.round(latency);
-    elements.latencyValue.style.color = getLatencyColor(latency);
-  }
-  
-  // Speed
-  const speed = results.downloadSpeed?.overall?.average;
-  if (speed) {
-    elements.speedValue.textContent = Math.round(speed);
-    elements.speedValue.style.color = getSpeedColor(speed);
-  }
-  
-  // Score
-  const score = results.overallScore;
-  if (score !== undefined) {
-    elements.scoreValue.textContent = score;
-    elements.scoreValue.style.color = getScoreColor(score);
+// IP Address tooltip functions
+function copyToClipboard() {
+  const fullIP = elements.ipAddress.dataset.fullIp || elements.ipAddress.textContent;
+  navigator.clipboard.writeText(fullIP);
+  showNotification('IP copied to clipboard!', 'success');
+}
+
+function showFullIP() {
+  const fullIP = elements.ipAddress.dataset.fullIp;
+  if (fullIP && fullIP !== elements.ipAddress.textContent && elements.ipTooltip) {
+    elements.ipTooltip.textContent = fullIP;
+    elements.ipTooltip.style.display = 'block';
   }
 }
 
-// Animate test results
-function animateTestResults() {
-  const metrics = document.querySelectorAll('.metric-value');
-  metrics.forEach((metric, index) => {
-    metric.style.animation = 'none';
-    setTimeout(() => {
-      metric.style.animation = 'pulse 0.5s ease';
-    }, index * 100);
-  });
+function hideTooltip() {
+  if (elements.ipTooltip) {
+    elements.ipTooltip.style.display = 'none';
+  }
 }
 
 // Save settings
 async function saveSettings() {
   currentSettings = {
-    darkMode: elements.darkModeToggle.checked,
-    zenMode: elements.zenModeToggle.checked,
-    autoTest: elements.autoTestToggle.checked,
-    defaultTestMode: elements.defaultTestMode.value,
-    vpnDetection: elements.vpnDetectionToggle.checked,
-    warpDetection: elements.warpDetectionToggle.checked,
-    captivePortal: elements.captivePortalToggle.checked
+    darkMode: elements.darkModeToggle?.checked || false,
+    zenMode: elements.zenModeToggle?.checked || false,
+    autoTest: elements.autoTestToggle?.checked || false,
+    defaultTestMode: elements.defaultTestMode?.value || 'burst',
+    vpnDetection: elements.vpnDetectionToggle?.checked || true,
+    warpDetection: elements.warpDetectionToggle?.checked || true,
+    captivePortal: elements.captivePortalToggle?.checked || true
   };
   
   chrome.storage.local.set({ settings: currentSettings }, () => {
     showNotification('Saved!', 'success');
-    elements.settingsPanel.classList.remove('active');
+    if (elements.settingsPanel) elements.settingsPanel.classList.remove('active');
   });
   
   // Update background config
@@ -458,13 +517,18 @@ function saveTheme(theme) {
 
 // Show loading overlay
 function showLoading(text = 'Loading...') {
-  elements.loadingOverlay.querySelector('.loading-text').textContent = text;
-  elements.loadingOverlay.classList.add('active');
+  if (elements.loadingOverlay) {
+    const loadingText = elements.loadingOverlay.querySelector('.loading-text');
+    if (loadingText) loadingText.textContent = text;
+    elements.loadingOverlay.classList.add('active');
+  }
 }
 
 // Hide loading overlay
 function hideLoading() {
-  elements.loadingOverlay.classList.remove('active');
+  if (elements.loadingOverlay) {
+    elements.loadingOverlay.classList.remove('active');
+  }
 }
 
 // Show notification
@@ -499,6 +563,8 @@ function showNotification(message, type = 'info') {
 
 // Update element with animation
 function updateElementWithAnimation(element, value) {
+  if (!element) return;
+  
   element.style.animation = 'fadeOut 0.2s ease';
   setTimeout(() => {
     element.textContent = value;
@@ -536,29 +602,11 @@ function getDefaultSettings() {
     darkMode: true,
     zenMode: false,
     autoTest: false,
-    defaultTestMode: 'burst',  // ← Changed default to burst!
+    defaultTestMode: 'burst',
     vpnDetection: true,
     warpDetection: true,
     captivePortal: true
   };
-}
-
-function copyToClipboard() {
-  const fullIP = elements.ipAddress.dataset.fullIp || elements.ipAddress.textContent;
-  navigator.clipboard.writeText(fullIP);
-  showNotification('IP copied to clipboard!', 'success');
-}
-
-function showFullIP() {
-  const fullIP = elements.ipAddress.dataset.fullIp;
-  if (fullIP && fullIP !== elements.ipAddress.textContent) {
-    elements.ipTooltip.textContent = fullIP;
-    elements.ipTooltip.style.display = 'block';
-  }
-}
-
-function hideTooltip() {
-  elements.ipTooltip.style.display = 'none';
 }
 
 // Add fade animations to CSS
@@ -568,13 +616,85 @@ style.textContent = `
     to { opacity: 0; }
   }
   
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
   @keyframes pulse {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.05); }
   }
   
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes fadeOut {
+    to { 
+      transform: translateX(100%);
+      opacity: 0; 
+    }
+  }
+  
   .notification {
     animation: slideIn 0.3s ease;
   }
+  
+  /* IP Tooltip Styles */
+  .tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--background);
+    color: var(--text-primary);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    white-space: nowrap;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
+    z-index: 1000;
+    display: none;
+    margin-bottom: 5px;
+  }
+  
+  .tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: var(--border);
+  }
+  
+  .copyable {
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  
+  .copyable:hover {
+    color: var(--primary);
+  }
+  
+  #ipAddressContainer {
+    position: relative;
+  }
 `;
 document.head.appendChild(style);
+
+// Cleanup on unload
+window.addEventListener('beforeunload', () => {
+  if (connectionTimer) {
+    clearInterval(connectionTimer);
+  }
+});
