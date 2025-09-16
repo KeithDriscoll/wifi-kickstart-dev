@@ -26,7 +26,10 @@
     "https://proof.ovh.net/*",
     "https://speedtest.selectel.ru/*",
     "https://httpbin.org/*",
-    "http://neverssl.com/*"
+    "http://neverssl.com/*",
+    "http://detectportal.firefox.com/*",
+    "http://clients3.google.com/*",
+    "https://1.1.1.1/*"
   ],
   
   "background": {
