@@ -647,13 +647,13 @@ class SettingsController {
 
   // Open custom theme builder
   openCustomThemeBuilder() {
-    const url = chrome.runtime.getURL('settings/custom-theme-builder.html');
+    const url = chrome.runtime.getURL('../themes/custom-theme-builder/custom-theme-builder.html');
     window.open(url, '_blank', 'width=1200,height=800');
   }
 
   // Edit custom theme
   editCustomTheme(themeId) {
-    const url = chrome.runtime.getURL(`settings/custom-theme-builder.html?edit=${themeId}`);
+    const url = chrome.runtime.getURL(`../themes/custom-theme-builder/custom-theme-builder.html?edit=${themeId}`);
     window.open(url, '_blank', 'width=1200,height=800');
   }
 

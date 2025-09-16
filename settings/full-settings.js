@@ -273,7 +273,7 @@
     const createThemeBtn = panel.querySelector('#createThemeBtn');
     if (createThemeBtn) {
       createThemeBtn.addEventListener('click', () => {
-        window.open('../settings/custom-theme-builder.html', '_blank');
+        window.open('../themes/custom-theme-builder/custom-theme-builder.html', '_blank');
       });
     }
 
