@@ -1,4 +1,4 @@
-// 🚀 NETWORK TEST ORCHESTRATOR V3.0 - Professional Network Analysis Engine
+// 🚀 NETWORK TEST ORCHESTRATOR V3.0 - Network Analysis Engine
 // Coordinates multiple test modules and provides real-time progress streaming
 
 import { ConnectivityTests } from './tests/connectivity-tests.js';
