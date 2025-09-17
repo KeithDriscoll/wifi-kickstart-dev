@@ -18,6 +18,7 @@
     "https://*.netflix.com/*",
     "https://*.amazon.com/*",
     "https://*.microsoft.com/*",
+    "https://*.github.com/*",
     "https://fast.com/*",
     "https://speed.cloudflare.com/*",
     "https://ipinfo.io/*",

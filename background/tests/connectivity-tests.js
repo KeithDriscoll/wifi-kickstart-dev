@@ -129,16 +129,16 @@ export class ConnectivityTests {
         return 'Unknown ISP';
       }
 
-      // Get basic network info from security tests
-      const securityResults = await testOrchestrator.securityTests.getBasicNetworkInfo();
+      // Use runAnalysis instead of getBasicNetworkInfo
+      const securityResults = await testOrchestrator.securityTests.runAnalysis();
       return securityResults.networkInfo?.isp || 
-             securityResults.networkInfo?.org || 
-             'Unknown ISP';
+            securityResults.networkInfo?.org || 
+            'Unknown ISP';
     } catch (error) {
       console.warn('Failed to get ISP info:', error);
       return 'Unknown ISP';
     }
-  }
+}
 
   // 🎨 GET WIFI ICON COLOR - Based on security status
   async getWiFiIconColor(testOrchestrator) {
@@ -147,42 +147,29 @@ export class ConnectivityTests {
         return '#ff0000'; // Red - Disconnected
       }
 
-      if (!testOrchestrator?.securityTests) {
-        return '#ffa500'; // Orange - Unknown security status
-      }
-
-      const securityResults = await testOrchestrator.securityTests.getBasicNetworkInfo();
-      const hasVPN = securityResults.vpnStatus?.status === 'Connected';
-      const hasWARP = securityResults.warpStatus === 'Connected';
-      const isPublicWiFi = securityResults.networkInfo?.connectionType?.isPublic;
-
-      if (hasVPN || hasWARP) {
-        return '#50c878'; // Green - Secure connection
-      } else if (isPublicWiFi) {
-        return '#ffa500'; // Orange - Public WiFi warning
-      } else {
-        return '#50c878'; // Green - Private network (assume safe)
-      }
+      // For now, just return green if connected (we'll enhance later)
+      return '#50c878'; // Green - Connected
     } catch (error) {
       console.warn('Failed to determine WiFi security color:', error);
       return '#ffa500'; // Orange - Error state
-    }
+  }
   }
 
   // 🏷️ SIMPLE BADGE UPDATE - Green = connected, Red = disconnected
   async updateBadge() {
-    const latency = await this.stealthConnectivityCheck();
-    
-    if (latency === null) {
-      // Offline - RED BADGE
-      chrome.action.setBadgeBackgroundColor({ color: '#ff0000' });
-      chrome.action.setBadgeText({ text: '' });
-    } else {
-      // Online - GREEN BADGE
-      chrome.action.setBadgeBackgroundColor({ color: '#50c878' });
-      chrome.action.setBadgeText({ text: '' });
-    }
+  console.log('🏷️ Updating badge...');
+  const latency = await this.stealthConnectivityCheck();
+  
+  if (latency === null) {
+    console.log('🔴 Setting RED badge - offline');
+    chrome.action.setBadgeBackgroundColor({ color: '#ff0000' });
+    chrome.action.setBadgeText({ text: '✗' }); // ADD VISIBLE TEXT
+  } else {
+    console.log('🟢 Setting GREEN badge - online', latency + 'ms');
+    chrome.action.setBadgeBackgroundColor({ color: '#50c878' });
+    chrome.action.setBadgeText({ text: '✓' }); // ADD VISIBLE TEXT
   }
+}
 
   // 🔄 START MONITORING - Runs every 3 seconds
   startNetworkMonitoring() {
@@ -250,7 +237,7 @@ export class ConnectivityTests {
 
       if (testOrchestrator?.securityTests) {
         try {
-          const securityResults = await testOrchestrator.securityTests.getBasicNetworkInfo();
+          const securityResults = await testOrchestrator.securityTests.runAnalysis();
           
           detailedInfo = {
             ip: securityResults.networkInfo?.ip || 'Unknown',
