@@ -2,9 +2,11 @@
 // Professional service worker with modular test orchestration
 
 import { TestOrchestrator } from './test-orchestrator.js';
+import { ConnectivityTests } from './tests/connectivity-tests.js';
 
 // Initialize
 let testOrchestrator = null;
+let connectivityTests = null;
 let testHistory = [];
 let currentConfig = {};
 let activeConnections = new Map(); // Track active connections for real-time updates
@@ -23,6 +25,12 @@ async function initializeOrchestrator() {
     const result = await chrome.storage.local.get(['networkConfig', 'testHistory', 'theme']);
     currentConfig = result.networkConfig || getDefaultConfig();
     testHistory = result.testHistory || [];
+  }
+
+  // Initialize connectivity tests
+  if (!connectivityTests) {
+    console.log('📡 Initializing Connectivity Tests...');
+    connectivityTests = new ConnectivityTests();
   }
 }
 
@@ -109,15 +117,17 @@ function handlePortMessage(msg, port) {
 chrome.runtime.onInstalled.addListener(async () => {
   console.log('🚀 Wi-Fi Kickstart installed/updated');
   
-  // Initialize test orchestrator
+  // Initialize orchestrator and connectivity tests
   await initializeOrchestrator();
   
   // Set initial badge
-  chrome.action.setBadgeBackgroundColor({ color: '#4a90e2' });
-  chrome.action.setBadgeText({ text: '✓' });
+  chrome.action.setBadgeBackgroundColor({ color: '#50c878' });
+  chrome.action.setBadgeText({ text: '' });
   
-  // Start periodic network monitoring
-  startNetworkMonitoring();
+  // Start connectivity monitoring
+  if (connectivityTests) {
+    connectivityTests.startNetworkMonitoring();
+  }
 });
 
 // Message handler for popup and dashboard
@@ -141,8 +151,15 @@ async function handleMessage(request, sender, sendResponse) {
       break;
       
     case 'GET_NETWORK_INFO':
-      const info = await getNetworkInfo();
+      // Use ConnectivityTests for network info
+      const info = await connectivityTests.getNetworkInfoQuick(testOrchestrator);
       sendResponse({ success: true, info });
+      break;
+
+    case 'RUN_QUICK_TEST':
+      // Instant connectivity check for icon click
+      const quickResult = await connectivityTests.runQuickConnectivityCheck();
+      sendResponse({ success: true, result: quickResult });
       break;
       
     case 'GET_TEST_HISTORY':
@@ -257,44 +274,6 @@ async function runNetworkTest(mode) {
   }
 }
 
-// Get current network information
-async function getNetworkInfo() {
-  try {
-    // Get basic network info from security tests
-    if (testOrchestrator) {
-      await testOrchestrator.securityTests.runAnalysis();
-      const securityResults = testOrchestrator.securityTests.getResults();
-      
-      return {
-        ip: securityResults.networkInfo?.ip || 'Unknown',
-        isp: securityResults.networkInfo?.isp || 'Unknown',
-        location: securityResults.networkInfo?.location || 'Unknown',
-        city: securityResults.networkInfo?.city || 'Unknown',
-        region: securityResults.networkInfo?.region || 'Unknown',
-        country: securityResults.networkInfo?.country || 'Unknown',
-        vpnStatus: securityResults.vpnStatus?.status || 'Unknown',
-        warpStatus: securityResults.warpStatus || 'Unknown',
-        connectionType: securityResults.networkInfo?.connectionType?.type || 'Unknown',
-        timestamp: Date.now()
-      };
-    }
-    
-    // Fallback basic info
-    return {
-      ip: 'Unknown',
-      location: 'Unknown',
-      vpnStatus: 'Unknown',
-      warpStatus: 'Unknown',
-      connectionType: 'Unknown',
-      timestamp: Date.now()
-    };
-    
-  } catch (error) {
-    console.error('Failed to get network info:', error);
-    return { error: error.message };
-  }
-}
-
 // Open dashboard
 async function openDashboard() {
   const url = chrome.runtime.getURL('dashboard/dashboard.html');
@@ -314,7 +293,7 @@ async function openDashboard() {
 
 // Open settings
 async function openSettings() {
-  const url = chrome.runtime.getURL('settings/settings.html');
+  const url = chrome.runtime.getURL('settings/full-settings.html');
   await chrome.tabs.create({ url: url });
 }
 
@@ -359,68 +338,6 @@ function getDefaultConfig() {
       autoSaveResults: true
     }
   };
-}
-
-// Network monitoring functions
-function startNetworkMonitoring() {
-  // Check network every 5 minutes
-  chrome.alarms.create('networkCheck', { periodInMinutes: 5 });
-  
-  chrome.alarms.onAlarm.addListener((alarm) => {
-    if (alarm.name === 'networkCheck') {
-      checkNetworkStatus();
-    }
-  });
-}
-
-// Check network status
-async function checkNetworkStatus() {
-  try {
-    const start = performance.now();
-    
-    await fetch('https://www.google.com/generate_204', {
-      method: 'HEAD',
-      cache: 'no-cache',
-      signal: AbortSignal.timeout(5000)
-    });
-    
-    const latency = performance.now() - start;
-    
-    // Update badge color based on latency
-    if (latency < 50) {
-      chrome.action.setBadgeBackgroundColor({ color: '#50c878' });
-      chrome.action.setBadgeText({ text: '✓' });
-    } else if (latency < 150) {
-      chrome.action.setBadgeBackgroundColor({ color: '#ffa500' });
-      chrome.action.setBadgeText({ text: '~' });
-    } else {
-      chrome.action.setBadgeBackgroundColor({ color: '#ff4444' });
-      chrome.action.setBadgeText({ text: '!' });
-    }
-    
-  } catch (error) {
-    // Network error
-    chrome.action.setBadgeBackgroundColor({ color: '#ff0000' });
-    chrome.action.setBadgeText({ text: '✗' });
-    console.warn('Network status check failed:', error);
-  }
-}
-
-// Check for captive portal (basic implementation)
-async function checkCaptivePortal() {
-  try {
-    const response = await fetch('http://neverssl.com/', {
-      method: 'HEAD',
-      cache: 'no-cache',
-      redirect: 'manual',
-      signal: AbortSignal.timeout(5000)
-    });
-    
-    // If redirected, likely a captive portal
-    return response.type === 'opaqueredirect' || response.status === 302;
-  } catch (error) {
-    return false;
-  }
 }
 
 console.log('🚀 Wi-Fi Kickstart Background Service Worker V3.0 loaded');

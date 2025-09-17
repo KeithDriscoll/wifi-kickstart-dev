@@ -1,6 +1,7 @@
 // 🚀 NETWORK TEST ORCHESTRATOR V3.0 - Professional Network Analysis Engine
 // Coordinates multiple test modules and provides real-time progress streaming
 
+import { ConnectivityTests } from './tests/connectivity-tests.js';
 import { SpeedTests } from './tests/speed-tests.js';
 import { LatencyTests } from './tests/latency-tests.js';
 import { SecurityTests } from './tests/security-tests.js';
@@ -21,6 +22,7 @@ export class TestOrchestrator {
     this.latencyTests = new LatencyTests();
     this.securityTests = new SecurityTests();
     this.protocolTests = new ProtocolTests();
+    this.connectivityTests = new ConnectivityTests();
   }
 
   // Set progress callback for real-time updates

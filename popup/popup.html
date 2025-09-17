@@ -31,6 +31,17 @@
       <p class="popup-subtitle">Professional Network and Privacy Diagnostics</p>
     </header>
 
+    <!-- NEW ENHANCED NETWORK STATUS -->
+    <section class="network-status-enhanced">
+      <div class="network-status-header">
+        <div class="wifi-icon" id="wifiIcon">📶</div>
+        <div class="network-info">
+          <div class="network-name" id="networkName">LOADING...</div>
+          <div class="network-details" id="networkDetails">Checking connection...</div>
+        </div>
+      </div>
+    </section>
+
     <!-- Diagnostic Scores (Hero Section) -->
     <section class="diagnostic-scores">
       <div class="score-grid">
@@ -54,65 +65,40 @@
       </div>
     </section>
 
-    <!-- Network Status -->
-    <section class="network-status">      
-      <div class="status-grid">
-        
-        <div class="status-item">
-          <div class="status-label">Status</div>
-          <div class="status-value" id="connectionStatus">Online: 0h00m00s</div>
-        </div>
-                
-        <div class="status-item" id="ipAddressContainer">
-          <div class="status-label">IP Address</div>
-          <div class="status-value copyable" id="ipAddress" title="Click to copy">
-            <span class="loading-dot"></span>
-            <span class="loading-dot"></span>
-            <span class="loading-dot"></span>
-          </div>
-          <div class="tooltip" id="ipTooltip"></div>
-        </div>
-                
-        <div class="status-item">
-          <div class="status-label">Location</div>  
-          <div class="status-value" id="location">Loading...</div>
-        </div>
-
-        <div class="status-item">
-          <div class="status-label">Latency</div>
-          <div class="status-value" id="latencyValue">Loading...</div>
-        </div>
-                
-        <div class="status-item">
-          <div class="status-label">VPN Status</div>
-          <div class="status-value" id="vpnStatus">Checking...</div>
+    <!-- Quick Metrics -->
+    <section class="quick-metrics">
+      <div class="metrics-grid">
+        <div class="metric-card" id="downloadCard">
+          <div class="metric-value" id="downloadSpeed">--</div>
+          <div class="metric-label">Download</div>
+          <div class="metric-unit">Mbps</div>
         </div>
         
-        <div class="status-item">
-          <div class="status-label">WARP Status</div>
-          <div class="status-value" id="warpStatus">Checking...</div>
+        <div class="metric-card" id="uploadCard">
+          <div class="metric-value" id="uploadSpeed">--</div>
+          <div class="metric-label">Upload</div>
+          <div class="metric-unit">Mbps</div>
         </div>
         
+        <div class="metric-card" id="latencyCard">
+          <div class="metric-value" id="latencyValue">--</div>
+          <div class="metric-label">Latency</div>
+          <div class="metric-unit">ms</div>
+        </div>
       </div>
     </section>
 
-    <!-- Quick Actions -->
-    <section class="quick-actions">
-      <div class="action-grid">
-        <button class="action-card dashboard-card" id="openDashboard">
-          <div class="card-icon">📊</div>
-          <div class="card-content">
-            <div class="card-title">Dashboard</div>
-          </div>
-        </button>
-        
-        <button class="action-card burst-card" id="runBurstTest">
-          <div class="card-icon">⚡</div>
-          <div class="card-content">
-            <div class="card-title">Burst Test</div>
-          </div>
-        </button>
-      </div>
+    <!-- Action Buttons - SIDE BY SIDE -->
+    <section class="action-buttons">
+      <button class="test-button primary" id="runBurstTest" disabled>
+        <div class="card-icon">⚡</div>
+        <div class="card-title">Burst Test</div>
+      </button>
+      
+      <button class="action-button secondary" id="openDashboard">
+        <span class="button-icon">📊</span>
+        <span>Dashboard</span>
+      </button>
     </section>
 
     <!-- Footer -->
@@ -180,20 +166,19 @@
         <div class="setting-item">
           <div class="setting-label">
             <span>Default Test Mode</span>
+            <span class="setting-description">Quick or comprehensive</span>
           </div>
           <select class="setting-select" id="defaultTestMode">
-            <option value="burst">Burst</option>
-            <option value="quick">Quick</option>
-            <option value="standard" selected>Standard</option>
-            <option value="thorough">Thorough</option>
-            <option value="gaming">Gaming</option>
+            <option value="quick">Quick Test</option>
+            <option value="burst" selected>Burst Test</option>
+            <option value="comprehensive">Full Analysis</option>
           </select>
         </div>
       </div>
       
-      <!-- Features -->
+      <!-- Privacy & Security -->
       <div class="settings-section">
-        <h3 class="settings-section-title">Features</h3>
+        <h3 class="settings-section-title">Privacy & Security</h3>
         
         <div class="setting-item">
           <div class="setting-label">
@@ -219,8 +204,8 @@
         
         <div class="setting-item">
           <div class="setting-label">
-            <span>Captive Portal</span>
-            <span class="setting-description">Auto-detect login pages</span>
+            <span>Captive Portal Check</span>
+            <span class="setting-description">Detect hotel/public WiFi login</span>
           </div>
           <label class="toggle-switch">
             <input type="checkbox" id="captivePortalToggle" checked>
@@ -230,7 +215,7 @@
       </div>
       
       <!-- Actions -->
-      <div class="settings-section">
+      <div class="settings-actions">
         <div class="action-buttons">
           <button class="settings-button compact primary" id="saveSettings" title="Save Settings">💾</button>
           <button class="settings-button compact secondary" id="resetSettings" title="Reset to Defaults">🔄</button>

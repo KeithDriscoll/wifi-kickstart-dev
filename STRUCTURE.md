@@ -28,11 +28,9 @@
 │   ├── popup.js
 │   └── popup.css
 ├── settings/
-│   ├── settings.html
-│   ├── settings.js
-│   ├── settings.css
 │   ├── full-settings.html
 │   └── full-settings.js
+|   └── full-settings.css
 ├── themes/
 │   ├── theme-manager.js
 │   ├── theme-variables.css

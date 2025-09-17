@@ -1,355 +1,132 @@
-// 🚀 Wi-Fi Kickstart Popup Controller
-// Handles all popup interactions and communication with background script
+// 🚀 Wi-Fi Kickstart Popup - Enhanced Logic (Clean & Modular)
 
-// DOM Elements
-const elements = {
-  // IP Address & Tooltip
-  ipAddressContainer: document.getElementById('ipAddressContainer'),
-  ipTooltip: document.getElementById('ipTooltip'),
-  
-  // Settings
-  settingsToggle: document.getElementById('settingsToggle'),
-  settingsPanel: document.getElementById('settingsPanel'),
-  closeSettings: document.getElementById('closeSettings'),
-  
-  // Theme Panel
-  themeToggle: document.getElementById('themeToggle'),
-  themePanel: document.getElementById('themePanel'),
-  closeTheme: document.getElementById('closeTheme'),
-  
-  // Quick Actions
-  openDashboard: document.getElementById('openDashboard'),
-  runBurstTest: document.getElementById('runBurstTest'),
-  
-  // Diagnostic Scores
-  networkScoreCard: document.getElementById('networkScoreCard'),
-  privacyScoreCard: document.getElementById('privacyScoreCard'),
-  networkScore: document.getElementById('networkScore'),
-  privacyScore: document.getElementById('privacyScore'),
-  networkStatus: document.getElementById('networkStatus'),
-  privacyStatus: document.getElementById('privacyStatus'),
-  
-  // Network Status (FIXED IDs)
-  connectionStatus: document.getElementById('connectionStatus'),
-  ipAddress: document.getElementById('ipAddress'),
-  location: document.getElementById('location'),
-  latencyValue: document.getElementById('latencyValue'),
-  vpnStatus: document.getElementById('vpnStatus'),
-  warpStatus: document.getElementById('warpStatus'),
-  
-  // Settings Controls
-  darkModeToggle: document.getElementById('darkModeToggle'),
-  zenModeToggle: document.getElementById('zenModeToggle'),
-  autoTestToggle: document.getElementById('autoTestToggle'),
-  defaultTestMode: document.getElementById('defaultTestMode'),
-  vpnDetectionToggle: document.getElementById('vpnDetectionToggle'),
-  warpDetectionToggle: document.getElementById('warpDetectionToggle'),
-  captivePortalToggle: document.getElementById('captivePortalToggle'),
-  saveSettings: document.getElementById('saveSettings'),
-  resetSettings: document.getElementById('resetSettings'),
-  
-  // Loading
-  loadingOverlay: document.getElementById('loadingOverlay')
-};
-
-// State
-let currentSettings = {};
+// State Management
 let isTestRunning = false;
 let lastTestResults = null;
-let connectionStartTime = null;
+let currentSettings = getDefaultSettings();
 let connectionTimer = null;
 
-// Initialize
-document.addEventListener('DOMContentLoaded', async () => {
-  await loadSettings();
-  await loadNetworkInfo();
-  await loadLastTestResults();
+// DOM Elements Cache
+const elements = {};
+
+// Initialize on DOM load
+document.addEventListener('DOMContentLoaded', initializePopup);
+
+// 🚀 MAIN INITIALIZATION
+async function initializePopup() {
+  console.log('🚀 Wi-Fi Kickstart Popup initializing...');
+  
+  // Cache DOM elements
+  cacheElements();
+  
+  // Setup event listeners
   setupEventListeners();
-  applyTheme();
-  startConnectionTimer();
-});
-
-// Connection Timer Functions
-function startConnectionTimer() {
-  connectionStartTime = new Date();
-  updateConnectionTimer();
   
-  // Update every second
-  connectionTimer = setInterval(updateConnectionTimer, 1000);
+  // Load initial data
+  await loadInitialData();
+  
+  // Start connection monitoring
+  startConnectionMonitoring();
+  
+  console.log('✅ Popup initialized successfully');
 }
 
-function updateConnectionTimer() {
-  if (!connectionStartTime) return;
+// 📋 CACHE DOM ELEMENTS
+function cacheElements() {
+  // Network Status Elements (NEW ENHANCED)
+  elements.wifiIcon = document.getElementById('wifiIcon');
+  elements.networkName = document.getElementById('networkName');
+  elements.networkDetails = document.getElementById('networkDetails');
   
-  const now = new Date();
-  const diff = now - connectionStartTime;
+  // Score Elements
+  elements.networkScore = document.getElementById('networkScore');
+  elements.networkStatus = document.getElementById('networkStatus');
+  elements.privacyScore = document.getElementById('privacyScore');
+  elements.privacyStatus = document.getElementById('privacyStatus');
   
-  const hours = Math.floor(diff / (1000 * 60 * 60));
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+  // Metric Elements
+  elements.downloadSpeed = document.getElementById('downloadSpeed');
+  elements.uploadSpeed = document.getElementById('uploadSpeed');
+  elements.latencyValue = document.getElementById('latencyValue');
   
-  const timeString = `Online: ${hours}h${minutes.toString().padStart(2, '0')}m${seconds.toString().padStart(2, '0')}s`;
+  // Action Elements
+  elements.runBurstTest = document.getElementById('runBurstTest');
+  elements.openDashboard = document.getElementById('openDashboard');
   
-  if (elements.connectionStatus) {
-    elements.connectionStatus.textContent = timeString;
-    elements.connectionStatus.style.color = 'var(--success)';
-  }
+  // Settings Elements
+  elements.settingsToggle = document.getElementById('settingsToggle');
+  elements.settingsPanel = document.getElementById('settingsPanel');
+  elements.closeSettings = document.getElementById('closeSettings');
+  elements.themeToggle = document.getElementById('themeToggle');
+  elements.themePanel = document.getElementById('themePanel');
+  elements.closeTheme = document.getElementById('closeTheme');
+  
+  // Loading Overlay
+  elements.loadingOverlay = document.getElementById('loadingOverlay');
+  
+  // Settings Form Elements
+  elements.darkModeToggle = document.getElementById('darkModeToggle');
+  elements.zenModeToggle = document.getElementById('zenModeToggle');
+  elements.autoTestToggle = document.getElementById('autoTestToggle');
+  elements.defaultTestMode = document.getElementById('defaultTestMode');
+  elements.vpnDetectionToggle = document.getElementById('vpnDetectionToggle');
+  elements.warpDetectionToggle = document.getElementById('warpDetectionToggle');
+  elements.captivePortalToggle = document.getElementById('captivePortalToggle');
+  elements.saveSettings = document.getElementById('saveSettings');
+  elements.resetSettings = document.getElementById('resetSettings');
 }
 
-function resetConnectionTimer() {
-  connectionStartTime = new Date();
-}
-
-// Load settings from storage
-async function loadSettings() {
-  return new Promise((resolve) => {
-    chrome.storage.local.get(['settings', 'theme'], (result) => {
-      currentSettings = result.settings || getDefaultSettings();
-      
-      // Apply settings to UI
-      if (elements.darkModeToggle) elements.darkModeToggle.checked = currentSettings.darkMode;
-      if (elements.zenModeToggle) elements.zenModeToggle.checked = currentSettings.zenMode;
-      if (elements.autoTestToggle) elements.autoTestToggle.checked = currentSettings.autoTest;
-      if (elements.defaultTestMode) elements.defaultTestMode.value = currentSettings.defaultTestMode;
-      if (elements.vpnDetectionToggle) elements.vpnDetectionToggle.checked = currentSettings.vpnDetection;
-      if (elements.warpDetectionToggle) elements.warpDetectionToggle.checked = currentSettings.warpDetection;
-      if (elements.captivePortalToggle) elements.captivePortalToggle.checked = currentSettings.captivePortal;
-      
-      // Apply theme
-      if (result.theme) {
-        document.body.className = `theme-${result.theme}`;
-      }
-      
-      // Apply modes
-      if (currentSettings.darkMode) {
-        document.body.classList.add('dark-mode');
-      }
-      if (currentSettings.zenMode) {
-        document.body.classList.add('zen-mode');
-      }
-      
-      resolve();
-    });
-  });
-}
-
-// Load network information
-async function loadNetworkInfo() {
-  try {
-    const response = await chrome.runtime.sendMessage({ type: 'GET_NETWORK_INFO' });
-    if (response.success) {
-      const info = response.info;
-      
-      // Update UI with animation
-      updateElementWithAnimation(elements.ipAddress, info.ip || 'Unknown');
-      
-      // Store full IP for tooltip
-      if (elements.ipAddress && info.ip) {
-        elements.ipAddress.dataset.fullIp = info.ip;
-        // Truncate IPv6 addresses for display
-        if (info.ip.includes(':') && info.ip.length > 20) {
-          elements.ipAddress.textContent = info.ip.substring(0, 15) + '...';
-        }
-      }
-      
-      updateElementWithAnimation(elements.location, info.location || 'Unknown');
-      updateElementWithAnimation(elements.latencyValue, info.latency ? `${Math.round(info.latency)}ms` : 'Testing...');
-      
-      // Update VPN/WARP status with better fallbacks
-      updateStatusWithColor(elements.vpnStatus, info.vpnStatus || 'Not Detected');
-      updateStatusWithColor(elements.warpStatus, info.warpStatus || 'Not Active');
-      
-      // Update diagnostic scores based on network info
-      updateDiagnosticScores(info);
-      
-      // Reset connection timer when network changes
-      resetConnectionTimer();
-      
-      // Only show notifications if user wants them
-      if (currentSettings.warpDetection && info.warpStatus) {
-        showNotification(`WARP: ${info.warpStatus}`, 'info');
-      }
-      if (currentSettings.vpnDetection && info.vpnStatus === 'Detected') {
-        showNotification('VPN Detected', 'warning');
-      }
-    }
-  } catch (error) {
-    console.error('Failed to load network info:', error);
-  }
-}
-
-// Update diagnostic scores
-function updateDiagnosticScores(networkInfo, testResults = null) {
-  // Calculate Network Score (placeholder algorithm)
-  let networkScore = calculateNetworkScore(networkInfo, testResults);
-  let privacyScore = calculatePrivacyScore(networkInfo);
-  
-  // Update Network Score
-  if (elements.networkScore) elements.networkScore.textContent = networkScore;
-  if (elements.networkStatus) elements.networkStatus.textContent = getScoreDescription(networkScore);
-  if (elements.networkScoreCard) updateScoreCardStyle(elements.networkScoreCard, networkScore);
-  
-  // Update Privacy Score
-  if (elements.privacyScore) elements.privacyScore.textContent = privacyScore;
-  if (elements.privacyStatus) elements.privacyStatus.textContent = getScoreDescription(privacyScore);
-  if (elements.privacyScoreCard) updateScoreCardStyle(elements.privacyScoreCard, privacyScore);
-}
-
-// Calculate Network Score (placeholder - you'll improve this later)
-function calculateNetworkScore(networkInfo, testResults) {
-  let score = 50; // Base score
-  
-  if (testResults) {
-    // Speed component (40% weight)
-    const speed = testResults.downloadSpeed?.overall?.average || 0;
-    if (speed >= 100) score += 30;
-    else if (speed >= 50) score += 20;
-    else if (speed >= 25) score += 10;
-    
-    // Latency component (30% weight)
-    const latency = testResults.latency?.overall?.average || 999;
-    if (latency < 20) score += 25;
-    else if (latency < 50) score += 15;
-    else if (latency < 100) score += 5;
-    
-    // Overall test score (30% weight)
-    if (testResults.overallScore) {
-      score += (testResults.overallScore * 0.3);
-    }
-  } else {
-    // Basic network info scoring
-    if (networkInfo.connectionType && networkInfo.connectionType !== 'Unknown') score += 10;
-    if (networkInfo.ip && networkInfo.ip !== 'Unknown') score += 10;
-  }
-  
-  return Math.min(100, Math.max(0, Math.round(score)));
-}
-
-// Calculate Privacy Score (placeholder - you'll improve this later)
-function calculatePrivacyScore(networkInfo) {
-  let score = 30; // Base score (assume poor privacy by default)
-  
-  // VPN Status (50% weight)
-  if (networkInfo.vpnStatus === 'Connected' || networkInfo.vpnStatus === 'Detected') {
-    score += 40;
-  }
-  
-  // WARP Status (30% weight)
-  if (networkInfo.warpStatus === 'On' || networkInfo.warpStatus === 'Connected') {
-    score += 25;
-  }
-  
-  // Basic security checks (20% weight)
-  if (networkInfo.ip && !networkInfo.ip.startsWith('192.168.')) {
-    score += 5; // Not on local network
-  }
-  
-  return Math.min(100, Math.max(0, Math.round(score)));
-}
-
-// Get score description
-function getScoreDescription(score) {
-  if (score >= 80) return 'Excellent';
-  if (score >= 60) return 'Good';
-  if (score >= 40) return 'Needs Work';
-  return 'Poor';
-}
-
-// Update score card styling
-function updateScoreCardStyle(card, score) {
-  // Remove existing classes
-  card.classList.remove('excellent', 'good', 'needs-work', 'poor');
-  
-  // Add appropriate class
-  if (score >= 80) card.classList.add('excellent');
-  else if (score >= 60) card.classList.add('good');
-  else if (score >= 40) card.classList.add('needs-work');
-  else card.classList.add('poor');
-}
-
-// Update status with color coding
-function updateStatusWithColor(element, status) {
-  if (!element) return;
-  
-  element.textContent = status;
-  
-  // Color code based on status
-  if (status.includes('Connected') || status.includes('On') || status.includes('Detected')) {
-    element.style.color = 'var(--success)';
-  } else if (status.includes('Off') || status.includes('Not')) {
-    element.style.color = 'var(--warning)';
-  } else {
-    element.style.color = 'var(--text-primary)';
-  }
-}
-
-// Load last test results
-async function loadLastTestResults() {
-  try {
-    const response = await chrome.runtime.sendMessage({ type: 'GET_TEST_HISTORY' });
-    if (response.success && response.history.length > 0) {
-      lastTestResults = response.history[0];
-      // Update diagnostic scores with test results
-      updateDiagnosticScores({}, lastTestResults.results);
-    }
-  } catch (error) {
-    console.error('Failed to load test history:', error);
-  }
-}
-
-// Setup event listeners
+// 🎧 SETUP EVENT LISTENERS
 function setupEventListeners() {
-  // IP Address tooltip functionality  
-  if (elements.ipAddress) {
-    elements.ipAddress.addEventListener('click', copyToClipboard);
-    elements.ipAddress.addEventListener('mouseenter', showFullIP);
-    elements.ipAddress.addEventListener('mouseleave', hideTooltip);
-  }
-
-  // Settings panel
-  if (elements.settingsToggle) {
-    elements.settingsToggle.addEventListener('click', () => {
-      if (elements.settingsPanel) elements.settingsPanel.classList.add('active');
-    });
-  }
-  
-  if (elements.closeSettings) {
-    elements.closeSettings.addEventListener('click', () => {
-      if (elements.settingsPanel) elements.settingsPanel.classList.remove('active');
-    });
-  }
-  
-  // Theme panel
-  if (elements.themeToggle) {
-    elements.themeToggle.addEventListener('click', () => {
-      if (elements.themePanel) elements.themePanel.classList.add('active');
-    });
-  }
-  
-  if (elements.closeTheme) {
-    elements.closeTheme.addEventListener('click', () => {
-      if (elements.themePanel) elements.themePanel.classList.remove('active');
-    });
-  }
-  
-  // Quick Actions
-  if (elements.openDashboard) {
-    elements.openDashboard.addEventListener('click', async () => {
-      await chrome.runtime.sendMessage({ type: 'OPEN_DASHBOARD' });
-      window.close();
-    });
-  }
-  
-  // Burst Test Button
+  // Main Action Buttons
   if (elements.runBurstTest) {
     elements.runBurstTest.addEventListener('click', runBurstTest);
   }
   
-  // Settings controls
+  if (elements.openDashboard) {
+    elements.openDashboard.addEventListener('click', openDashboard);
+  }
+  
+  // Settings Panel
+  if (elements.settingsToggle) {
+    elements.settingsToggle.addEventListener('click', toggleSettings);
+  }
+  
+  if (elements.closeSettings) {
+    elements.closeSettings.addEventListener('click', closeSettings);
+  }
+  
+  // Theme Panel
+  if (elements.themeToggle) {
+    elements.themeToggle.addEventListener('click', toggleThemePanel);
+  }
+  
+  if (elements.closeTheme) {
+    elements.closeTheme.addEventListener('click', closeThemePanel);
+  }
+  
+  // Network Status Click (for quick test)
+  if (elements.networkName) {
+    elements.networkName.addEventListener('click', runQuickConnectivityTest);
+  }
+  
+  // Settings Form Events
+  setupSettingsEventListeners();
+  
+  // Theme Selection Events
+  setupThemeEventListeners();
+  
+  // Keyboard Shortcuts
+  document.addEventListener('keydown', handleKeyboardShortcuts);
+}
+
+// 🎧 SETUP SETTINGS EVENT LISTENERS
+function setupSettingsEventListeners() {
+  // Toggle Switches
   if (elements.darkModeToggle) {
     elements.darkModeToggle.addEventListener('change', (e) => {
-      document.body.classList.toggle('dark-mode', e.target.checked);
       currentSettings.darkMode = e.target.checked;
+      applyThemeMode(e.target.checked ? 'dark' : 'light');
     });
   }
   
@@ -360,6 +137,39 @@ function setupEventListeners() {
     });
   }
   
+  if (elements.autoTestToggle) {
+    elements.autoTestToggle.addEventListener('change', (e) => {
+      currentSettings.autoTest = e.target.checked;
+    });
+  }
+  
+  // Select Dropdowns
+  if (elements.defaultTestMode) {
+    elements.defaultTestMode.addEventListener('change', (e) => {
+      currentSettings.defaultTestMode = e.target.value;
+    });
+  }
+  
+  // Privacy/Security Toggles
+  if (elements.vpnDetectionToggle) {
+    elements.vpnDetectionToggle.addEventListener('change', (e) => {
+      currentSettings.vpnDetection = e.target.checked;
+    });
+  }
+  
+  if (elements.warpDetectionToggle) {
+    elements.warpDetectionToggle.addEventListener('change', (e) => {
+      currentSettings.warpDetection = e.target.checked;
+    });
+  }
+  
+  if (elements.captivePortalToggle) {
+    elements.captivePortalToggle.addEventListener('change', (e) => {
+      currentSettings.captivePortal = e.target.checked;
+    });
+  }
+  
+  // Action Buttons
   if (elements.saveSettings) {
     elements.saveSettings.addEventListener('click', saveSettings);
   }
@@ -367,236 +177,610 @@ function setupEventListeners() {
   if (elements.resetSettings) {
     elements.resetSettings.addEventListener('click', resetSettings);
   }
-  
-  // Theme selection
+}
+
+// 🎨 SETUP THEME EVENT LISTENERS
+function setupThemeEventListeners() {
   document.querySelectorAll('.theme-option').forEach(button => {
     button.addEventListener('click', (e) => {
       const theme = e.currentTarget.dataset.theme;
       applyTheme(theme);
       saveTheme(theme);
+      showToast('Theme applied!', 'success'); // SUCCESS TOAST - ALLOWED
     });
   });
 }
 
-// Run Burst Test
+// 🔄 LOAD INITIAL DATA
+async function loadInitialData() {
+  try {
+    showLoadingStates();
+    
+    // Load network info
+    await updateNetworkInfo();
+    
+    // Load last test results if available
+    await loadLastTestResults();
+    
+    // Load user settings
+    await loadUserSettings();
+    
+    // Enable test button
+    if (elements.runBurstTest) {
+      elements.runBurstTest.disabled = false;
+    }
+    
+  } catch (error) {
+    console.error('Failed to load initial data:', error);
+    showToast('Failed to load network info', 'error'); // ERROR TOAST - ALLOWED
+  }
+}
+
+// 🌐 UPDATE NETWORK INFO (NEW ENHANCED)
+async function updateNetworkInfo() {
+  try {
+    const response = await chrome.runtime.sendMessage({ type: 'GET_NETWORK_INFO' });
+    
+    if (response.success && response.info) {
+      const info = response.info;
+      
+      // Update WiFi Icon Color
+      if (elements.wifiIcon && info.wifiIconColor) {
+        elements.wifiIcon.style.color = info.wifiIconColor;
+        
+        // Add appropriate CSS class
+        elements.wifiIcon.classList.remove('connected', 'warning', 'error');
+        if (info.connected) {
+          if (info.wifiIconColor === '#50c878') {
+            elements.wifiIcon.classList.add('connected');
+          } else if (info.wifiIconColor === '#ffa500') {
+            elements.wifiIcon.classList.add('warning');
+          }
+        } else {
+          elements.wifiIcon.classList.add('error');
+        }
+      }
+      
+      // Update Network Name (ISP)
+      if (elements.networkName) {
+        const networkName = info.isp && info.isp !== 'Unknown ISP' ? 
+          info.isp.toUpperCase() : 'UNKNOWN NETWORK';
+        elements.networkName.textContent = networkName;
+      }
+      
+      // Update Network Details (IP + Uptime)
+      if (elements.networkDetails) {
+        if (info.connected) {
+          const ip = info.ip && info.ip !== 'Unknown' ? info.ip : 'Loading...';
+          const uptime = info.uptime || 'Calculating...';
+          elements.networkDetails.innerHTML = `${ip} <span class="separator">•</span> Connected ${uptime}`;
+        } else {
+          elements.networkDetails.innerHTML = 'Not connected';
+        }
+      }
+      
+      // Update latency in quick metrics
+      if (elements.latencyValue && info.latency) {
+        elements.latencyValue.textContent = info.latency;
+        elements.latencyValue.style.color = getLatencyColor(info.latency);
+      }
+      
+      // Update privacy score based on VPN/WARP status
+      updatePrivacyScore(info);
+      
+    } else {
+      // Show loading state
+      if (elements.networkName) {
+        elements.networkName.textContent = 'CHECKING...';
+      }
+      if (elements.networkDetails) {
+        elements.networkDetails.innerHTML = `
+          <span class="loading">
+            <span class="loading-dot"></span>
+            <span class="loading-dot"></span>
+            <span class="loading-dot"></span>
+          </span> Analyzing connection...
+        `;
+      }
+    }
+    
+  } catch (error) {
+    console.error('Failed to update network info:', error);
+    
+    // Show error state
+    if (elements.networkName) {
+      elements.networkName.textContent = 'CONNECTION ERROR';
+    }
+    if (elements.networkDetails) {
+      elements.networkDetails.textContent = 'Unable to get network info';
+    }
+    if (elements.wifiIcon) {
+      elements.wifiIcon.style.color = '#ff0000';
+      elements.wifiIcon.classList.add('error');
+    }
+  }
+}
+
+// 📊 UPDATE PRIVACY SCORE WITH GLOW SYSTEM
+function updatePrivacyScore(info) {
+  if (!elements.privacyScore || !elements.privacyStatus) return;
+  
+  let score = 50; // Base score
+  let status = 'Checking...';
+  
+  if (info.vpnStatus === 'Connected') {
+    score += 30;
+    status = 'VPN Protected';
+  } else if (info.warpStatus === 'Connected') {
+    score += 25;
+    status = 'WARP Protected';
+  } else if (info.connected) {
+    if (info.wifiIconColor === '#ffa500') {
+      score = 30; // Public WiFi warning
+      status = 'Public Network';
+    } else {
+      score = 70; // Private network
+      status = 'Private Network';
+    }
+  } else {
+    score = 0;
+    status = 'Not Connected';
+  }
+  
+  elements.privacyScore.textContent = Math.max(0, Math.min(100, score));
+  elements.privacyScore.style.color = getScoreColor(score);
+  elements.privacyStatus.textContent = status;
+  
+  // 🔥 APPLY GLOW CLASSES TO PRIVACY SCORE CARD
+  const privacyScoreCard = document.getElementById('privacyScoreCard');
+  if (privacyScoreCard) {
+    // Remove existing glow classes
+    privacyScoreCard.classList.remove('excellent', 'good', 'needs-work', 'poor');
+    
+    // Add appropriate glow class
+    if (score >= 90) {
+      privacyScoreCard.classList.add('excellent');
+    } else if (score >= 70) {
+      privacyScoreCard.classList.add('good');
+    } else if (score >= 50) {
+      privacyScoreCard.classList.add('needs-work');
+    } else {
+      privacyScoreCard.classList.add('poor');
+    }
+  }
+}
+
+// ⚡ RUN BURST TEST
 async function runBurstTest() {
   if (isTestRunning) return;
   
   isTestRunning = true;
+  showLoadingOverlay(true, 'Running Burst Test...');
+  
+  // Disable button and show testing state
   if (elements.runBurstTest) {
-    elements.runBurstTest.textContent = 'Testing...';
     elements.runBurstTest.disabled = true;
+    elements.runBurstTest.innerHTML = `
+      <div class="card-icon">⚡</div>
+      <div class="card-title">Testing...</div>
+    `;
   }
   
-  // Update scores to show testing state
-  if (elements.networkScore) elements.networkScore.textContent = '--';
-  if (elements.networkStatus) elements.networkStatus.textContent = 'Testing...';
+  // Reset scores to show testing state
+  showTestingStates();
   
   try {
     const response = await chrome.runtime.sendMessage({ 
       type: 'RUN_NETWORK_TEST',
-      mode: 'burst'
+      mode: currentSettings.defaultTestMode || 'burst'
     });
       
     if (response.success) {
       lastTestResults = response.results;
       
-      // Update diagnostic scores with new test results
-      const networkInfo = await getNetworkInfo();
-      updateDiagnosticScores(networkInfo, response.results);
+      // Update all UI with new results
+      updateTestResults(response.results);
       
-      const speed = Math.round(response.results.downloadSpeed?.overall?.average || 0);
-      showNotification(`Burst Complete! ${speed} Mbps`, 'success');
+      // Update network info after test
+      await updateNetworkInfo();
+      
+      const speed = Math.round(response.results.speed?.download?.average || 0);
+      showToast(`Test Complete! ${speed} Mbps download`, 'success'); // SUCCESS TOAST - ALLOWED
+      
+    } else {
+      throw new Error('Test failed');
     }
+    
   } catch (error) {
     console.error('Burst test failed:', error);
-    showNotification('Burst test failed. Please try again.', 'error');
+    showToast('Test failed - please try again', 'error'); // ERROR TOAST - ALLOWED
     
-    // Reset scores on error
-    if (elements.networkScore) elements.networkScore.textContent = '--';
-    if (elements.networkStatus) elements.networkStatus.textContent = 'Test Failed';
+    // Reset to error states
+    showErrorStates();
+    
   } finally {
     isTestRunning = false;
+    showLoadingOverlay(false);
+    
+    // Restore button with shimmer effect
     if (elements.runBurstTest) {
-      elements.runBurstTest.innerHTML = '<div class="card-icon">⚡</div><div class="card-content"><div class="card-title">Burst Test</div></div>';
       elements.runBurstTest.disabled = false;
+      elements.runBurstTest.innerHTML = `
+        <div class="card-icon">⚡</div>
+        <div class="card-title">Burst Test</div>
+      `;
     }
   }
 }
 
-// Helper to get current network info
-async function getNetworkInfo() {
+// 🚀 RUN QUICK CONNECTIVITY TEST (Icon/Network Name Click)
+async function runQuickConnectivityTest() {
+  if (isTestRunning) return;
+  
   try {
-    const response = await chrome.runtime.sendMessage({ type: 'GET_NETWORK_INFO' });
-    return response.success ? response.info : {};
+    // Add pulse animation to WiFi icon
+    if (elements.wifiIcon) {
+      elements.wifiIcon.classList.add('pulse');
+    }
+    
+    const response = await chrome.runtime.sendMessage({ type: 'RUN_QUICK_TEST' });
+    
+    if (response.success) {
+      const result = response.result;
+      
+      // Update network info immediately
+      await updateNetworkInfo();
+      
+      // Show result based on connection status
+      if (result.connected) {
+        showToast(`${result.status} • ${result.latency}ms`, 'success'); // SUCCESS TOAST - ALLOWED
+      } else {
+        showToast('No connection detected', 'warning'); // WARNING TOAST - ALLOWED
+      }
+    }
+    
   } catch (error) {
-    return {};
+    console.error('Quick test failed:', error);
+    showToast('Quick test failed', 'error'); // ERROR TOAST - ALLOWED
+    
+  } finally {
+    // Remove pulse animation
+    if (elements.wifiIcon) {
+      elements.wifiIcon.classList.remove('pulse');
+    }
   }
 }
 
-// IP Address tooltip functions
-function copyToClipboard() {
-  const fullIP = elements.ipAddress.dataset.fullIp || elements.ipAddress.textContent;
-  navigator.clipboard.writeText(fullIP);
-  showNotification('IP copied to clipboard!', 'success');
-}
-
-function showFullIP() {
-  const fullIP = elements.ipAddress.dataset.fullIp;
-  if (fullIP && fullIP !== elements.ipAddress.textContent && elements.ipTooltip) {
-    elements.ipTooltip.textContent = fullIP;
-    elements.ipTooltip.style.display = 'block';
+// 📊 UPDATE TEST RESULTS WITH COLOR-CODED GLOW SYSTEM
+function updateTestResults(results) {
+  // Update download speed
+  if (elements.downloadSpeed && results.speed?.download?.average) {
+    const speed = Math.round(results.speed.download.average);
+    elements.downloadSpeed.textContent = speed;
+    elements.downloadSpeed.style.color = getSpeedColor(speed);
+  }
+  
+  // Update upload speed
+  if (elements.uploadSpeed && results.speed?.upload?.average) {
+    const speed = Math.round(results.speed.upload.average);
+    elements.uploadSpeed.textContent = speed;
+    elements.uploadSpeed.style.color = getSpeedColor(speed);
+  }
+  
+  // Update latency
+  if (elements.latencyValue && results.latency?.overall?.average) {
+    const latency = Math.round(results.latency.overall.average);
+    elements.latencyValue.textContent = latency;
+    elements.latencyValue.style.color = getLatencyColor(latency);
+  }
+  
+  // Update network score WITH GLOW CLASSES
+  if (elements.networkScore && results.overallScore) {
+    const score = Math.round(results.overallScore);
+    elements.networkScore.textContent = score;
+    elements.networkScore.style.color = getScoreColor(score);
+    
+    // 🔥 APPLY GLOW CLASSES TO SCORE CARD
+    const networkScoreCard = document.getElementById('networkScoreCard');
+    if (networkScoreCard) {
+      // Remove existing glow classes
+      networkScoreCard.classList.remove('excellent', 'good', 'needs-work', 'poor');
+      
+      // Add appropriate glow class
+      if (score >= 90) {
+        networkScoreCard.classList.add('excellent');
+      } else if (score >= 70) {
+        networkScoreCard.classList.add('good');
+      } else if (score >= 50) {
+        networkScoreCard.classList.add('needs-work');
+      } else {
+        networkScoreCard.classList.add('poor');
+      }
+    }
+    
+    if (elements.networkStatus) {
+      elements.networkStatus.textContent = getScoreText(score);
+    }
   }
 }
 
-function hideTooltip() {
-  if (elements.ipTooltip) {
-    elements.ipTooltip.style.display = 'none';
+// 🎨 UI STATE HELPERS
+function showLoadingStates() {
+  const loadingElements = [
+    elements.networkScore,
+    elements.privacyScore,
+    elements.downloadSpeed,
+    elements.uploadSpeed,
+    elements.latencyValue
+  ];
+  
+  loadingElements.forEach(element => {
+    if (element) {
+      element.textContent = '--';
+      element.style.color = 'var(--text-secondary)';
+    }
+  });
+  
+  if (elements.networkStatus) {
+    elements.networkStatus.textContent = 'Analyzing...';
+  }
+  if (elements.privacyStatus) {
+    elements.privacyStatus.textContent = 'Checking...';
   }
 }
 
-// Save settings
+function showTestingStates() {
+  if (elements.networkScore) {
+    elements.networkScore.textContent = '--';
+    elements.networkScore.style.color = 'var(--primary)';
+  }
+  if (elements.networkStatus) {
+    elements.networkStatus.textContent = 'Testing...';
+  }
+}
+
+function showErrorStates() {
+  if (elements.networkScore) {
+    elements.networkScore.textContent = '--';
+    elements.networkScore.style.color = 'var(--error)';
+  }
+  if (elements.networkStatus) {
+    elements.networkStatus.textContent = 'Test Failed';
+  }
+}
+
+// 🎭 PANEL CONTROLS
+function toggleSettings() {
+  if (elements.settingsPanel) {
+    const isActive = elements.settingsPanel.classList.contains('active');
+    elements.settingsPanel.classList.toggle('active', !isActive);
+    
+    // Close theme panel if open
+    if (elements.themePanel) {
+      elements.themePanel.classList.remove('active');
+    }
+  }
+}
+
+function closeSettings() {
+  if (elements.settingsPanel) {
+    elements.settingsPanel.classList.remove('active');
+  }
+}
+
+function toggleThemePanel() {
+  if (elements.themePanel) {
+    const isActive = elements.themePanel.classList.contains('active');
+    elements.themePanel.classList.toggle('active', !isActive);
+  }
+}
+
+function closeThemePanel() {
+  if (elements.themePanel) {
+    elements.themePanel.classList.remove('active');
+  }
+}
+
+// 🌐 EXTERNAL ACTIONS - SINGLE openDashboard FUNCTION
+async function openDashboard() {
+  try {
+    await chrome.runtime.sendMessage({ type: 'OPEN_DASHBOARD' });
+    window.close();
+  } catch (error) {
+    console.error('Failed to open dashboard:', error);
+    showToast('Failed to open dashboard', 'error'); // ERROR TOAST - ALLOWED
+  }
+}
+
+// 🔧 SETTINGS MANAGEMENT
 async function saveSettings() {
-  currentSettings = {
-    darkMode: elements.darkModeToggle?.checked || false,
-    zenMode: elements.zenModeToggle?.checked || false,
-    autoTest: elements.autoTestToggle?.checked || false,
-    defaultTestMode: elements.defaultTestMode?.value || 'burst',
-    vpnDetection: elements.vpnDetectionToggle?.checked || true,
-    warpDetection: elements.warpDetectionToggle?.checked || true,
-    captivePortal: elements.captivePortalToggle?.checked || true
-  };
-  
-  chrome.storage.local.set({ settings: currentSettings }, () => {
-    showNotification('Saved!', 'success');
-    if (elements.settingsPanel) elements.settingsPanel.classList.remove('active');
-  });
-  
-  // Update background config
-  await chrome.runtime.sendMessage({ 
-    type: 'UPDATE_CONFIG',
-    config: { ui: currentSettings }
-  });
+  try {
+    await chrome.storage.local.set({ popupSettings: currentSettings });
+    showToast('Settings saved!', 'success'); // SUCCESS TOAST - ALLOWED
+  } catch (error) {
+    console.error('Failed to save settings:', error);
+    showToast('Failed to save settings', 'error'); // ERROR TOAST - ALLOWED
+  }
 }
 
-// Reset settings
-function resetSettings() {
+async function resetSettings() {
   if (confirm('Reset all settings to defaults?')) {
-    currentSettings = getDefaultSettings();
-    chrome.storage.local.set({ settings: currentSettings }, () => {
-      loadSettings();
-      showNotification('Reset!', 'info');
-    });
+    try {
+      currentSettings = getDefaultSettings();
+      await chrome.storage.local.set({ popupSettings: currentSettings });
+      updateSettingsUI();
+      showToast('Settings reset to defaults', 'success'); // SUCCESS TOAST - ALLOWED
+    } catch (error) {
+      console.error('Failed to reset settings:', error);
+      showToast('Failed to reset settings', 'error'); // ERROR TOAST - ALLOWED
+    }
   }
 }
 
-// Apply theme
-function applyTheme(theme) {
-  if (!theme) return;
-  
-  // Remove existing theme classes
-  document.body.classList.remove('theme-ocean', 'theme-sunset', 'theme-forest');
-  
-  // Add new theme class
-  if (theme !== 'default') {
-    document.body.classList.add(`theme-${theme}`);
-  }
-  
-  // Mark active theme button
-  document.querySelectorAll('.theme-option').forEach(button => {
-    button.classList.toggle('active', button.dataset.theme === theme);
-  });
-}
-
-// Save theme
-function saveTheme(theme) {
-  chrome.storage.local.set({ theme }, () => {
-    showNotification(`Theme: ${theme}!`, 'success');
-  });
-}
-
-// Show loading overlay
-function showLoading(text = 'Loading...') {
-  if (elements.loadingOverlay) {
-    const loadingText = elements.loadingOverlay.querySelector('.loading-text');
-    if (loadingText) loadingText.textContent = text;
-    elements.loadingOverlay.classList.add('active');
+async function loadUserSettings() {
+  try {
+    const result = await chrome.storage.local.get(['popupSettings']);
+    if (result.popupSettings) {
+      currentSettings = { ...getDefaultSettings(), ...result.popupSettings };
+      updateSettingsUI();
+    }
+  } catch (error) {
+    console.error('Failed to load settings:', error);
   }
 }
 
-// Hide loading overlay
-function hideLoading() {
-  if (elements.loadingOverlay) {
-    elements.loadingOverlay.classList.remove('active');
+function updateSettingsUI() {
+  // Update toggle switches
+  if (elements.darkModeToggle) {
+    elements.darkModeToggle.checked = currentSettings.darkMode;
+  }
+  if (elements.zenModeToggle) {
+    elements.zenModeToggle.checked = currentSettings.zenMode;
+  }
+  if (elements.autoTestToggle) {
+    elements.autoTestToggle.checked = currentSettings.autoTest;
+  }
+  if (elements.vpnDetectionToggle) {
+    elements.vpnDetectionToggle.checked = currentSettings.vpnDetection;
+  }
+  if (elements.warpDetectionToggle) {
+    elements.warpDetectionToggle.checked = currentSettings.warpDetection;
+  }
+  if (elements.captivePortalToggle) {
+    elements.captivePortalToggle.checked = currentSettings.captivePortal;
+  }
+  
+  // Update select dropdown
+  if (elements.defaultTestMode) {
+    elements.defaultTestMode.value = currentSettings.defaultTestMode;
+  }
+  
+  // Apply zen mode if enabled
+  document.body.classList.toggle('zen-mode', currentSettings.zenMode);
+}
+
+// ⏰ CONNECTION MONITORING
+function startConnectionMonitoring() {
+  // Update network info every 10 seconds
+  connectionTimer = setInterval(updateNetworkInfo, 10000);
+}
+
+async function loadLastTestResults() {
+  try {
+    const response = await chrome.runtime.sendMessage({ type: 'GET_TEST_HISTORY' });
+    if (response.success && response.history && response.history.length > 0) {
+      const lastTest = response.history[0];
+      if (lastTest.results) {
+        lastTestResults = lastTest.results;
+        updateTestResults(lastTest.results);
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load last test results:', error);
   }
 }
 
-// Show notification
-function showNotification(message, type = 'info') {
-  const notification = document.createElement('div');
-  notification.className = `notification ${type}`;
-  notification.textContent = message;
-  notification.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 12px 20px;
-    background: ${type === 'success' ? 'var(--success)' : 
-                  type === 'error' ? 'var(--error)' : 
-                  type === 'warning' ? 'var(--warning)' : 'var(--primary)'};
-    color: white;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 500;
-    z-index: 400;
-    animation: slideIn 0.3s ease;
-    box-shadow: var(--shadow-lg);
-  `;
+// 🎨 THEME HELPERS
+function applyTheme(themeName) {
+  // Theme application logic would go here
+  // For now, just store the preference
+  localStorage.setItem('selectedTheme', themeName);
+}
+
+function saveTheme(themeName) {
+  chrome.storage.local.set({ selectedTheme: themeName });
+}
+
+function applyThemeMode(mode) {
+  document.body.classList.toggle('dark-mode', mode === 'dark');
+  document.body.classList.toggle('light-mode', mode === 'light');
+}
+
+// ⌨️ KEYBOARD SHORTCUTS
+function handleKeyboardShortcuts(event) {
+  // Ctrl/Cmd + Enter = Run test
+  if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+    event.preventDefault();
+    if (!isTestRunning) {
+      runBurstTest();
+    }
+  }
   
-  document.body.appendChild(notification);
+  // Escape = Close panels
+  if (event.key === 'Escape') {
+    closeSettings();
+    closeThemePanel();
+  }
   
+  // Ctrl/Cmd + , = Open settings
+  if ((event.ctrlKey || event.metaKey) && event.key === ',') {
+    event.preventDefault();
+    toggleSettings();
+  }
+}
+
+// 🍞 TOAST NOTIFICATIONS (SUCCESS/ERROR/WARNING ONLY!)
+function showToast(message, type = 'info') {
+  // Remove existing toasts
+  document.querySelectorAll('.toast-notification').forEach(toast => toast.remove());
+  
+  const toast = document.createElement('div');
+  toast.className = `toast-notification ${type}`;
+  toast.textContent = message;
+  
+  document.body.appendChild(toast);
+  
+  // Auto-remove after 3 seconds
   setTimeout(() => {
-    notification.style.animation = 'fadeOut 0.3s ease';
-    setTimeout(() => notification.remove(), 300);
+    if (toast.parentNode) {
+      toast.style.animation = 'fadeOut 0.3s ease';
+      setTimeout(() => toast.remove(), 300);
+    }
   }, 3000);
 }
 
-// Update element with animation
-function updateElementWithAnimation(element, value) {
-  if (!element) return;
-  
-  element.style.animation = 'fadeOut 0.2s ease';
-  setTimeout(() => {
-    element.textContent = value;
-    element.style.animation = 'fadeIn 0.2s ease';
-  }, 200);
+// 🔄 LOADING OVERLAY
+function showLoadingOverlay(show, text = 'Loading...') {
+  if (elements.loadingOverlay) {
+    elements.loadingOverlay.classList.toggle('active', show);
+    
+    const loadingText = elements.loadingOverlay.querySelector('.loading-text');
+    if (loadingText) {
+      loadingText.textContent = text;
+    }
+  }
 }
 
-// Get color based on latency
+// 🎨 COLOR HELPERS
 function getLatencyColor(latency) {
-  if (latency < 20) return 'var(--success)';
-  if (latency < 50) return 'var(--primary)';
-  if (latency < 100) return 'var(--warning)';
-  return 'var(--error)';
+  if (latency < 20) return '#50c878'; // Green
+  if (latency < 50) return '#4a90e2'; // Blue
+  if (latency < 100) return '#ffa500'; // Orange
+  return '#ff4444'; // Red
 }
 
-// Get color based on speed
 function getSpeedColor(speed) {
-  if (speed >= 100) return 'var(--success)';
-  if (speed >= 50) return 'var(--primary)';
-  if (speed >= 25) return 'var(--warning)';
-  return 'var(--error)';
+  if (speed >= 100) return '#50c878'; // Green
+  if (speed >= 50) return '#4a90e2'; // Blue  
+  if (speed >= 25) return '#ffa500'; // Orange
+  return '#ff4444'; // Red
 }
 
-// Get color based on score
 function getScoreColor(score) {
-  if (score >= 90) return 'var(--success)';
-  if (score >= 70) return 'var(--primary)';
-  if (score >= 50) return 'var(--warning)';
-  return 'var(--error)';
+  if (score >= 90) return '#50c878'; // Green
+  if (score >= 70) return '#4a90e2'; // Blue
+  if (score >= 50) return '#ffa500'; // Orange
+  return '#ff4444'; // Red
 }
 
-// Get default settings
+function getScoreText(score) {
+  if (score >= 90) return 'Excellent';
+  if (score >= 70) return 'Good';
+  if (score >= 50) return 'Fair';
+  return 'Poor';
+}
+
+// ⚙️ DEFAULT SETTINGS
 function getDefaultSettings() {
   return {
     darkMode: true,
@@ -609,92 +793,11 @@ function getDefaultSettings() {
   };
 }
 
-// Add fade animations to CSS
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes fadeOut {
-    to { opacity: 0; }
-  }
-  
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-  }
-  
-  @keyframes slideIn {
-    from {
-      transform: translateX(100%);
-      opacity: 0;
-    }
-    to {
-      transform: translateX(0);
-      opacity: 1;
-    }
-  }
-  
-  @keyframes fadeOut {
-    to { 
-      transform: translateX(100%);
-      opacity: 0; 
-    }
-  }
-  
-  .notification {
-    animation: slideIn 0.3s ease;
-  }
-  
-  /* IP Tooltip Styles */
-  .tooltip {
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--background);
-    color: var(--text-primary);
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 11px;
-    white-space: nowrap;
-    box-shadow: var(--shadow-lg);
-    border: 1px solid var(--border);
-    z-index: 1000;
-    display: none;
-    margin-bottom: 5px;
-  }
-  
-  .tooltip::after {
-    content: '';
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border: 5px solid transparent;
-    border-top-color: var(--border);
-  }
-  
-  .copyable {
-    cursor: pointer;
-    transition: var(--transition);
-  }
-  
-  .copyable:hover {
-    color: var(--primary);
-  }
-  
-  #ipAddressContainer {
-    position: relative;
-  }
-`;
-document.head.appendChild(style);
-
-// Cleanup on unload
+// 🧹 CLEANUP
 window.addEventListener('beforeunload', () => {
   if (connectionTimer) {
     clearInterval(connectionTimer);
   }
 });
+
+console.log('🚀 Wi-Fi Kickstart Popup Script Loaded - Clean & Modular!');

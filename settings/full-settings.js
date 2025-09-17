@@ -1030,6 +1030,40 @@
     }, 3000);
   }
 
+  // Show notification/toast
+function showNotification(message, type = 'info') {
+  // Remove existing toasts
+  document.querySelectorAll('.settings-toast').forEach(toast => toast.remove());
+
+  const toast = document.createElement('div');
+  toast.className = `settings-toast ${type}`;
+  toast.innerHTML = `
+    <div class="toast-icon">${getToastIcon(type)}</div>
+    <div class="toast-message">${message}</div>
+    <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+  `;
+
+  document.body.appendChild(toast);
+  setTimeout(() => toast.classList.add('show'), 100);
+  
+  setTimeout(() => {
+    if (toast.parentElement) {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 300);
+    }
+  }, 4000);
+}
+
+function getToastIcon(type) {
+  const icons = {
+    success: '✅',
+    error: '❌', 
+    warning: '⚠️',
+    info: 'ℹ️'
+  };
+  return icons[type] || icons.info;
+}
+
   // Public API for external access
   window.FullSettingsPanel = {
     isInitialized: () => isInitialized,
