@@ -639,13 +639,17 @@ setTimeout(() => {
   async loadTestHistory() {
     try {
       const response = await chrome.runtime.sendMessage({ type: 'GET_TEST_HISTORY' });
-      if (response.success) {
+      if (response && response.success) {
         this.testHistory = response.history || [];
         this.updateChartsWithHistory();
         this.updateStatistics();
+      } else {
+        console.warn('No response or failed response from background script');
+        this.testHistory = [];
       }
     } catch (error) {
       console.error('Failed to load test history:', error);
+      this.testHistory = [];
     }
   }
 
