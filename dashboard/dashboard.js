@@ -636,6 +636,7 @@ setTimeout(() => {
   }
 
   // Load test history
+// Load test history - FIXED VERSION
   async loadTestHistory() {
     try {
       const response = await chrome.runtime.sendMessage({ type: 'GET_TEST_HISTORY' });

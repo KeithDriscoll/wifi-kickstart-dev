@@ -551,6 +551,117 @@ class ThemeManager {
       theme: allThemes[this.currentTheme]
     };
   }
+
+  // 🌗 ADD THESE METHODS TO THE ThemeManager CLASS
+// Drop this code right before the closing } of the ThemeManager class
+
+  // 🔍 CHECK IF THEME EXISTS (built-in + custom)
+  themeExists(themeId) {
+    const builtInThemes = this.getBuiltInThemes();
+    if (builtInThemes[themeId]) {
+      return true;
+    }
+    
+    if (this.customThemes[themeId]) {
+      return true;
+    }
+    
+    return false;
+  }
+
+  // 🌓 CHECK IF THEME IS DARK VARIANT
+  isThemeDark(themeId) {
+    return themeId.endsWith('-dark');
+  }
+
+  // 🔄 GET THEME VARIANT (light ↔ dark)
+  getThemeVariant(themeId, wantDark = true) {
+    if (wantDark) {
+      // Want dark version
+      if (themeId.endsWith('-light')) {
+        return themeId.replace('-light', '-dark');
+      } else if (!themeId.endsWith('-dark')) {
+        return `${themeId}-dark`;
+      }
+      return themeId; // Already dark
+    } else {
+      // Want light version  
+      if (themeId.endsWith('-dark')) {
+        return themeId.replace('-dark', '-light');
+      } else if (!themeId.endsWith('-light')) {
+        return `${themeId}-light`;
+      }
+      return themeId; // Already light
+    }
+  }
+
+  // 🌗 SMART DARK MODE TOGGLE (main function)
+  async smartToggleDarkMode(isDarkMode, showToast = true) {
+    try {
+      const currentTheme = this.currentTheme;
+      console.log(`🌗 Smart toggle: ${currentTheme} → ${isDarkMode ? 'dark' : 'light'} mode`);
+      
+      // Get the target theme variant
+      const targetTheme = this.getThemeVariant(currentTheme, isDarkMode);
+      
+      // Check if target theme exists
+      if (!this.themeExists(targetTheme)) {
+        const variantType = isDarkMode ? 'dark' : 'light';
+        const message = `No ${variantType} variant available for ${this.getThemeDisplayName(currentTheme)}`;
+        
+        if (showToast && window.showToast) {
+          window.showToast(message, 'warning');
+        }
+        
+        console.warn(`❌ ${message}`);
+        return { success: false, message };
+      }
+      
+      // Apply the new theme
+      this.applyTheme(targetTheme);
+      
+      // Success message
+      const targetDisplayName = this.getThemeDisplayName(targetTheme);
+      const successMessage = `Switched to ${targetDisplayName}`;
+      
+      if (showToast && window.showToast) {
+        window.showToast(successMessage, 'success');
+      }
+      
+      console.log(`✅ Theme switched: ${currentTheme} → ${targetTheme}`);
+      return { success: true, theme: targetTheme, message: successMessage };
+      
+    } catch (error) {
+      console.error('Failed to handle smart dark mode toggle:', error);
+      const errorMessage = 'Failed to switch theme';
+      
+      if (showToast && window.showToast) {
+        window.showToast(errorMessage, 'error');
+      }
+      
+      return { success: false, message: errorMessage, error };
+    }
+  }
+
+  // 📝 GET THEME DISPLAY NAME
+  getThemeDisplayName(themeId) {
+    const builtInThemes = this.getBuiltInThemes();
+    const theme = builtInThemes[themeId] || this.customThemes[themeId];
+    
+    if (theme && theme.name) {
+      return theme.name;
+    }
+    
+    // Fallback: make ID readable
+    return themeId
+      .replace('-', ' ')
+      .replace(/\b\w/g, l => l.toUpperCase());
+  }
+
+  // 🔄 SYNC DARK MODE STATE (for UI toggles)
+  getCurrentThemeDarkMode() {
+    return this.isThemeDark(this.currentTheme);
+  }
 }
 
 // Global instance

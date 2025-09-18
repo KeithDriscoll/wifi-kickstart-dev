@@ -31,13 +31,13 @@
       <p class="popup-subtitle">Wireless Network and Privacy Diagnostics</p>
     </header>
 
-    <!-- NEW ENHANCED NETWORK STATUS -->
+    <!-- Enhanced Network Status with IPv6 tooltip support -->
     <section class="network-status-enhanced">
       <div class="network-status-header">
         <div class="wifi-icon" id="wifiIcon">📶</div>
         <div class="network-info">
-          <div class="network-name" id="networkName">LOADING...</div>
-          <div class="network-details" id="networkDetails">Checking connection...</div>
+          <div class="network-name" id="networkName" title="Click to copy IP address">LOADING...</div>
+          <div class="network-details" id="networkDetails" title="Network connection details">Checking connection...</div>
         </div>
       </div>
     </section>
@@ -91,8 +91,8 @@
     <!-- Action Buttons - SIDE BY SIDE -->
     <section class="action-buttons">
       <button class="test-button primary" id="runBurstTest" disabled>
-        <div class="card-icon">⚡</div>
-        <div class="card-title">Burst Test</div>
+        <div class="card-icon">📡</div>
+        <div class="card-title">Latency Test</div>
       </button>
       
       <button class="action-button secondary" id="openDashboard">
@@ -110,7 +110,7 @@
     </footer>
   </div>
 
-  <!-- Settings Panel (Slide-out) -->
+  <!-- Settings Panel (Slide-out) - TIDIED UP -->
   <div class="settings-panel" id="settingsPanel">
     <div class="settings-header">
       <h2 class="settings-title">Settings</h2>
@@ -127,11 +127,11 @@
         
         <div class="setting-item">
           <div class="setting-label">
-            <span>Dark Mode</span>
-            <span class="setting-description">Toggle dark theme</span>
+            <span>Smart Dark Mode</span>
+            <span class="setting-description">Automatically switches theme variants</span>
           </div>
           <label class="toggle-switch">
-            <input type="checkbox" id="darkModeToggle" checked>
+            <input type="checkbox" id="darkModeToggle">
             <span class="toggle-slider"></span>
           </label>
         </div>
@@ -162,18 +162,6 @@
             <span class="toggle-slider"></span>
           </label>
         </div>
-        
-        <div class="setting-item">
-          <div class="setting-label">
-            <span>Default Test Mode</span>
-            <span class="setting-description">Quick or comprehensive</span>
-          </div>
-          <select class="setting-select" id="defaultTestMode">
-            <option value="quick">Quick Test</option>
-            <option value="burst" selected>Burst Test</option>
-            <option value="comprehensive">Full Analysis</option>
-          </select>
-        </div>
       </div>
       
       <!-- Privacy & Security -->
@@ -183,7 +171,7 @@
         <div class="setting-item">
           <div class="setting-label">
             <span>VPN Detection</span>
-            <span class="setting-description">Check VPN status</span>
+            <span class="setting-description">Check for VPN usage</span>
           </div>
           <label class="toggle-switch">
             <input type="checkbox" id="vpnDetectionToggle" checked>
@@ -194,7 +182,7 @@
         <div class="setting-item">
           <div class="setting-label">
             <span>WARP Detection</span>
-            <span class="setting-description">Check Cloudflare WARP</span>
+            <span class="setting-description">Detect Cloudflare WARP</span>
           </div>
           <label class="toggle-switch">
             <input type="checkbox" id="warpDetectionToggle" checked>
@@ -205,7 +193,7 @@
         <div class="setting-item">
           <div class="setting-label">
             <span>Captive Portal Check</span>
-            <span class="setting-description">Detect hotel/public WiFi login</span>
+            <span class="setting-description">Detect network restrictions</span>
           </div>
           <label class="toggle-switch">
             <input type="checkbox" id="captivePortalToggle" checked>
@@ -214,69 +202,98 @@
         </div>
       </div>
       
-      <!-- Actions -->
-      <div class="settings-actions">
-        <div class="action-buttons">
-          <button class="settings-button compact primary" id="saveSettings" title="Save Settings">💾</button>
-          <button class="settings-button compact secondary" id="resetSettings" title="Reset to Defaults">🔄</button>
+      <!-- Quick Actions -->
+      <div class="settings-section">
+        <h3 class="settings-section-title">Quick Actions</h3>
+        
+        <div class="settings-info">
+          <p class="info-text">
+            💡 All settings auto-save as you change them
+          </p>
+          <p class="info-text">
+            🌗 Dark mode intelligently switches theme variants (Professional Light ↔ Professional Dark)
+          </p>
+          <p class="info-text">
+            📱 Icon click always runs quick test for instant results
+          </p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Theme Panel (2nd Slide-out) -->
+  <!-- Theme Panel (Slide-out) -->
   <div class="theme-panel" id="themePanel">
     <div class="settings-header">
       <h2 class="settings-title">Themes</h2>
-      <button class="settings-close" id="closeTheme">×</button>
+      <div class="header-actions">
+        <button class="settings-close" id="closeTheme">×</button>
+      </div>
     </div>
     
     <div class="settings-content">
-      <!-- Theme Selection -->
-      <div class="settings-section">
-        <h3 class="settings-section-title">Quick Themes</h3>
+      <div class="theme-grid">
+        <!-- Professional Themes -->
+        <button class="theme-option" data-theme="professional-light">
+          <div class="theme-preview professional-light"></div>
+          <span class="theme-name">Professional Light</span>
+        </button>
+        <button class="theme-option" data-theme="professional-dark">
+          <div class="theme-preview professional-dark"></div>
+          <span class="theme-name">Professional Dark</span>
+        </button>
         
-        <div class="theme-grid">
-          <button class="theme-option" data-theme="default">
-            <div class="theme-preview default-preview"></div>
-            <span>Default</span>
-          </button>
-          <button class="theme-option" data-theme="ocean">
-            <div class="theme-preview ocean-preview"></div>
-            <span>Ocean</span>
-          </button>
-          <button class="theme-option" data-theme="sunset">
-            <div class="theme-preview sunset-preview"></div>
-            <span>Sunset</span>
-          </button>
-          <button class="theme-option" data-theme="forest">
-            <div class="theme-preview forest-preview"></div>
-            <span>Forest</span>
-          </button>
-        </div>
+        <!-- Epic Themes -->
+        <button class="theme-option" data-theme="epic-light">
+          <div class="theme-preview epic-light"></div>
+          <span class="theme-name">Epic Light</span>
+        </button>
+        <button class="theme-option" data-theme="epic-dark">
+          <div class="theme-preview epic-dark"></div>
+          <span class="theme-name">Epic Dark</span>
+        </button>
+        
+        <!-- Hacker Themes -->
+        <button class="theme-option" data-theme="hacker-light">
+          <div class="theme-preview hacker-light"></div>
+          <span class="theme-name">Hacker Light</span>
+        </button>
+        <button class="theme-option" data-theme="hacker-dark">
+          <div class="theme-preview hacker-dark"></div>
+          <span class="theme-name">Hacker Dark</span>
+        </button>
+        
+        <!-- Gaming Themes -->
+        <button class="theme-option" data-theme="gaming-light">
+          <div class="theme-preview gaming-light"></div>
+          <span class="theme-name">Gaming Light</span>
+        </button>
+        <button class="theme-option" data-theme="gaming-dark">
+          <div class="theme-preview gaming-dark"></div>
+          <span class="theme-name">Gaming Dark</span>
+        </button>
       </div>
       
-      <!-- Future: Favorite Themes -->
-      <div class="settings-section">
-        <h3 class="settings-section-title">Favorite Themes</h3>
-        <div class="info-message">
-          <span>🎨</span>
-          <div>
-            <strong>Coming Soon!</strong><br>
-            Choose your top 4 themes from the Theme Manager
-          </div>
-        </div>
+      <div class="theme-info">
+        <p class="info-text">
+          🎨 Smart Dark Mode automatically switches between light/dark variants
+        </p>
+        <p class="info-text">
+          ⚡ Changes apply instantly across all extension windows
+        </p>
       </div>
     </div>
   </div>
 
+  <!-- Toast Container -->
+  <div class="toast-container"></div>
+
   <!-- Loading Overlay -->
-  <div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-overlay" style="display: none;">
     <div class="loading-spinner"></div>
-    <div class="loading-text">Running Burst Test...</div>
+    <div class="loading-text">Loading...</div>
   </div>
 
-  <!-- Scripts -->
-  <script type="module" src="popup.js"></script>
+  <script src="popup.js"></script>
+  
 </body>
 </html>
