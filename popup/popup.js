@@ -158,12 +158,36 @@ async function updateNetworkInfo() {
         }
       }
       
-      // Update Network Name (ISP)
-      if (elements.networkName) {
-        const networkName = info.isp && info.isp !== 'Unknown ISP' ? 
-          info.isp.toUpperCase() : 'UNKNOWN NETWORK';
-        elements.networkName.textContent = networkName;
-      }
+    // Update Network Name (ISP)
+    const carrierMap = {
+    "CELLCO-PART": "Verizon",
+    "VERIZON WIRELESS": "Verizon",
+    "T-MOBILE USA": "T-Mobile",
+    "AT&T MOBILITY": "AT&T",
+    "SPRINT": "Sprint",
+    "CRICKET": "Cricket Wireless",
+    "BOOST MOBILE": "Boost",
+    "GOOGLE VOICE": "Google Voice",
+    "VISIBLE": "Visible",
+    "MTN": "MTN Group",
+    "AIRTEL": "Airtel Africa",
+    "VODACOM": "Vodacom",
+    "SAFARICOM": "Safaricom",
+    "ORANGE": "Orange",
+    "LYCAMOBILE": "Lycamobile",
+    "JIO": "Reliance Jio",
+    "BSNL": "BSNL",
+    "SK TELECOM": "SK Telecom",
+    // Add more as needed
+  };
+
+  // Update Network Name (ISP)
+  if (elements.networkName) {
+    const rawCarrier = info.isp && info.isp !== 'Unknown ISP' ? info.isp.toUpperCase() : 'UNKNOWN NETWORK';
+    const brandName = carrierMap[rawCarrier] || rawCarrier;
+    elements.networkName.textContent = brandName;
+  }
+
       
       // Update Network Details with IPv6 truncation and tooltip
       if (elements.networkDetails) {
